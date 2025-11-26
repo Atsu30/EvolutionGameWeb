@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme {
+  --animate-rise-up: rise-up 15s infinite linear;
+  --animate-fade-in: fade-in 1s ease-out forwards;
+  --animate-pop-in: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  --animate-blob-shape: blob-shape 10s infinite alternate;
+
+  @keyframes rise-up {
+    0% {
+      transform: translateY(100vh) scale(0.5);
+      opacity: 0;
+    }
+
+    10% {
+      opacity: 0.8;
+    }
+
+    90% {
+      opacity: 0.8;
+    }
+
+    100% {
+      transform: translateY(-10vh) scale(1.2);
+      opacity: 0;
+    }
+  }
+
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes pop-in {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes blob-shape {
+    0% {
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+
+    100% {
+      border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    }
+  }
+}
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+}
