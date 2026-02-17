@@ -17,3 +17,19 @@ export enum GridType {
   THREE_BY_THREE = '3x3',
   FOUR_BY_THREE = '4x3', // 12 stickers (3 rows x 4 cols)
 }
+
+export interface PromptVariable {
+  key: string;
+  label: string;
+  defaultValue: string;
+}
+
+export interface PromptTemplate {
+  id: string;
+  name: string;
+  description: string;
+  body: string;
+  variables: PromptVariable[];
+  createdAt: number;
+  updatedAt: number;
+}
