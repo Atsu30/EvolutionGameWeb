@@ -2,6 +2,13 @@
 import React, { useState, useMemo } from 'react';
 import { PromptTemplate, PromptVariable } from '../types';
 import { copyToClipboard } from '../utils/clipboard';
+import StickerTableEditor from './StickerTableEditor';
+
+function isStickerListFormat(value: string): boolean {
+  const lines = value.split('\n').filter(l => l.trim());
+  if (lines.length < 3) return false;
+  return lines.every(l => /^\d+\.\s*【/.test(l));
+}
 
 interface PromptEditorProps {
   template: PromptTemplate;
@@ -57,7 +64,12 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ template, onClose }) => {
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">
               {variable.label}
             </label>
-            {variable.defaultValue.includes('\n') ? (
+            {variable.inputType === 'stickerTable' || isStickerListFormat(values[variable.key]) ? (
+              <StickerTableEditor
+                value={values[variable.key]}
+                onChange={(val) => handleChange(variable.key, val)}
+              />
+            ) : variable.defaultValue.includes('\n') ? (
               <textarea
                 value={values[variable.key]}
                 onChange={(e) => handleChange(variable.key, e.target.value)}

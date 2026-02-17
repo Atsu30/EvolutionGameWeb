@@ -70,7 +70,7 @@ export const defaultTemplates: PromptTemplate[] = [
       { key: 'characterName', label: 'キャラクター名', defaultValue: 'マイキャラ' },
       { key: 'characterFeature', label: 'キャラクターの特徴', defaultValue: '丸い体、大きな目' },
       { key: 'artStyle', label: 'アートスタイル', defaultValue: 'かわいいデフォルメ調、太めの黒アウトライン、フラットカラー' },
-      { key: 'stickerList', label: 'スタンプリスト（12個）', defaultValue: `1. 【表情/アクション】笑顔で手を振る 【テキスト】「こんにちは！」
+      { key: 'stickerList', label: 'スタンプリスト（12個）', inputType: 'stickerTable', defaultValue: `1. 【表情/アクション】笑顔で手を振る 【テキスト】「こんにちは！」
 2. 【表情/アクション】感謝してお辞儀 【テキスト】「ありがとう」
 3. 【表情/アクション】泣き顔 【テキスト】「しくしく」
 4. 【表情/アクション】怒った顔 【テキスト】「むー！」

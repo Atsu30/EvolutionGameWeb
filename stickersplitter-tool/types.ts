@@ -22,6 +22,7 @@ export interface PromptVariable {
   key: string;
   label: string;
   defaultValue: string;
+  inputType?: 'stickerTable';
 }
 
 export interface PromptTemplate {
