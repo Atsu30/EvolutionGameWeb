@@ -6,8 +6,8 @@ import StickerCard from './StickerCard';
 import LineChatPreview from './LineChatPreview';
 
 const SplitterTab: React.FC = () => {
-  const [rows, setRows] = useState<number>(4);
-  const [cols, setCols] = useState<number>(3);
+  const [rows, setRows] = useState<number>(3);
+  const [cols, setCols] = useState<number>(4);
   const [tolerance, setTolerance] = useState<number>(30);
   const [isProcessing, setIsProcessing] = useState(false);
   const [stickers, setStickers] = useState<Sticker[]>([]);
@@ -101,12 +101,12 @@ const SplitterTab: React.FC = () => {
         <div className="lg:col-span-4 space-y-6">
           <section className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
             <h2 className="text-lg font-black mb-6 flex items-center gap-2 uppercase tracking-tighter italic">
-              <span className="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">01</span>
+              <span className="bg-emerald-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">01</span>
               シートをアップロード
             </h2>
             <div
               onClick={() => fileInputRef.current?.click()}
-              className={`group relative w-full aspect-video rounded-[2rem] border-4 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-300 overflow-hidden ${originalSheetUrl ? 'border-indigo-400 bg-indigo-50/20' : 'border-slate-200 bg-slate-50 hover:border-indigo-400 hover:bg-indigo-50'}`}
+              className={`group relative w-full aspect-video rounded-[2rem] border-4 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-300 overflow-hidden ${originalSheetUrl ? 'border-emerald-400 bg-emerald-50/20' : 'border-slate-200 bg-slate-50 hover:border-emerald-400 hover:bg-emerald-50'}`}
             >
               {originalSheetUrl ? (
                 <img src={originalSheetUrl} alt="Preview" className="w-full h-full object-contain p-2" />
@@ -129,7 +129,7 @@ const SplitterTab: React.FC = () => {
 
           <section className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
             <h2 className="text-lg font-black mb-6 flex items-center gap-2 uppercase tracking-tighter italic">
-              <span className="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">02</span>
+              <span className="bg-emerald-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">02</span>
               分割設定
             </h2>
             <div className="space-y-4">
@@ -140,7 +140,7 @@ const SplitterTab: React.FC = () => {
                     type="number"
                     value={rows}
                     onChange={(e) => setRows(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-center focus:ring-2 focus:ring-indigo-400 outline-none"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-center focus:ring-2 focus:ring-emerald-400 outline-none"
                   />
                 </div>
                 <div className="text-slate-300 font-black mt-4">&times;</div>
@@ -150,14 +150,14 @@ const SplitterTab: React.FC = () => {
                     type="number"
                     value={cols}
                     onChange={(e) => setCols(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-center focus:ring-2 focus:ring-indigo-400 outline-none"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-center focus:ring-2 focus:ring-emerald-400 outline-none"
                   />
                 </div>
               </div>
               <button
                 onClick={handleSplit}
                 disabled={!originalSheetUrl || isProcessing}
-                className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 text-white font-black rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 uppercase italic tracking-tighter"
+                className="w-full py-5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 text-white font-black rounded-2xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 uppercase italic tracking-tighter"
               >
                 画像を分割する
               </button>
