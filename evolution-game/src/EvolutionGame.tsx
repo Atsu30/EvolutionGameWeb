@@ -70,10 +70,11 @@ interface GameData {
   clearedTargets: string[]; // クリア済みのターゲットID
 }
 
-// --- ★ここに画像のURLを設定してください★ ---
+// --- 画像のURL設定 ---
+// CUSTOM_IMAGESに設定がない場合は、自動的にpublic/icons/{type}.pngを使用します
 const CUSTOM_IMAGES: Partial<Record<OrganismType, string>> = {
-  // 'human': 'https://placehold.co/100x100/22d3ee/0f172a?text=Human&font=roboto', 
-  // 'dog': 'https://placehold.co/100x100/fbbf24/0f172a?text=Dog&font=roboto',   
+  // カスタム画像を使用したい場合はここに設定
+  // 'human': 'https://example.com/custom-human.png',
 };
 
 // --- 進化データ ---
@@ -481,8 +482,9 @@ const getRandomTarget = () => {
 // --- アイコンマッピング ---
 
 const IconMapper = ({ type, size = 24, className = "" }: { type: OrganismType, size?: number, className?: string }) => {
+  const [imageError, setImageError] = useState(false);
 
-  // ★ カスタム画像がある場合は画像を表示 ★
+  // カスタム画像がある場合はカスタム画像を表示
   if (type in CUSTOM_IMAGES && CUSTOM_IMAGES[type]) {
     return (
       <img
@@ -494,32 +496,49 @@ const IconMapper = ({ type, size = 24, className = "" }: { type: OrganismType, s
     );
   }
 
-  switch (type) {
-    case 'start': return <Dna size={size} className={className} />;
-    case 'bacteria': return <Ghost size={size} className={className} />;
-    case 'jellyfish': return <div style={{ fontSize: size }} className={className}>🪼</div>;
-    case 'insect': return <Bug size={size} className={className} />;
-    case 'fish': return <Fish size={size} className={className} />;
-    case 'amphibian': return <div style={{ fontSize: size }} className={className}>🐸</div>;
-    case 'reptile': return <div style={{ fontSize: size }} className={className}>🦎</div>;
-    case 'bird': return <Bird size={size} className={className} />;
-    case 'mammal': return <div style={{ fontSize: size }} className={className}>🐀</div>;
-    case 'whale': return <div style={{ fontSize: size }} className={className}>🐋</div>;
-    case 'human': return <User size={size} className={className} />;
-    case 'dog': return <Dog size={size} className={className} />;
-    case 'cat': return <Cat size={size} className={className} />;
-    case 'bat': return <div style={{ fontSize: size }} className={className}>🦇</div>;
-    case 'horse': return <div style={{ fontSize: size }} className={className}>🐎</div>;
-    case 'eagle': return <div style={{ fontSize: size }} className={className}>🦅</div>;
-    case 'penguin': return <Snowflake size={size} className={className} />;
-    case 'octopus': return <div style={{ fontSize: size }} className={className}>🐙</div>;
-    case 'snail': return <Shell size={size} className={className} />;
-    case 'starfish': return <Star size={size} className={className} />;
-    case 'platypus': return <Zap size={size} className={className} />;
-    case 'axolotl': return <div style={{ fontSize: size }} className={className}>🦎</div>;
-    case 'panda': return <div style={{ fontSize: size }} className={className}>🐼</div>;
-    default: return <HelpCircle size={size} className={className} />;
+  // 画像のロードエラーが発生した場合はフォールバックアイコンを表示
+  if (imageError) {
+    switch (type) {
+      case 'start': return <Dna size={size} className={className} />;
+      case 'bacteria': return <Ghost size={size} className={className} />;
+      case 'jellyfish': return <div style={{ fontSize: size }} className={className}>🪼</div>;
+      case 'insect': return <Bug size={size} className={className} />;
+      case 'fish': return <Fish size={size} className={className} />;
+      case 'amphibian': return <div style={{ fontSize: size }} className={className}>🐸</div>;
+      case 'reptile': return <div style={{ fontSize: size }} className={className}>🦎</div>;
+      case 'bird': return <Bird size={size} className={className} />;
+      case 'mammal': return <div style={{ fontSize: size }} className={className}>🐀</div>;
+      case 'whale': return <div style={{ fontSize: size }} className={className}>🐋</div>;
+      case 'human': return <User size={size} className={className} />;
+      case 'dog': return <Dog size={size} className={className} />;
+      case 'cat': return <Cat size={size} className={className} />;
+      case 'bat': return <div style={{ fontSize: size }} className={className}>🦇</div>;
+      case 'horse': return <div style={{ fontSize: size }} className={className}>🐎</div>;
+      case 'eagle': return <div style={{ fontSize: size }} className={className}>🦅</div>;
+      case 'penguin': return <Snowflake size={size} className={className} />;
+      case 'octopus': return <div style={{ fontSize: size }} className={className}>🐙</div>;
+      case 'snail': return <Shell size={size} className={className} />;
+      case 'starfish': return <Star size={size} className={className} />;
+      case 'platypus': return <Zap size={size} className={className} />;
+      case 'axolotl': return <div style={{ fontSize: size }} className={className}>🦎</div>;
+      case 'panda': return <div style={{ fontSize: size }} className={className}>🐼</div>;
+      default: return <HelpCircle size={size} className={className} />;
+    }
   }
+
+  // public/icons/から画像を読み込む（Viteのベースパスに対応）
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  const iconPath = `${baseUrl}icons/${type}.png`;
+  
+  return (
+    <img
+      src={iconPath}
+      alt={type}
+      className={`object-contain ${className}`}
+      style={{ width: size, height: size }}
+      onError={() => setImageError(true)}
+    />
+  );
 };
 
 // --- 曲線描画用コンポーネント ---

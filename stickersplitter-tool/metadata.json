@@ -1,0 +1,6 @@
+
+{
+  "name": "StickerSplitter Tool",
+  "description": "Professional tool for splitting pre-generated sticker sheets into individual images with automated background transparency processing.",
+  "requestFramePermissions": []
+}

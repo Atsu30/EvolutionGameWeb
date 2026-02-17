@@ -1,0 +1,295 @@
+
+import React, { useState, useEffect, useRef } from 'react';
+import { splitImage, removeBackground, fileToBase64 } from './utils/image';
+import { Sticker } from './types';
+import StickerCard from './components/StickerCard';
+
+const App: React.FC = () => {
+  const [rows, setRows] = useState<number>(4);
+  const [cols, setCols] = useState<number>(3);
+  const [tolerance, setTolerance] = useState<number>(30);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [stickers, setStickers] = useState<Sticker[]>([]);
+  const [originalSheetUrl, setOriginalSheetUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setOriginalSheetUrl(event.target?.result as string);
+        setStickers([]);
+        setError(null);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      setError('画像の読み込みに失敗しました。');
+    }
+  };
+
+  const handleSplit = async () => {
+    if (!originalSheetUrl) return;
+    
+    setIsProcessing(true);
+    setError(null);
+    try {
+      const croppedUrls = await splitImage(originalSheetUrl, rows, cols); 
+      
+      const newStickers: Sticker[] = croppedUrls.map((url, index) => ({
+        id: `sticker-${Date.now()}-${index}`,
+        url,
+        isSelected: true,
+      }));
+      setStickers(newStickers);
+    } catch (err: any) {
+      setError('画像の分割に失敗しました。画像の形式やグリッド設定を確認してください。');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleProcessBackground = async (id: string) => {
+    const target = stickers.find(s => s.id === id);
+    if (!target) return;
+    try {
+      // 現在の許容度(tolerance)を使用して透過処理を行う
+      const processed = await removeBackground(target.url, tolerance);
+      setStickers(prev => prev.map(s => s.id === id ? { ...s, processedUrl: processed } : s));
+    } catch (err) {
+      console.error('Processing error:', err);
+    }
+  };
+
+  const processAllSelected = async () => {
+    setIsProcessing(true);
+    const selected = stickers.filter(s => s.isSelected);
+    for (const s of selected) {
+      await handleProcessBackground(s.id);
+    }
+    setIsProcessing(false);
+  };
+
+  const downloadSelected = () => {
+    stickers.filter(s => s.isSelected).forEach((s, i) => {
+      const link = document.createElement('a');
+      link.href = s.processedUrl || s.url;
+      link.download = `sticker-${i + 1}.png`;
+      link.click();
+    });
+  };
+
+  const toggleSelect = (id: string) => {
+    setStickers(prev => prev.map(s => s.id === id ? { ...s, isSelected: !s.isSelected } : s));
+  };
+
+  const reset = () => {
+    setOriginalSheetUrl(null);
+    setStickers([]);
+    setError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  return (
+    <div className="min-h-screen pb-20 bg-slate-50/50 text-slate-900">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-100">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="font-black text-xl tracking-tighter leading-none">LINE Sticker <span className="text-indigo-600">Splitter</span></h1>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Sticker Sheet Processing Tool</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-[1200px] mx-auto px-6 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Config Panel */}
+          <div className="lg:col-span-4 space-y-6">
+            <section className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
+              <h2 className="text-lg font-black mb-6 flex items-center gap-2 uppercase tracking-tighter italic">
+                <span className="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">01</span> 
+                シートをアップロード
+              </h2>
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className={`group relative w-full aspect-video rounded-[2rem] border-4 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-300 overflow-hidden ${originalSheetUrl ? 'border-indigo-400 bg-indigo-50/20' : 'border-slate-200 bg-slate-50 hover:border-indigo-400 hover:bg-indigo-50'}`}
+              >
+                {originalSheetUrl ? (
+                  <img src={originalSheetUrl} alt="Preview" className="w-full h-full object-contain p-2" />
+                ) : (
+                  <div className="text-center p-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">画像を選択</span>
+                  </div>
+                )}
+                <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
+              </div>
+              {originalSheetUrl && (
+                <button onClick={reset} className="mt-4 w-full text-[10px] font-black text-red-400 hover:text-red-500 uppercase tracking-widest transition-colors">
+                  画像をリセット
+                </button>
+              )}
+            </section>
+
+            <section className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
+              <h2 className="text-lg font-black mb-6 flex items-center gap-2 uppercase tracking-tighter italic">
+                <span className="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">02</span> 
+                分割設定
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">行数 (Rows)</label>
+                    <input 
+                      type="number" 
+                      value={rows} 
+                      onChange={(e) => setRows(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-center focus:ring-2 focus:ring-indigo-400 outline-none"
+                    />
+                  </div>
+                  <div className="text-slate-300 font-black mt-4">×</div>
+                  <div className="flex-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">列数 (Cols)</label>
+                    <input 
+                      type="number" 
+                      value={cols} 
+                      onChange={(e) => setCols(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-center focus:ring-2 focus:ring-indigo-400 outline-none"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={handleSplit}
+                  disabled={!originalSheetUrl || isProcessing}
+                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 text-white font-black rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 uppercase italic tracking-tighter"
+                >
+                  画像を分割する
+                </button>
+              </div>
+            </section>
+
+            <section className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
+              <h2 className="text-lg font-black mb-6 flex items-center gap-2 uppercase tracking-tighter italic">
+                <span className="bg-emerald-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">03</span> 
+                透過設定
+              </h2>
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">透過の許容度 (Tolerance)</label>
+                    <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">{tolerance}</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="1" 
+                    max="150" 
+                    step="1"
+                    value={tolerance} 
+                    onChange={(e) => setTolerance(parseInt(e.target.value))}
+                    className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                  />
+                  <p className="mt-2 text-[9px] text-slate-400 font-bold leading-tight">
+                    ※値が大きいほど、背景色に近い色がより広く透過されます。エッジが残る場合は値を上げてください。
+                  </p>
+                </div>
+                {stickers.length > 0 && (
+                   <button
+                    onClick={processAllSelected}
+                    disabled={isProcessing}
+                    className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 text-white font-black rounded-2xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 uppercase italic tracking-tighter"
+                  >
+                    背景透過を再適用
+                  </button>
+                )}
+              </div>
+            </section>
+          </div>
+
+          {/* Results Area */}
+          <div className="lg:col-span-8">
+            {stickers.length > 0 ? (
+              <section className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-6 rounded-[2rem] shadow-lg border border-slate-100">
+                  <div>
+                    <h2 className="text-2xl font-black tracking-tighter uppercase italic leading-none">分割完了</h2>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">
+                      {rows}x{cols} = 計 {stickers.length} 枚
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={downloadSelected}
+                      className="px-6 py-3 bg-slate-900 text-white hover:bg-black rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      選択中を保存
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {stickers.map((sticker) => (
+                    <StickerCard
+                      key={sticker.id}
+                      sticker={sticker}
+                      onToggleSelect={toggleSelect}
+                      onProcess={handleProcessBackground}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : (
+              <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center opacity-20 select-none border-4 border-dashed border-slate-200 rounded-[3rem]">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-slate-300 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic">準備完了</h3>
+                <p className="text-sm font-bold max-w-xs mt-2">シート画像をアップロードし、分割数を指定して実行してください。</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {error && (
+          <div className="mt-8 bg-red-50 border-l-4 border-red-400 p-4 rounded-xl text-red-700 text-xs font-bold">
+            {error}
+          </div>
+        )}
+      </main>
+
+      {/* Master Preview Section (Bottom) */}
+      {originalSheetUrl && (
+        <section className="max-w-[1200px] mx-auto px-6 mt-12 animate-in fade-in duration-700">
+          <div className="border-t border-slate-200 pt-10">
+            <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6 italic">元の画像プレビュー</h2>
+            <div className="bg-white p-4 rounded-[2rem] shadow-inner inline-block border border-slate-100 max-w-full">
+              <img src={originalSheetUrl} alt="Original" className="max-h-[300px] w-auto rounded-xl" />
+            </div>
+          </div>
+        </section>
+      )}
+
+      <footer className="mt-20 border-t border-slate-200 py-10 opacity-40">
+        <div className="max-w-[1200px] mx-auto px-6 text-center">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em]">LINE Sticker Splitter v2.1 • Smart Transparency Tool</p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default App;
