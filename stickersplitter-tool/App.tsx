@@ -12,13 +12,9 @@ const App: React.FC = () => {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-emerald-600 p-2 rounded-xl shadow-lg shadow-emerald-100">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-              </svg>
-            </div>
+            <img src="/sticker_tool_icon.png" alt="LineStickerGen AI" className="h-10 w-10 rounded-xl shadow-lg" />
             <div>
-              <h1 className="font-black text-xl tracking-tighter leading-none">LINE Sticker <span className="text-emerald-600">Splitter</span></h1>
+              <h1 className="font-black text-xl tracking-tighter leading-none">LINE Sticker <span className="text-line-600">Splitter</span></h1>
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Sticker Sheet Processing Tool</p>
             </div>
           </div>

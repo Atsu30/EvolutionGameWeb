@@ -64,7 +64,7 @@ const StickerTableEditor: React.FC<StickerTableEditorProps> = ({ value, onChange
     <div className="rounded-xl border border-slate-200 overflow-hidden bg-white">
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-emerald-50 text-emerald-700">
+          <tr className="bg-line-50 text-line-700">
             <th className="w-10 px-3 py-2 text-center font-black text-[10px] uppercase tracking-widest">#</th>
             <th className="px-3 py-2 text-left font-black text-[10px] uppercase tracking-widest">表情/ポーズ</th>
             <th className="px-3 py-2 text-left font-black text-[10px] uppercase tracking-widest">テキスト</th>
@@ -81,7 +81,7 @@ const StickerTableEditor: React.FC<StickerTableEditorProps> = ({ value, onChange
                   value={row.expression}
                   onChange={(e) => handleCellChange(index, 'expression', e.target.value)}
                   placeholder="笑顔で手を振る"
-                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-emerald-400 outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-line-400 outline-none"
                 />
               </td>
               <td className="px-2 py-1.5">
@@ -90,7 +90,7 @@ const StickerTableEditor: React.FC<StickerTableEditorProps> = ({ value, onChange
                   value={row.text}
                   onChange={(e) => handleCellChange(index, 'text', e.target.value)}
                   placeholder="（空欄可）"
-                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-emerald-400 outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-line-400 outline-none"
                 />
               </td>
               <td className="px-2 py-1.5 text-center">
@@ -110,7 +110,7 @@ const StickerTableEditor: React.FC<StickerTableEditorProps> = ({ value, onChange
       <div className="border-t border-slate-100 px-3 py-2">
         <button
           onClick={addRow}
-          className="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors"
+          className="text-xs font-bold text-line-600 hover:text-line-800 transition-colors"
         >
           + 行を追加
         </button>

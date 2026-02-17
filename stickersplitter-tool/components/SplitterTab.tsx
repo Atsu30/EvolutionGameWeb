@@ -101,12 +101,12 @@ const SplitterTab: React.FC = () => {
         <div className="lg:col-span-4 space-y-6">
           <section className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
             <h2 className="text-lg font-black mb-6 flex items-center gap-2 uppercase tracking-tighter italic">
-              <span className="bg-emerald-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">01</span>
+              <span className="bg-line-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">01</span>
               シートをアップロード
             </h2>
             <div
               onClick={() => fileInputRef.current?.click()}
-              className={`group relative w-full aspect-video rounded-[2rem] border-4 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-300 overflow-hidden ${originalSheetUrl ? 'border-emerald-400 bg-emerald-50/20' : 'border-slate-200 bg-slate-50 hover:border-emerald-400 hover:bg-emerald-50'}`}
+              className={`group relative w-full aspect-video rounded-[2rem] border-4 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-300 overflow-hidden ${originalSheetUrl ? 'border-line-400 bg-line-50/20' : 'border-slate-200 bg-slate-50 hover:border-line-400 hover:bg-line-50'}`}
             >
               {originalSheetUrl ? (
                 <img src={originalSheetUrl} alt="Preview" className="w-full h-full object-contain p-2" />
@@ -129,7 +129,7 @@ const SplitterTab: React.FC = () => {
 
           <section className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
             <h2 className="text-lg font-black mb-6 flex items-center gap-2 uppercase tracking-tighter italic">
-              <span className="bg-emerald-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">02</span>
+              <span className="bg-line-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">02</span>
               分割設定
             </h2>
             <div className="space-y-4">
@@ -140,7 +140,7 @@ const SplitterTab: React.FC = () => {
                     type="number"
                     value={rows}
                     onChange={(e) => setRows(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-center focus:ring-2 focus:ring-emerald-400 outline-none"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-center focus:ring-2 focus:ring-line-400 outline-none"
                   />
                 </div>
                 <div className="text-slate-300 font-black mt-4">&times;</div>
@@ -150,14 +150,14 @@ const SplitterTab: React.FC = () => {
                     type="number"
                     value={cols}
                     onChange={(e) => setCols(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-center focus:ring-2 focus:ring-emerald-400 outline-none"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-center focus:ring-2 focus:ring-line-400 outline-none"
                   />
                 </div>
               </div>
               <button
                 onClick={handleSplit}
                 disabled={!originalSheetUrl || isProcessing}
-                className="w-full py-5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 text-white font-black rounded-2xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 uppercase italic tracking-tighter"
+                className="w-full py-5 bg-line-600 hover:bg-line-700 disabled:bg-slate-200 text-white font-black rounded-2xl transition-all shadow-lg shadow-line-100 flex items-center justify-center gap-2 uppercase italic tracking-tighter"
               >
                 画像を分割する
               </button>
@@ -166,14 +166,14 @@ const SplitterTab: React.FC = () => {
 
           <section className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
             <h2 className="text-lg font-black mb-6 flex items-center gap-2 uppercase tracking-tighter italic">
-              <span className="bg-emerald-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">03</span>
+              <span className="bg-line-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">03</span>
               透過設定
             </h2>
             <div className="space-y-6">
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">透過の許容度 (Tolerance)</label>
-                  <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">{tolerance}</span>
+                  <span className="text-xs font-black text-line-600 bg-line-50 px-2 py-1 rounded-md">{tolerance}</span>
                 </div>
                 <input
                   type="range"
@@ -182,7 +182,7 @@ const SplitterTab: React.FC = () => {
                   step="1"
                   value={tolerance}
                   onChange={(e) => setTolerance(parseInt(e.target.value))}
-                  className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                  className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-line-600"
                 />
                 <p className="mt-2 text-[9px] text-slate-400 font-bold leading-tight">
                   ※値が大きいほど、背景色に近い色がより広く透過されます。エッジが残る場合は値を上げてください。
@@ -192,7 +192,7 @@ const SplitterTab: React.FC = () => {
                  <button
                   onClick={processAllSelected}
                   disabled={isProcessing}
-                  className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 text-white font-black rounded-2xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 uppercase italic tracking-tighter"
+                  className="w-full py-4 bg-line-600 hover:bg-line-700 disabled:bg-slate-200 text-white font-black rounded-2xl transition-all shadow-lg shadow-line-100 flex items-center justify-center gap-2 uppercase italic tracking-tighter"
                 >
                   背景透過を再適用
                 </button>
@@ -215,7 +215,7 @@ const SplitterTab: React.FC = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowChatPreview(true)}
-                    className="px-6 py-3 bg-[#06C755] text-white hover:bg-[#05b34d] rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"
+                    className="px-6 py-3 bg-line-500 text-white hover:bg-line-600 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />

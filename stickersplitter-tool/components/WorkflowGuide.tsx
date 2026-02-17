@@ -12,7 +12,7 @@ const steps = [
     number: '02',
     title: 'プロンプトをコピー＆ペースト',
     description: '下のテンプレートから好みのものを選び、変数を入力してプロンプトをコピーします。Geminiのチャットに貼り付けてください。',
-    color: 'bg-emerald-600',
+    color: 'bg-line-600',
   },
   {
     number: '03',
