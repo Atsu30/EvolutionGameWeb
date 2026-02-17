@@ -33,7 +33,7 @@ const LineSpecCard: React.FC = () => {
         <span className="text-xs font-bold text-slate-500 block mb-2">販売可能なスタンプ個数</span>
         <div className="flex flex-wrap gap-2">
           {stickerCounts.map((count) => (
-            <span key={count} className="text-xs font-black text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg">
+            <span key={count} className="text-xs font-black text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg">
               {count}個
             </span>
           ))}

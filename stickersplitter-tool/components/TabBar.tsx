@@ -38,7 +38,7 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
           onClick={() => onTabChange(tab.id)}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${
             activeTab === tab.id
-              ? 'bg-white text-indigo-600 shadow-sm'
+              ? 'bg-white text-emerald-600 shadow-sm'
               : 'text-slate-500 hover:text-slate-700'
           }`}
         >

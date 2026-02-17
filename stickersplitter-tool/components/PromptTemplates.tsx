@@ -130,7 +130,7 @@ const PromptTemplates: React.FC = () => {
         </div>
         <button
           onClick={startAdd}
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl transition-colors shadow-md flex items-center gap-1.5"
+          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl transition-colors shadow-md flex items-center gap-1.5"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -152,7 +152,7 @@ const PromptTemplates: React.FC = () => {
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
               placeholder="例: 猫キャラ基本セット"
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:ring-2 focus:ring-indigo-400 outline-none"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:ring-2 focus:ring-emerald-400 outline-none"
             />
           </div>
           <div>
@@ -162,7 +162,7 @@ const PromptTemplates: React.FC = () => {
               value={formDescription}
               onChange={(e) => setFormDescription(e.target.value)}
               placeholder="テンプレートの簡単な説明"
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:ring-2 focus:ring-indigo-400 outline-none"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:ring-2 focus:ring-emerald-400 outline-none"
             />
           </div>
           <div>
@@ -175,14 +175,14 @@ const PromptTemplates: React.FC = () => {
               onChange={(e) => setFormBody(e.target.value)}
               rows={10}
               placeholder="プロンプト本文を入力... {{characterName}} のように変数を埋め込めます"
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-mono font-medium focus:ring-2 focus:ring-indigo-400 outline-none resize-y"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-mono font-medium focus:ring-2 focus:ring-emerald-400 outline-none resize-y"
             />
           </div>
           <div className="flex gap-3">
             <button
               onClick={editingId ? handleUpdate : handleAdd}
               disabled={!formName.trim() || !formBody.trim()}
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 text-white font-black text-xs rounded-xl transition-colors shadow-md uppercase"
+              className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 text-white font-black text-xs rounded-xl transition-colors shadow-md uppercase"
             >
               {editingId ? '更新' : '作成'}
             </button>
@@ -206,7 +206,7 @@ const PromptTemplates: React.FC = () => {
                 <p className="text-xs text-slate-400 font-medium mt-1">{template.description}</p>
                 <div className="flex flex-wrap gap-1.5 mt-3">
                   {template.variables.map(v => (
-                    <span key={v.key} className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                    <span key={v.key} className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
                       {`{{${v.key}}}`}
                     </span>
                   ))}
@@ -215,7 +215,7 @@ const PromptTemplates: React.FC = () => {
               <div className="flex gap-2 shrink-0">
                 <button
                   onClick={() => startEdit(template)}
-                  className="text-xs font-bold text-slate-400 hover:text-indigo-600 transition-colors px-2 py-1"
+                  className="text-xs font-bold text-slate-400 hover:text-emerald-600 transition-colors px-2 py-1"
                 >
                   編集
                 </button>
@@ -233,7 +233,7 @@ const PromptTemplates: React.FC = () => {
               className={`mt-4 w-full py-3 font-black text-sm rounded-xl transition-all flex items-center justify-center gap-2 ${
                 activeTemplateId === template.id
                   ? 'bg-slate-100 text-slate-600'
-                  : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+                  : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
               }`}
             >
               {activeTemplateId === template.id ? '閉じる' : '使う'}

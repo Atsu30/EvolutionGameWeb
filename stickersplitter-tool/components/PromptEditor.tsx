@@ -74,14 +74,14 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ template, onClose }) => {
                 value={values[variable.key]}
                 onChange={(e) => handleChange(variable.key, e.target.value)}
                 rows={6}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-indigo-400 outline-none resize-y"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-emerald-400 outline-none resize-y"
               />
             ) : (
               <input
                 type="text"
                 value={values[variable.key]}
                 onChange={(e) => handleChange(variable.key, e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-indigo-400 outline-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-emerald-400 outline-none"
               />
             )}
           </div>
@@ -106,8 +106,8 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ template, onClose }) => {
         onClick={handleCopy}
         className={`w-full py-4 font-black rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 uppercase italic tracking-tighter ${
           copied
-            ? 'bg-emerald-600 text-white shadow-emerald-100'
-            : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-100'
+            ? 'bg-sky-500 text-white shadow-sky-100'
+            : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-100'
         }`}
       >
         {copied ? (

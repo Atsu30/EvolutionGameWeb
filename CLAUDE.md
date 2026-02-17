@@ -97,7 +97,7 @@ interface PromptTemplate {
 
 #### デザインパターン
 - Tailwind CDN使用（ビルドプラグインではない）
-- テーマカラー: indigo-600（メイン）、emerald-600（透過設定）
+- テーマカラー: emerald-600（メイン、LINEグリーン基調）
 - カード: `rounded-[2.5rem] shadow-xl border border-slate-100 p-8`
 - 番号バッジ: `bg-{color}-600 text-white w-6 h-6 rounded-lg text-[10px]`
 - ボタン: `font-black rounded-2xl uppercase italic tracking-tighter`

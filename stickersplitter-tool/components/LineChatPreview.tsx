@@ -85,8 +85,8 @@ const LineChatPreview: React.FC<LineChatPreviewProps> = ({ stickers, onClose }) 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 bg-indigo-600 text-white flex-shrink-0">
-          <button onClick={onClose} className="p-1 hover:bg-indigo-500 rounded-lg transition-colors" aria-label="閉じる">
+        <div className="flex items-center justify-between px-5 py-3 bg-emerald-600 text-white flex-shrink-0">
+          <button onClick={onClose} className="p-1 hover:bg-emerald-500 rounded-lg transition-colors" aria-label="閉じる">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
             </svg>
@@ -94,7 +94,7 @@ const LineChatPreview: React.FC<LineChatPreviewProps> = ({ stickers, onClose }) 
           <span className="font-black text-sm tracking-tight">LINE プレビュー</span>
           <button
             onClick={() => setIsDark(prev => !prev)}
-            className="p-1 hover:bg-indigo-500 rounded-lg transition-colors text-xs font-black"
+            className="p-1 hover:bg-emerald-500 rounded-lg transition-colors text-xs font-black"
             aria-label="テーマ切替"
           >
             {isDark ? (
