@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { splitImage, removeBackground } from '../utils/image';
 import { Sticker } from '../types';
 import StickerCard from './StickerCard';
+import LineChatPreview from './LineChatPreview';
 
 const SplitterTab: React.FC = () => {
   const [rows, setRows] = useState<number>(4);
@@ -13,6 +14,7 @@ const SplitterTab: React.FC = () => {
   const [originalSheetUrl, setOriginalSheetUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showChatPreview, setShowChatPreview] = useState(false);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -212,6 +214,15 @@ const SplitterTab: React.FC = () => {
                 </div>
                 <div className="flex gap-3">
                   <button
+                    onClick={() => setShowChatPreview(true)}
+                    className="px-6 py-3 bg-[#06C755] text-white hover:bg-[#05b34d] rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    LINEプレビュー
+                  </button>
+                  <button
                     onClick={downloadSelected}
                     className="px-6 py-3 bg-slate-900 text-white hover:bg-black rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"
                   >
@@ -262,6 +273,13 @@ const SplitterTab: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {showChatPreview && (
+        <LineChatPreview
+          stickers={stickers.filter(s => s.isSelected)}
+          onClose={() => setShowChatPreview(false)}
+        />
       )}
     </>
   );
