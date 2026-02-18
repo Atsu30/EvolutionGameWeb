@@ -124,7 +124,11 @@ function detectBackgroundColor(data: Uint8ClampedArray, width: number, height: n
  * 4. Runs color decontamination (despill) to remove background color bleed
  *    from semi-transparent and near-edge opaque pixels
  */
-export async function removeBackground(sourceUrl: string, tolerance: number = 30): Promise<string> {
+export async function removeBackground(
+  sourceUrl: string,
+  tolerance: number = 30,
+  removeInterior: boolean = true,
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -148,24 +152,78 @@ export async function removeBackground(sourceUrl: string, tolerance: number = 30
       const softEdge = Math.max(tolerance * 0.4, 8);
       const outerTolerance = tolerance + softEdge;
 
-      // Pass 1: Global color matching — remove all pixels similar to background
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
+      if (removeInterior) {
+        // Global color matching — remove ALL pixels similar to background
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
 
-        const distance = Math.sqrt(
-          (r - bgR) ** 2 +
-          (g - bgG) ** 2 +
-          (b - bgB) ** 2
-        );
+          const distance = Math.sqrt(
+            (r - bgR) ** 2 +
+            (g - bgG) ** 2 +
+            (b - bgB) ** 2
+          );
 
-        if (distance < tolerance) {
-          data[i + 3] = 0; // fully transparent
-        } else if (distance < outerTolerance) {
-          // Soft edge: gradual alpha
-          const alpha = Math.round(((distance - tolerance) / softEdge) * 255);
-          data[i + 3] = Math.min(data[i + 3], alpha);
+          if (distance < tolerance) {
+            data[i + 3] = 0;
+          } else if (distance < outerTolerance) {
+            const alpha = Math.round(((distance - tolerance) / softEdge) * 255);
+            data[i + 3] = Math.min(data[i + 3], alpha);
+          }
+        }
+      } else {
+        // Edge-only flood-fill — only remove background connected to the border
+        const mask = new Uint8Array(w * h);
+        const stack: number[] = [];
+
+        for (let x = 0; x < w; x++) {
+          stack.push(x);
+          stack.push((h - 1) * w + x);
+        }
+        for (let y = 1; y < h - 1; y++) {
+          stack.push(y * w);
+          stack.push(y * w + (w - 1));
+        }
+
+        while (stack.length > 0) {
+          const idx = stack.pop()!;
+          if (mask[idx] !== 0) continue;
+
+          const pi = idx * 4;
+          const distance = Math.sqrt(
+            (data[pi] - bgR) ** 2 +
+            (data[pi + 1] - bgG) ** 2 +
+            (data[pi + 2] - bgB) ** 2
+          );
+
+          if (distance < outerTolerance) {
+            mask[idx] = 1;
+            const x = idx % w;
+            const y = (idx - x) / w;
+            if (x > 0) stack.push(idx - 1);
+            if (x < w - 1) stack.push(idx + 1);
+            if (y > 0) stack.push(idx - w);
+            if (y < h - 1) stack.push(idx + w);
+          } else {
+            mask[idx] = 2;
+          }
+        }
+
+        for (let i = 0; i < mask.length; i++) {
+          if (mask[i] !== 1) continue;
+          const pi = i * 4;
+          const distance = Math.sqrt(
+            (data[pi] - bgR) ** 2 +
+            (data[pi + 1] - bgG) ** 2 +
+            (data[pi + 2] - bgB) ** 2
+          );
+          if (distance < tolerance) {
+            data[pi + 3] = 0;
+          } else {
+            const alpha = Math.round(((distance - tolerance) / softEdge) * 255);
+            data[pi + 3] = Math.min(data[pi + 3], alpha);
+          }
         }
       }
 

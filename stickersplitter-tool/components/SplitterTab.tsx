@@ -9,6 +9,7 @@ const SplitterTab: React.FC = () => {
   const [rows, setRows] = useState<number>(3);
   const [cols, setCols] = useState<number>(4);
   const [tolerance, setTolerance] = useState<number>(30);
+  const [removeInterior, setRemoveInterior] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const [originalSheetUrl, setOriginalSheetUrl] = useState<string | null>(null);
@@ -57,7 +58,7 @@ const SplitterTab: React.FC = () => {
     const target = stickers.find(s => s.id === id);
     if (!target) return;
     try {
-      const processed = await removeBackground(target.url, tolerance);
+      const processed = await removeBackground(target.url, tolerance, removeInterior);
       setStickers(prev => prev.map(s => s.id === id ? { ...s, processedUrl: processed } : s));
     } catch (err) {
       console.error('Processing error:', err);
@@ -187,6 +188,19 @@ const SplitterTab: React.FC = () => {
                 <p className="mt-2 text-[9px] text-slate-400 font-bold leading-tight">
                   ※値が大きいほど、背景色に近い色がより広く透過されます。エッジが残る場合は値を上げてください。
                 </p>
+              </div>
+              <div>
+                <label className="flex items-center justify-between cursor-pointer" onClick={() => setRemoveInterior(v => !v)}>
+                  <div>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">内部も透過する</span>
+                    <p className="mt-1 text-[9px] text-slate-400 font-bold leading-tight">
+                      OFFにすると外周から繋がった背景のみ透過します
+                    </p>
+                  </div>
+                  <div className={`relative w-11 h-6 rounded-full transition-colors ${removeInterior ? 'bg-line-500' : 'bg-slate-200'}`}>
+                    <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${removeInterior ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </div>
+                </label>
               </div>
               {stickers.length > 0 && (
                  <button
