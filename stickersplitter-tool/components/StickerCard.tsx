@@ -68,37 +68,20 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onToggleSelect, onPr
 
         {showAdjust && (
           <div className="pt-2 border-t border-slate-100 space-y-2">
-            {/* Directional pad layout */}
-            <div className="flex flex-col items-center gap-1">
-              {/* Top */}
-              <div className="flex items-center gap-1">
-                <span className="text-[9px] font-bold text-slate-400 w-5 text-right">上</span>
-                <button onClick={() => updateOffset('top', -STEP)} className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-xs font-black text-slate-500 flex items-center justify-center">−</button>
-                <span className="w-8 text-center text-[10px] font-bold text-slate-600">{offset.top}</span>
-                <button onClick={() => updateOffset('top', STEP)} className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-xs font-black text-slate-500 flex items-center justify-center">+</button>
-              </div>
-              {/* Left & Right */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <span className="text-[9px] font-bold text-slate-400 w-5 text-right">左</span>
-                  <button onClick={() => updateOffset('left', -STEP)} className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-xs font-black text-slate-500 flex items-center justify-center">−</button>
-                  <span className="w-8 text-center text-[10px] font-bold text-slate-600">{offset.left}</span>
-                  <button onClick={() => updateOffset('left', STEP)} className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-xs font-black text-slate-500 flex items-center justify-center">+</button>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-[9px] font-bold text-slate-400 w-5 text-right">右</span>
-                  <button onClick={() => updateOffset('right', -STEP)} className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-xs font-black text-slate-500 flex items-center justify-center">−</button>
-                  <span className="w-8 text-center text-[10px] font-bold text-slate-600">{offset.right}</span>
-                  <button onClick={() => updateOffset('right', STEP)} className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-xs font-black text-slate-500 flex items-center justify-center">+</button>
-                </div>
-              </div>
-              {/* Bottom */}
-              <div className="flex items-center gap-1">
-                <span className="text-[9px] font-bold text-slate-400 w-5 text-right">下</span>
-                <button onClick={() => updateOffset('bottom', -STEP)} className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-xs font-black text-slate-500 flex items-center justify-center">−</button>
-                <span className="w-8 text-center text-[10px] font-bold text-slate-600">{offset.bottom}</span>
-                <button onClick={() => updateOffset('bottom', STEP)} className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-xs font-black text-slate-500 flex items-center justify-center">+</button>
-              </div>
+            <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 items-center">
+              {(['top', 'left', 'right', 'bottom'] as const).map((dir) => {
+                const label = { top: '上', left: '左', right: '右', bottom: '下' }[dir];
+                return (
+                  <React.Fragment key={dir}>
+                    <span className="text-[9px] font-bold text-slate-400 text-right">{label}</span>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => updateOffset(dir, -STEP)} className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-xs font-black text-slate-500 flex items-center justify-center flex-shrink-0">−</button>
+                      <span className="flex-1 text-center text-[10px] font-bold text-slate-600">{offset[dir]}</span>
+                      <button onClick={() => updateOffset(dir, STEP)} className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-xs font-black text-slate-500 flex items-center justify-center flex-shrink-0">+</button>
+                    </div>
+                  </React.Fragment>
+                );
+              })}
             </div>
             <button
               onClick={handleReCrop}
