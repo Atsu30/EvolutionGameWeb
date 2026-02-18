@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import JSZip from 'jszip';
-import { splitImage, reCropCell, removeBackground } from '../utils/image';
+import { splitImage, reCropCell, removeBackground, resizeImage } from '../utils/image';
 import { Sticker, CropOffset } from '../types';
 import StickerCard from './StickerCard';
 import LineChatPreview from './LineChatPreview';
@@ -78,6 +78,27 @@ const SplitterTab: React.FC = () => {
     setIsProcessing(false);
   };
 
+  const handleResize = async (id: string) => {
+    const target = stickers.find(s => s.id === id);
+    if (!target) return;
+    try {
+      const source = target.processedUrl || target.url;
+      const resized = await resizeImage(source, 370, 320);
+      setStickers(prev => prev.map(s => s.id === id ? { ...s, resizedUrl: resized } : s));
+    } catch (err) {
+      console.error('Resize error:', err);
+    }
+  };
+
+  const resizeAllSelected = async () => {
+    setIsProcessing(true);
+    const selected = stickers.filter(s => s.isSelected);
+    for (const s of selected) {
+      await handleResize(s.id);
+    }
+    setIsProcessing(false);
+  };
+
   const downloadSelected = async () => {
     const selected = stickers.filter(s => s.isSelected);
     if (selected.length === 0) return;
@@ -87,7 +108,7 @@ const SplitterTab: React.FC = () => {
 
     await Promise.all(
       selected.map(async (s, i) => {
-        const dataUrl = s.processedUrl || s.url;
+        const dataUrl = s.resizedUrl || s.processedUrl || s.url;
         const res = await fetch(dataUrl);
         const blob = await res.blob();
         const name = String(i).padStart(pad, '0') + '.png';
@@ -248,6 +269,27 @@ const SplitterTab: React.FC = () => {
               )}
             </div>
           </section>
+
+          <section className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
+            <h2 className="text-lg font-black mb-6 flex items-center gap-2 uppercase tracking-tighter italic">
+              <span className="bg-line-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">04</span>
+              リサイズ
+            </h2>
+            <div className="space-y-4">
+              <p className="text-[9px] text-slate-400 font-bold leading-tight">
+                LINE スタンプ規格に合わせて 370&times;320px にリサイズします。アスペクト比を維持し、透明余白で中央配置します。
+              </p>
+              {stickers.length > 0 && (
+                <button
+                  onClick={resizeAllSelected}
+                  disabled={isProcessing}
+                  className="w-full py-4 bg-line-600 hover:bg-line-700 disabled:bg-slate-200 text-white font-black rounded-2xl transition-all shadow-lg shadow-line-100 flex items-center justify-center gap-2 uppercase italic tracking-tighter"
+                >
+                  選択中を 370&times;320 にリサイズ
+                </button>
+              )}
+            </div>
+          </section>
         </div>
 
         {/* Results Area */}
@@ -291,6 +333,7 @@ const SplitterTab: React.FC = () => {
                     onToggleSelect={toggleSelect}
                     onProcess={handleProcessBackground}
                     onReCrop={handleReCrop}
+                    onResize={handleResize}
                   />
                 ))}
               </div>

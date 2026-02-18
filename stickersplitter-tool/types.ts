@@ -10,6 +10,7 @@ export interface Sticker {
   id: string;
   url: string; // Original cropped image
   processedUrl?: string; // Transparent background version
+  resizedUrl?: string; // Resized version (final output)
   isSelected: boolean;
   row: number;
   col: number;

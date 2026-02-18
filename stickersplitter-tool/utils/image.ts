@@ -54,6 +54,43 @@ export async function splitImage(sourceUrl: string, rows: number, cols: number):
 }
 
 /**
+ * Resizes an image to fit within the target dimensions while preserving
+ * aspect ratio. The result is centered on a transparent canvas.
+ * Uses high-quality bilinear interpolation (imageSmoothingQuality).
+ */
+export async function resizeImage(
+  sourceUrl: string,
+  targetWidth: number,
+  targetHeight: number,
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const scale = Math.min(targetWidth / img.width, targetHeight / img.height);
+      const drawW = Math.round(img.width * scale);
+      const drawH = Math.round(img.height * scale);
+      const offsetX = Math.round((targetWidth - drawW) / 2);
+      const offsetY = Math.round((targetHeight - drawH) / 2);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return reject('No context');
+
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.clearRect(0, 0, targetWidth, targetHeight);
+      ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = reject;
+    img.src = sourceUrl;
+  });
+}
+
+/**
  * Re-crops a single cell from the source image with pixel offsets.
  * Positive top/left = shrink inward, negative = expand outward.
  */

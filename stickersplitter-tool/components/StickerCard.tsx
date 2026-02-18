@@ -7,11 +7,12 @@ interface StickerCardProps {
   onToggleSelect: (id: string) => void;
   onProcess: (id: string) => void;
   onReCrop: (id: string, offset: CropOffset) => void;
+  onResize: (id: string) => void;
 }
 
 const STEP = 2;
 
-const StickerCard: React.FC<StickerCardProps> = ({ sticker, onToggleSelect, onProcess, onReCrop }) => {
+const StickerCard: React.FC<StickerCardProps> = ({ sticker, onToggleSelect, onProcess, onReCrop, onResize }) => {
   const [showAdjust, setShowAdjust] = useState(false);
   const [offset, setOffset] = useState<CropOffset>(sticker.cropOffset);
 
@@ -32,7 +33,7 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onToggleSelect, onPr
         onClick={() => onToggleSelect(sticker.id)}
       >
         <img
-          src={sticker.processedUrl || sticker.url}
+          src={sticker.resizedUrl || sticker.processedUrl || sticker.url}
           alt="Sticker"
           className="max-w-full max-h-full object-contain"
         />
@@ -40,12 +41,20 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onToggleSelect, onPr
 
       <div className="p-3 bg-white space-y-2">
         <div className="flex justify-between items-center">
-          <button
-            onClick={() => onProcess(sticker.id)}
-            className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${sticker.processedUrl ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700 hover:bg-line-50 hover:text-line-700'}`}
-          >
-            {sticker.processedUrl ? '透過済み' : '背景を透過'}
-          </button>
+          <div className="flex gap-1 flex-wrap">
+            <button
+              onClick={() => onProcess(sticker.id)}
+              className={`text-[10px] px-2 py-1 rounded-full font-medium transition-colors ${sticker.processedUrl ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700 hover:bg-line-50 hover:text-line-700'}`}
+            >
+              {sticker.processedUrl ? '透過済' : '透過'}
+            </button>
+            <button
+              onClick={() => onResize(sticker.id)}
+              className={`text-[10px] px-2 py-1 rounded-full font-medium transition-colors ${sticker.resizedUrl ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700'}`}
+            >
+              {sticker.resizedUrl ? '370x320' : 'リサイズ'}
+            </button>
+          </div>
 
           <div className="flex items-center gap-2">
             <button

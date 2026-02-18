@@ -46,7 +46,7 @@ const LineChatPreview: React.FC<LineChatPreviewProps> = ({ stickers, onClose }) 
       // Insert the sticker
       result.push({
         type: 'sticker',
-        stickerUrl: sticker.processedUrl || sticker.url,
+        stickerUrl: sticker.resizedUrl || sticker.processedUrl || sticker.url,
         side,
       });
 
