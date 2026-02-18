@@ -116,9 +116,13 @@ function detectBackgroundColor(data: Uint8ClampedArray, width: number, height: n
 }
 
 /**
- * Removes background from an image using flood-fill from edges.
- * Only removes background pixels connected to the image border,
- * preserving internal areas. Applies soft alpha at edges for smooth results.
+ * Removes background from an image using global color matching + color despill.
+ *
+ * 1. Detects background color from edge samples
+ * 2. Removes ALL pixels matching the background (including internal areas)
+ * 3. Applies soft alpha at transition edges for smooth anti-aliasing
+ * 4. Runs color decontamination (despill) to remove background color bleed
+ *    from semi-transparent and near-edge opaque pixels
  */
 export async function removeBackground(sourceUrl: string, tolerance: number = 30): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -140,39 +144,15 @@ export async function removeBackground(sourceUrl: string, tolerance: number = 30
       // Detect background color from edge samples
       const [bgR, bgG, bgB] = detectBackgroundColor(data, w, h);
 
-      // Flood-fill from all border pixels to mark connected background
-      // 0 = unvisited, 1 = background (to remove), 2 = foreground (keep)
-      const mask = new Uint8Array(w * h);
-
-      // Use a manual stack-based flood fill to avoid call stack overflow
-      const stack: number[] = [];
-
-      // Seed the stack with all border pixels that match the background
-      for (let x = 0; x < w; x++) {
-        // Top row
-        stack.push(x);
-        // Bottom row
-        stack.push((h - 1) * w + x);
-      }
-      for (let y = 1; y < h - 1; y++) {
-        // Left column
-        stack.push(y * w);
-        // Right column
-        stack.push(y * w + (w - 1));
-      }
-
-      // Soft edge tolerance: pixels within this extended range get partial alpha
-      const softEdge = Math.min(tolerance * 0.5, 20);
+      // Soft edge range: pixels between tolerance and outerTolerance get partial alpha
+      const softEdge = Math.max(tolerance * 0.4, 8);
       const outerTolerance = tolerance + softEdge;
 
-      while (stack.length > 0) {
-        const idx = stack.pop()!;
-        if (mask[idx] !== 0) continue;
-
-        const pi = idx * 4;
-        const r = data[pi];
-        const g = data[pi + 1];
-        const b = data[pi + 2];
+      // Pass 1: Global color matching — remove all pixels similar to background
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
 
         const distance = Math.sqrt(
           (r - bgR) ** 2 +
@@ -180,46 +160,73 @@ export async function removeBackground(sourceUrl: string, tolerance: number = 30
           (b - bgB) ** 2
         );
 
-        if (distance < outerTolerance) {
-          mask[idx] = 1; // mark as background
-
-          const x = idx % w;
-          const y = (idx - x) / w;
-
-          // Add 4-connected neighbors
-          if (x > 0) stack.push(idx - 1);
-          if (x < w - 1) stack.push(idx + 1);
-          if (y > 0) stack.push(idx - w);
-          if (y < h - 1) stack.push(idx + w);
-        } else {
-          mask[idx] = 2; // foreground
+        if (distance < tolerance) {
+          data[i + 3] = 0; // fully transparent
+        } else if (distance < outerTolerance) {
+          // Soft edge: gradual alpha
+          const alpha = Math.round(((distance - tolerance) / softEdge) * 255);
+          data[i + 3] = Math.min(data[i + 3], alpha);
         }
       }
 
-      // Apply transparency based on mask
-      for (let i = 0; i < mask.length; i++) {
-        if (mask[i] === 1) {
-          const pi = i * 4;
-          const r = data[pi];
-          const g = data[pi + 1];
-          const b = data[pi + 2];
+      // Pass 2: Color decontamination (despill)
+      // Remove background color bleed from semi-transparent edge pixels
+      // and from opaque pixels that are adjacent to transparent ones.
+      //
+      // For semi-transparent pixels, reverse alpha blending to recover
+      // the true foreground color:
+      //   displayed = alpha * foreground + (1 - alpha) * background
+      //   foreground = (displayed - (1 - alpha) * background) / alpha
 
-          const distance = Math.sqrt(
-            (r - bgR) ** 2 +
-            (g - bgG) ** 2 +
-            (b - bgB) ** 2
-          );
-
-          if (distance < tolerance) {
-            // Fully transparent for core background
-            data[pi + 3] = 0;
-          } else {
-            // Soft edge: gradual transparency for transition pixels
-            const alpha = Math.round(((distance - tolerance) / softEdge) * 255);
-            data[pi + 3] = Math.min(data[pi + 3], alpha);
+      // First, build a flag for pixels adjacent to any transparent pixel
+      const adjacentToTransparent = new Uint8Array(w * h);
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const idx = y * w + x;
+          if (data[idx * 4 + 3] === 0) continue; // skip transparent
+          // Check 8-connected neighbors
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              if (dx === 0 && dy === 0) continue;
+              const nx = x + dx;
+              const ny = y + dy;
+              if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue;
+              if (data[(ny * w + nx) * 4 + 3] === 0) {
+                adjacentToTransparent[idx] = 1;
+                break;
+              }
+            }
+            if (adjacentToTransparent[idx]) break;
           }
         }
-        // mask[0] (unvisited interior) and mask[2] (foreground) stay opaque
+      }
+
+      for (let i = 0; i < data.length; i += 4) {
+        const a = data[i + 3];
+        if (a === 0) continue; // skip fully transparent
+
+        const pixelIdx = i / 4;
+        const isSemiTransparent = a < 255;
+        const isEdgePixel = adjacentToTransparent[pixelIdx] === 1;
+
+        if (isSemiTransparent || isEdgePixel) {
+          const alpha = a / 255;
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+
+          // Strength of despill: full for semi-transparent, partial for opaque edge pixels
+          const strength = isSemiTransparent ? 1.0 : 0.6;
+
+          // Reverse the alpha blending to estimate true foreground color
+          const fgR = r + strength * (1 - alpha) * (r - bgR);
+          const fgG = g + strength * (1 - alpha) * (g - bgG);
+          const fgB = b + strength * (1 - alpha) * (b - bgB);
+
+          data[i]     = Math.max(0, Math.min(255, Math.round(fgR)));
+          data[i + 1] = Math.max(0, Math.min(255, Math.round(fgG)));
+          data[i + 2] = Math.max(0, Math.min(255, Math.round(fgB)));
+        }
       }
 
       ctx.putImageData(imageData, 0, 0);
