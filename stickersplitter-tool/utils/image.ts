@@ -54,6 +54,45 @@ export async function splitImage(sourceUrl: string, rows: number, cols: number):
 }
 
 /**
+ * Re-crops a single cell from the source image with pixel offsets.
+ * Positive top/left = shrink inward, negative = expand outward.
+ */
+export async function reCropCell(
+  sourceUrl: string,
+  row: number,
+  col: number,
+  rows: number,
+  cols: number,
+  offset: { top: number; right: number; bottom: number; left: number },
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const cellWidth = img.width / cols;
+      const cellHeight = img.height / rows;
+
+      const sx = col * cellWidth + offset.left;
+      const sy = row * cellHeight + offset.top;
+      const sw = cellWidth - offset.left - offset.right;
+      const sh = cellHeight - offset.top - offset.bottom;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = sw;
+      canvas.height = sh;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return reject('No context');
+
+      ctx.clearRect(0, 0, sw, sh);
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = reject;
+    img.src = sourceUrl;
+  });
+}
+
+/**
  * Detects the background color by sampling multiple points along the edges.
  * Returns the most common color among edge samples.
  */

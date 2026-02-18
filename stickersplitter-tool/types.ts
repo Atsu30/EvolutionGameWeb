@@ -1,9 +1,19 @@
 
+export interface CropOffset {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
 export interface Sticker {
   id: string;
   url: string; // Original cropped image
   processedUrl?: string; // Transparent background version
   isSelected: boolean;
+  row: number;
+  col: number;
+  cropOffset: CropOffset;
 }
 
 export interface StickerInput {

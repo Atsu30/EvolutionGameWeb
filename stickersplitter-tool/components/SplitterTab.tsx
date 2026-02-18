@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
-import { splitImage, removeBackground } from '../utils/image';
-import { Sticker } from '../types';
+import { splitImage, reCropCell, removeBackground } from '../utils/image';
+import { Sticker, CropOffset } from '../types';
 import StickerCard from './StickerCard';
 import LineChatPreview from './LineChatPreview';
 
@@ -45,6 +45,9 @@ const SplitterTab: React.FC = () => {
         id: `sticker-${Date.now()}-${index}`,
         url,
         isSelected: true,
+        row: Math.floor(index / cols),
+        col: index % cols,
+        cropOffset: { top: 0, right: 0, bottom: 0, left: 0 },
       }));
       setStickers(newStickers);
     } catch (err: any) {
@@ -81,6 +84,20 @@ const SplitterTab: React.FC = () => {
       link.download = `sticker-${i + 1}.png`;
       link.click();
     });
+  };
+
+  const handleReCrop = async (id: string, offset: CropOffset) => {
+    if (!originalSheetUrl) return;
+    const target = stickers.find(s => s.id === id);
+    if (!target) return;
+    try {
+      const newUrl = await reCropCell(originalSheetUrl, target.row, target.col, rows, cols, offset);
+      setStickers(prev => prev.map(s =>
+        s.id === id ? { ...s, url: newUrl, processedUrl: undefined, cropOffset: offset } : s
+      ));
+    } catch (err) {
+      console.error('Re-crop error:', err);
+    }
   };
 
   const toggleSelect = (id: string) => {
@@ -255,6 +272,7 @@ const SplitterTab: React.FC = () => {
                     sticker={sticker}
                     onToggleSelect={toggleSelect}
                     onProcess={handleProcessBackground}
+                    onReCrop={handleReCrop}
                   />
                 ))}
               </div>
