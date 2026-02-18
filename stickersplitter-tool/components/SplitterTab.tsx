@@ -1,5 +1,6 @@
 
 import React, { useState, useRef } from 'react';
+import JSZip from 'jszip';
 import { splitImage, reCropCell, removeBackground } from '../utils/image';
 import { Sticker, CropOffset } from '../types';
 import StickerCard from './StickerCard';
@@ -77,13 +78,30 @@ const SplitterTab: React.FC = () => {
     setIsProcessing(false);
   };
 
-  const downloadSelected = () => {
-    stickers.filter(s => s.isSelected).forEach((s, i) => {
-      const link = document.createElement('a');
-      link.href = s.processedUrl || s.url;
-      link.download = `sticker-${i + 1}.png`;
-      link.click();
-    });
+  const downloadSelected = async () => {
+    const selected = stickers.filter(s => s.isSelected);
+    if (selected.length === 0) return;
+
+    const zip = new JSZip();
+    const pad = selected.length >= 100 ? 3 : 2;
+
+    await Promise.all(
+      selected.map(async (s, i) => {
+        const dataUrl = s.processedUrl || s.url;
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        const name = String(i).padStart(pad, '0') + '.png';
+        zip.file(name, blob);
+      })
+    );
+
+    const content = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(content);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'stickers.zip';
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleReCrop = async (id: string, offset: CropOffset) => {
