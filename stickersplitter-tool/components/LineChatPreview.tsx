@@ -12,9 +12,22 @@ interface LineChatPreviewProps {
   onClose: () => void;
 }
 
+const bgPresets = [
+  { id: 'line',   label: 'LINE',   color: '#7494C0', dark: false },
+  { id: 'white',  label: '白',     color: '#FFFFFF', dark: false },
+  { id: 'black',  label: '黒',     color: '#000000', dark: true },
+  { id: 'dark',   label: 'ダーク', color: '#1A1A2E', dark: true },
+  { id: 'checker', label: '市松',  color: '', dark: false },
+] as const;
+
+type BgPresetId = typeof bgPresets[number]['id'];
+
 const LineChatPreview: React.FC<LineChatPreviewProps> = ({ stickers, onClose }) => {
-  const [isDark, setIsDark] = useState(false);
+  const [bgPreset, setBgPreset] = useState<BgPresetId>('line');
   const chatAreaRef = useRef<HTMLDivElement>(null);
+
+  const currentPreset = bgPresets.find(p => p.id === bgPreset)!;
+  const isDark = currentPreset.dark;
 
   const messages = useMemo<ChatMessage[]>(() => {
     const result: ChatMessage[] = [];
@@ -69,9 +82,19 @@ const LineChatPreview: React.FC<LineChatPreviewProps> = ({ stickers, onClose }) 
     }
   }, [messages]);
 
+  const chatBg = currentPreset.color;
   const theme = isDark
-    ? { bg: '#1A1A2E', selfBubble: '#3B6B3B', otherBubble: '#2A2A3E', selfText: '#E0E0E0', otherText: '#D0D0D0' }
-    : { bg: '#7494C0', selfBubble: '#8CE68B', otherBubble: '#FFFFFF', selfText: '#1A1A1A', otherText: '#1A1A1A' };
+    ? { selfBubble: '#3B6B3B', otherBubble: '#2A2A3E', selfText: '#E0E0E0', otherText: '#D0D0D0' }
+    : { selfBubble: '#8CE68B', otherBubble: '#FFFFFF', selfText: '#1A1A1A', otherText: '#1A1A1A' };
+
+  const checkerStyle: React.CSSProperties = bgPreset === 'checker'
+    ? {
+        backgroundColor: '#cccccc',
+        backgroundImage: 'linear-gradient(45deg, #999 25%, transparent 25%), linear-gradient(-45deg, #999 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #999 75%), linear-gradient(-45deg, transparent 75%, #999 75%)',
+        backgroundSize: '20px 20px',
+        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
+      }
+    : {};
 
   return (
     <div
@@ -81,7 +104,7 @@ const LineChatPreview: React.FC<LineChatPreviewProps> = ({ stickers, onClose }) 
     >
       <div
         className="flex flex-col overflow-hidden shadow-2xl"
-        style={{ maxWidth: 420, width: '100%', height: '85vh', borderRadius: '2rem', backgroundColor: theme.bg }}
+        style={{ maxWidth: 420, width: '100%', height: '85vh', borderRadius: '2rem', backgroundColor: chatBg || '#cccccc' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -92,25 +115,31 @@ const LineChatPreview: React.FC<LineChatPreviewProps> = ({ stickers, onClose }) 
             </svg>
           </button>
           <span className="font-black text-sm tracking-tight">LINE プレビュー</span>
-          <button
-            onClick={() => setIsDark(prev => !prev)}
-            className="p-1 hover:bg-line-500 rounded-lg transition-colors text-xs font-black"
-            aria-label="テーマ切替"
-          >
-            {isDark ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-              </svg>
-            )}
-          </button>
+          <div className="flex items-center gap-1.5">
+            {bgPresets.map((preset) => (
+              <button
+                key={preset.id}
+                onClick={() => setBgPreset(preset.id)}
+                className={`w-6 h-6 rounded-full border-2 transition-all flex-shrink-0 ${bgPreset === preset.id ? 'border-white scale-110' : 'border-white/30 hover:border-white/60'}`}
+                style={
+                  preset.id === 'checker'
+                    ? {
+                        backgroundColor: '#ccc',
+                        backgroundImage: 'linear-gradient(45deg, #999 25%, transparent 25%), linear-gradient(-45deg, #999 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #999 75%), linear-gradient(-45deg, transparent 75%, #999 75%)',
+                        backgroundSize: '8px 8px',
+                        backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px',
+                      }
+                    : { backgroundColor: preset.color }
+                }
+                aria-label={preset.label}
+                title={preset.label}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Chat Area */}
-        <div ref={chatAreaRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3" style={{ backgroundColor: theme.bg }}>
+        <div ref={chatAreaRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3" style={bgPreset === 'checker' ? checkerStyle : { backgroundColor: chatBg }}>
           {messages.map((msg, i) => {
             const isRight = msg.side === 'right';
             return (
