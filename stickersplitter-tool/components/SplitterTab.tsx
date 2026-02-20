@@ -132,7 +132,7 @@ const SplitterTab: React.FC = () => {
     try {
       const newUrl = await reCropCell(originalSheetUrl, target.row, target.col, rows, cols, offset);
       setStickers(prev => prev.map(s =>
-        s.id === id ? { ...s, url: newUrl, processedUrl: undefined, cropOffset: offset } : s
+        s.id === id ? { ...s, url: newUrl, processedUrl: undefined, resizedUrl: undefined, cropOffset: offset } : s
       ));
     } catch (err) {
       console.error('Re-crop error:', err);

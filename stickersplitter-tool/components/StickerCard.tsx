@@ -17,14 +17,10 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onToggleSelect, onPr
   const [offset, setOffset] = useState<CropOffset>(sticker.cropOffset);
 
   const updateOffset = (key: keyof CropOffset, delta: number) => {
-    setOffset(prev => ({ ...prev, [key]: prev[key] + delta }));
+    const newOffset = { ...offset, [key]: offset[key] + delta };
+    setOffset(newOffset);
+    onReCrop(sticker.id, newOffset);
   };
-
-  const handleReCrop = () => {
-    onReCrop(sticker.id, offset);
-  };
-
-  const hasOffset = offset.top !== 0 || offset.right !== 0 || offset.bottom !== 0 || offset.left !== 0;
 
   return (
     <div className={`relative group border-2 rounded-xl overflow-hidden transition-all duration-300 ${sticker.isSelected ? 'border-line-500 ring-2 ring-line-200' : 'border-slate-200 hover:border-slate-300'}`}>
@@ -92,13 +88,6 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onToggleSelect, onPr
                 );
               })}
             </div>
-            <button
-              onClick={handleReCrop}
-              disabled={!hasOffset}
-              className="w-full py-1.5 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-200 disabled:text-slate-400 text-white text-[10px] font-black rounded-lg transition-colors uppercase tracking-wider"
-            >
-              再切り取り
-            </button>
           </div>
         )}
       </div>
