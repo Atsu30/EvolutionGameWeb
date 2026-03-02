@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import JSZip from 'jszip';
-import { splitImage, reCropCell, removeBackground, resizeImage } from '../utils/image';
+import { splitImage, reCropCell, removeBackground, resizeImage, fillBottomRightWithBg } from '../utils/image';
 import { Sticker, CropOffset } from '../types';
 import StickerCard from './StickerCard';
 import LineChatPreview from './LineChatPreview';
@@ -35,6 +35,8 @@ const SplitterTab: React.FC = () => {
   const [resizeHeight, setResizeHeight] = useState(320);
   const [resizePreset, setResizePreset] = useState(0);
   const [isCustomSize, setIsCustomSize] = useState(false);
+  const [watermarkRemoval, setWatermarkRemoval] = useState(false);
+  const [watermarkSize, setWatermarkSize] = useState<number>(5);
 
   useEffect(() => {
     if (stickers.length === 0) { setShowFooter(false); return; }
@@ -102,7 +104,11 @@ const SplitterTab: React.FC = () => {
     const target = stickers.find(s => s.id === id);
     if (!target) return;
     try {
-      const processed = await removeBackground(target.url, tolerance, removeInterior);
+      let source = target.url;
+      if (watermarkRemoval) {
+        source = await fillBottomRightWithBg(source, watermarkSize);
+      }
+      const processed = await removeBackground(source, tolerance, removeInterior);
       setStickers(prev => prev.map(s => s.id === id ? { ...s, processedUrl: processed } : s));
     } catch (err) {
       console.error('Processing error:', err);
@@ -301,6 +307,36 @@ const SplitterTab: React.FC = () => {
                     <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${removeInterior ? 'translate-x-5' : 'translate-x-0'}`} />
                   </div>
                 </label>
+              </div>
+              <div>
+                <label className="flex items-center justify-between cursor-pointer" onClick={() => setWatermarkRemoval(v => !v)}>
+                  <div>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Geminiマーク除去</span>
+                    <p className="mt-1 text-[9px] text-slate-400 font-bold leading-tight">
+                      右下のスパークルマークを背景色で塗りつぶします
+                    </p>
+                  </div>
+                  <div className={`relative w-11 h-6 rounded-full transition-colors ${watermarkRemoval ? 'bg-line-500' : 'bg-slate-200'}`}>
+                    <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${watermarkRemoval ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </div>
+                </label>
+                {watermarkRemoval && (
+                  <div className="mt-3">
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">除去範囲</label>
+                      <span className="text-xs font-black text-line-600 bg-line-50 px-2 py-1 rounded-md">{watermarkSize}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="1"
+                      max="20"
+                      step="1"
+                      value={watermarkSize}
+                      onChange={(e) => setWatermarkSize(parseInt(e.target.value))}
+                      className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-line-600"
+                    />
+                  </div>
+                )}
               </div>
               {stickers.length > 0 && (
                  <button

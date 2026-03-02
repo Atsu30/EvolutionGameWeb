@@ -192,6 +192,47 @@ function detectBackgroundColor(data: Uint8ClampedArray, width: number, height: n
 }
 
 /**
+ * Fills the bottom-right corner of an image with the detected background color.
+ * Used as a pre-processing step to remove Gemini watermarks before background removal.
+ *
+ * @param sourceUrl - Data URL of the source image
+ * @param sizePct - Size of the square region as a percentage of the image's shorter side
+ */
+export async function fillBottomRightWithBg(
+  sourceUrl: string,
+  sizePct: number,
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return reject('No context');
+
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const [bgR, bgG, bgB] = detectBackgroundColor(imageData.data, canvas.width, canvas.height);
+
+      const shortSide = Math.min(canvas.width, canvas.height);
+      const size = Math.round(shortSide * sizePct / 100);
+
+      const x = canvas.width - size;
+      const y = canvas.height - size;
+
+      ctx.fillStyle = `rgb(${bgR},${bgG},${bgB})`;
+      ctx.fillRect(x, y, size, size);
+
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = reject;
+    img.src = sourceUrl;
+  });
+}
+
+/**
  * Removes background from an image using global color matching + color despill.
  *
  * 1. Detects background color from edge samples
