@@ -8,11 +8,12 @@ interface StickerCardProps {
   onProcess: (id: string) => void;
   onReCrop: (id: string, offset: CropOffset) => void;
   onResize: (id: string) => void;
+  resizeLabel?: string;
 }
 
 const STEP = 2;
 
-const StickerCard: React.FC<StickerCardProps> = ({ sticker, onToggleSelect, onProcess, onReCrop, onResize }) => {
+const StickerCard: React.FC<StickerCardProps> = ({ sticker, onToggleSelect, onProcess, onReCrop, onResize, resizeLabel }) => {
   const [showAdjust, setShowAdjust] = useState(false);
   const [offset, setOffset] = useState<CropOffset>(sticker.cropOffset);
 
@@ -48,7 +49,7 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onToggleSelect, onPr
               onClick={() => onResize(sticker.id)}
               className={`text-[10px] px-2 py-1 rounded-full font-medium transition-colors ${sticker.resizedUrl ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700'}`}
             >
-              {sticker.resizedUrl ? '370x320' : 'リサイズ'}
+              {sticker.resizedUrl ? (resizeLabel || 'リサイズ済') : 'リサイズ'}
             </button>
           </div>
 

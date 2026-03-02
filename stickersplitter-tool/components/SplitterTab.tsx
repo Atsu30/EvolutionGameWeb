@@ -1,10 +1,20 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import JSZip from 'jszip';
 import { splitImage, reCropCell, removeBackground, resizeImage } from '../utils/image';
 import { Sticker, CropOffset } from '../types';
 import StickerCard from './StickerCard';
 import LineChatPreview from './LineChatPreview';
+
+const RESIZE_PRESETS = [
+  { label: 'LINEスタンプ', w: 370, h: 320 },
+  { label: 'LINEメイン画像', w: 240, h: 240 },
+  { label: '512 x 512', w: 512, h: 512 },
+  { label: '1024 x 1024', w: 1024, h: 1024 },
+  { label: 'Instagram', w: 1080, h: 1080 },
+  { label: 'Full HD', w: 1920, h: 1080 },
+  { label: 'OGP / SNS共有', w: 1200, h: 630 },
+] as const;
 
 const SplitterTab: React.FC = () => {
   const [rows, setRows] = useState<number>(3);
@@ -13,10 +23,30 @@ const SplitterTab: React.FC = () => {
   const [removeInterior, setRemoveInterior] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [stickers, setStickers] = useState<Sticker[]>([]);
+  const [isSplit, setIsSplit] = useState(false);
   const [originalSheetUrl, setOriginalSheetUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const configTopRef = useRef<HTMLDivElement>(null);
   const [showChatPreview, setShowChatPreview] = useState(false);
+  const [startNumber, setStartNumber] = useState<number>(0);
+  const [showFooter, setShowFooter] = useState(false);
+  const [resizeWidth, setResizeWidth] = useState(370);
+  const [resizeHeight, setResizeHeight] = useState(320);
+  const [resizePreset, setResizePreset] = useState(0);
+  const [isCustomSize, setIsCustomSize] = useState(false);
+
+  useEffect(() => {
+    if (stickers.length === 0) { setShowFooter(false); return; }
+    const el = configTopRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowFooter(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [stickers.length]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -24,8 +54,17 @@ const SplitterTab: React.FC = () => {
     try {
       const reader = new FileReader();
       reader.onload = (event) => {
-        setOriginalSheetUrl(event.target?.result as string);
-        setStickers([]);
+        const dataUrl = event.target?.result as string;
+        setOriginalSheetUrl(dataUrl);
+        setIsSplit(false);
+        setStickers([{
+          id: `sticker-${Date.now()}-whole`,
+          url: dataUrl,
+          isSelected: true,
+          row: 0,
+          col: 0,
+          cropOffset: { top: 0, right: 0, bottom: 0, left: 0 },
+        }]);
         setError(null);
       };
       reader.readAsDataURL(file);
@@ -50,6 +89,7 @@ const SplitterTab: React.FC = () => {
         col: index % cols,
         cropOffset: { top: 0, right: 0, bottom: 0, left: 0 },
       }));
+      setIsSplit(true);
       setStickers(newStickers);
     } catch (err: any) {
       setError('画像の分割に失敗しました。画像の形式やグリッド設定を確認してください。');
@@ -83,7 +123,7 @@ const SplitterTab: React.FC = () => {
     if (!target) return;
     try {
       const source = target.processedUrl || target.url;
-      const resized = await resizeImage(source, 370, 320);
+      const resized = await resizeImage(source, resizeWidth, resizeHeight);
       setStickers(prev => prev.map(s => s.id === id ? { ...s, resizedUrl: resized } : s));
     } catch (err) {
       console.error('Resize error:', err);
@@ -111,7 +151,7 @@ const SplitterTab: React.FC = () => {
         const dataUrl = s.resizedUrl || s.processedUrl || s.url;
         const res = await fetch(dataUrl);
         const blob = await res.blob();
-        const name = String(i).padStart(pad, '0') + '.png';
+        const name = String(i + startNumber).padStart(pad, '0') + '.png';
         zip.file(name, blob);
       })
     );
@@ -130,7 +170,9 @@ const SplitterTab: React.FC = () => {
     const target = stickers.find(s => s.id === id);
     if (!target) return;
     try {
-      const newUrl = await reCropCell(originalSheetUrl, target.row, target.col, rows, cols, offset);
+      const effectiveRows = isSplit ? rows : 1;
+      const effectiveCols = isSplit ? cols : 1;
+      const newUrl = await reCropCell(originalSheetUrl, target.row, target.col, effectiveRows, effectiveCols, offset);
       setStickers(prev => prev.map(s =>
         s.id === id ? { ...s, url: newUrl, processedUrl: undefined, resizedUrl: undefined, cropOffset: offset } : s
       ));
@@ -146,6 +188,7 @@ const SplitterTab: React.FC = () => {
   const reset = () => {
     setOriginalSheetUrl(null);
     setStickers([]);
+    setIsSplit(false);
     setError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -156,6 +199,7 @@ const SplitterTab: React.FC = () => {
 
         {/* Config Panel */}
         <div className="lg:col-span-4 space-y-6">
+          <div ref={configTopRef} />
           <section className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
             <h2 className="text-lg font-black mb-6 flex items-center gap-2 uppercase tracking-tighter italic">
               <span className="bg-line-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] not-italic shadow-md">01</span>
@@ -277,15 +321,63 @@ const SplitterTab: React.FC = () => {
             </h2>
             <div className="space-y-4">
               <p className="text-[9px] text-slate-400 font-bold leading-tight">
-                LINE スタンプ規格に合わせて 370&times;320px にリサイズします。アスペクト比を維持し、透明余白で中央配置します。
+                アスペクト比を維持し、透明余白で中央配置します。
               </p>
+              <div className="flex flex-wrap gap-1.5">
+                {RESIZE_PRESETS.map((preset, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setResizePreset(i);
+                      setIsCustomSize(false);
+                      setResizeWidth(preset.w);
+                      setResizeHeight(preset.h);
+                    }}
+                    className={`text-[10px] px-3 py-1.5 rounded-full font-bold transition-colors ${!isCustomSize && resizePreset === i ? 'bg-line-600 text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                  >
+                    {preset.label}
+                    <span className="ml-1 opacity-60">{preset.w}x{preset.h}</span>
+                  </button>
+                ))}
+                <button
+                  onClick={() => setIsCustomSize(true)}
+                  className={`text-[10px] px-3 py-1.5 rounded-full font-bold transition-colors ${isCustomSize ? 'bg-line-600 text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                >
+                  カスタム
+                </button>
+              </div>
+              {isCustomSize && (
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">幅 (W)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={resizeWidth}
+                      onChange={(e) => setResizeWidth(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-100 bg-slate-50 font-black text-center text-sm focus:ring-2 focus:ring-line-400 outline-none"
+                    />
+                  </div>
+                  <span className="text-slate-300 font-black mt-4">&times;</span>
+                  <div className="flex-1">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">高さ (H)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={resizeHeight}
+                      onChange={(e) => setResizeHeight(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-100 bg-slate-50 font-black text-center text-sm focus:ring-2 focus:ring-line-400 outline-none"
+                    />
+                  </div>
+                </div>
+              )}
               {stickers.length > 0 && (
                 <button
                   onClick={resizeAllSelected}
                   disabled={isProcessing}
                   className="w-full py-4 bg-line-600 hover:bg-line-700 disabled:bg-slate-200 text-white font-black rounded-2xl transition-all shadow-lg shadow-line-100 flex items-center justify-center gap-2 uppercase italic tracking-tighter"
                 >
-                  選択中を 370&times;320 にリサイズ
+                  選択中を {resizeWidth}&times;{resizeHeight} にリサイズ
                 </button>
               )}
             </div>
@@ -298,12 +390,14 @@ const SplitterTab: React.FC = () => {
             <section className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-6 rounded-[2rem] shadow-lg border border-slate-100">
                 <div>
-                  <h2 className="text-2xl font-black tracking-tighter uppercase italic leading-none">分割完了</h2>
+                  <h2 className="text-2xl font-black tracking-tighter uppercase italic leading-none">
+                    {isSplit ? '分割完了' : 'アップロード済み'}
+                  </h2>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">
-                    {rows}x{cols} = 計 {stickers.length} 枚
+                    {isSplit ? `${rows}x${cols} = 計 ${stickers.length} 枚` : '1枚（未分割）'}
                   </p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex items-center gap-3">
                   <button
                     onClick={() => setShowChatPreview(true)}
                     className="px-6 py-3 bg-line-500 text-white hover:bg-line-600 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"
@@ -313,6 +407,16 @@ const SplitterTab: React.FC = () => {
                     </svg>
                     LINEプレビュー
                   </button>
+                  <div className="flex items-center gap-1.5">
+                    <label className="text-[9px] font-bold text-slate-400 whitespace-nowrap">開始番号</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={startNumber}
+                      onChange={(e) => setStartNumber(Math.max(0, parseInt(e.target.value) || 0))}
+                      className="w-14 px-2 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-xs font-black text-center focus:ring-2 focus:ring-line-400 outline-none"
+                    />
+                  </div>
                   <button
                     onClick={downloadSelected}
                     className="px-6 py-3 bg-slate-900 text-white hover:bg-black rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"
@@ -334,6 +438,7 @@ const SplitterTab: React.FC = () => {
                     onProcess={handleProcessBackground}
                     onReCrop={handleReCrop}
                     onResize={handleResize}
+                    resizeLabel={`${resizeWidth}x${resizeHeight}`}
                   />
                 ))}
               </div>
@@ -373,6 +478,40 @@ const SplitterTab: React.FC = () => {
           stickers={stickers.filter(s => s.isSelected)}
           onClose={() => setShowChatPreview(false)}
         />
+      )}
+
+      {showFooter && stickers.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur border-t border-slate-200 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
+          <div className="max-w-[1200px] mx-auto px-4 py-2 flex items-center gap-4">
+            <button
+              onClick={processAllSelected}
+              disabled={isProcessing}
+              className="px-4 py-1.5 bg-line-600 hover:bg-line-700 disabled:bg-slate-200 text-white text-[11px] font-black rounded-lg transition-colors whitespace-nowrap"
+            >
+              選択を透過
+            </button>
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">許容度</span>
+              <input
+                type="range"
+                min="1"
+                max="150"
+                step="1"
+                value={tolerance}
+                onChange={(e) => setTolerance(parseInt(e.target.value))}
+                className="flex-1 h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-line-600 min-w-[80px]"
+              />
+              <span className="text-[10px] font-black text-line-600 w-7 text-right">{tolerance}</span>
+            </div>
+            <button
+              onClick={resizeAllSelected}
+              disabled={isProcessing}
+              className="px-4 py-1.5 bg-slate-700 hover:bg-slate-800 disabled:bg-slate-200 text-white text-[11px] font-black rounded-lg transition-colors whitespace-nowrap"
+            >
+              {resizeWidth}x{resizeHeight}
+            </button>
+          </div>
+        </div>
       )}
     </>
   );
