@@ -1,0 +1,61 @@
+/* --- ベース設定 --- */
+body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #050510; font-family: 'Segoe UI', sans-serif; user-select: none; -webkit-user-select: none; }
+#game-canvas { width: 100%; height: 100%; display: block; }
+
+/* --- UI レイヤー --- */
+#ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; flex-direction: column; padding: 10px; box-sizing: border-box; z-index: 10; }
+.hud-container { display: flex; justify-content: center; width: 100%; gap: 8px; }
+.hud-box { background: rgba(10, 10, 20, 0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px; width: 120px; backdrop-filter: blur(4px); box-shadow: 0 2px 5px rgba(0,0,0,0.5); pointer-events: auto; }
+.hud-header { display: flex; justify-content: space-between; align-items: baseline; }
+.hud-title { font-size: 9px; font-weight: bold; color: #88a; text-transform: uppercase; letter-spacing: 0.5px; margin: 0; }
+.level-text { font-size: 15px; font-weight: 900; color: #fff; margin: 0; }
+
+.bar-bg { width: 100%; height: 4px; background: #1a1a2e; border-radius: 2px; overflow: hidden; border: 1px solid #334; margin-top: 5px; }
+.bar-fill { height: 100%; transition: width 0.1s linear; }
+
+/* --- エフェクト --- */
+#damage-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 6; }
+#speed-lines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; opacity: 0; transition: opacity 0.3s; background: radial-gradient(circle, transparent 40%, rgba(0, 255, 255, 0.1) 100%); }
+
+/* --- 警告UI --- */
+#warning-container { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); text-align: center; display: none; z-index: 15; }
+#warning-container.active { display: block; animation: blink 0.3s infinite alternate; }
+@keyframes blink { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(1.1); } }
+.warning-text { font-size: 36px; font-weight: 900; color: #facc15; text-shadow: 0 0 20px #ca8a04, 3px 3px 0 #000; margin-bottom: 5px; font-style: italic; }
+.warning-icon { font-size: 100px; font-weight: 900; color: #facc15; text-shadow: 0 0 30px #ca8a04, 5px 5px 0 #000; line-height: 0.8; }
+
+/* --- モーダル --- */
+.modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,5,10,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; z-index: 100; backdrop-filter: blur(10px); }
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal-title { font-size: 42px; font-weight: 900; color: #fff; margin-bottom: 40px; text-transform: uppercase; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
+
+.upgrade-cards { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; padding: 0 20px; }
+.card { background: linear-gradient(145deg, #1e1e2f, #151520); border: 2px solid #334; border-radius: 16px; padding: 30px 20px; width: 260px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.card:hover { transform: translateY(-10px); border-color: #60a5fa; box-shadow: 0 15px 30px rgba(37,99,235,0.4); }
+.card-icon { font-size: 48px; margin-bottom: 20px; }
+.card-title { font-size: 22px; font-weight: bold; color: #fff; margin-bottom: 12px; }
+.card-desc { font-size: 14px; color: #94a3b8; line-height: 1.5; }
+.btn { padding: 15px 40px; font-size: 20px; font-weight: bold; color: #fff; background: linear-gradient(90deg, #2563eb, #3b82f6); border: none; border-radius: 30px; cursor: pointer; transition: transform 0.2s; margin-top: 30px; letter-spacing: 2px; }
+.btn:hover { transform: scale(1.05); }
+
+#touch-controls { position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; display: flex; z-index: 20; }
+.touch-zone { flex: 1; height: 100%; touch-action: none; }
+
+/* --- AI Feedback --- */
+.ai-feedback { background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 8px; padding: 15px; margin-bottom: 20px; max-width: 400px; text-align: center; display: none; }
+.ai-loading { color: #34d399; font-style: italic; animation: pulse 1.5s infinite; }
+.ai-title-label { font-size: 12px; color: #10b981; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px; }
+.ai-title-text { font-size: 20px; color: #fff; font-weight: 900; text-shadow: 0 0 10px #10b981; margin-bottom: 10px; letter-spacing: 2px; }
+.ai-desc { font-size: 14px; color: #a7f3d0; line-height: 1.5; }
+@keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+/* --- モバイル対応 --- */
+@media (max-width: 768px) {
+    .hud-box { width: 30%; padding: 4px 8px; min-width: 80px; }
+    .level-text { font-size: 13px; } .hud-title { font-size: 8px; }
+    .warning-text { font-size: 24px; } .warning-icon { font-size: 70px; }
+    .upgrade-cards { flex-direction: column; gap: 15px; }
+    .card { width: 100%; max-width: 320px; padding: 20px; flex-direction: row; text-align: left; }
+    .card-icon { margin-bottom: 0; margin-right: 20px; font-size: 36px; }
+    .modal-title { font-size: 28px; margin-bottom: 20px; }
+}

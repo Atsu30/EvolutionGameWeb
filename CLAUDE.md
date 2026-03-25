@@ -36,8 +36,9 @@ Stickersplitter requires `GEMINI_API_KEY` in `.env.local` for AI features (backg
 ## Architecture
 
 ### Deployment (`.github/workflows/deploy.yml`)
-- Builds both projects independently, combines their `dist/` outputs into `_site/`, and generates a root index page linking to each
-- Each project's `VITE_BASE_PATH` is set to `/<repo-name>/<project-name>/` for GitHub Pages subpath routing
+- Builds evolution-game and stickersplitter-tool with npm, copies NeonChaser as static files, combines into `_site/`, and generates a root index page linking to each
+- Each Vite project's `VITE_BASE_PATH` is set to `/<repo-name>/<project-name>/` for GitHub Pages subpath routing
+- NeonChaser is static HTML (no build step) — files are copied directly
 - Triggered on push to `main`
 
 ### evolution-game/
@@ -103,3 +104,20 @@ interface PromptTemplate {
 - ボタン: `font-black rounded-2xl uppercase italic tracking-tighter`
 
 Path alias: `@/*` maps to project root (configured in both tsconfig.json and vite.config.ts).
+
+### NeonChaser/
+静的HTML単一ファイルのサイバーパンク風3Dアクションローグライク。ビルドステップ不要。
+
+技術: バニラJS + Three.js r128（CDN）。PostProcessing（UnrealBloomPass + カスタムShockwaveシェーダー）。
+
+`index.html` 1ファイルに全コード（HTML + CSS + JS、約710行）を格納:
+- Three.js シーン構築（レンダラー、カメラ、ライト、フロアシェーダー、背景オブジェクト）
+- プレイヤーバイク＆敵バイクの生成（`createBike()`）、ロケット敵（`createRocket()`）
+- エンティティ管理: グローバル配列 `ents[]` で全オブジェクトを管理、状態遷移 A→K/B→削除
+- ゲーム状態: グローバル `st` オブジェクト（速度、HP、レベル、カーブ、ダッシュ等）
+- 操作: キーボード（←→/AD）＋ タッチ（画面左右半分）
+- レベルアップ時のアップグレード3択UI（spd/grp/siz/atk）
+- シャープカーブイベント（警告→カーブ→復帰のステートマシン）
+- Gemini API連携（ゲームオーバー時のAI称号生成、APIキー空で無効）
+
+詳細仕様は `NeonChaser/SPEC.md` を参照。
