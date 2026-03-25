@@ -47,8 +47,10 @@ jobs:
         run: |
           mkdir -p _site/evolution-game
           mkdir -p _site/stickersplitter-tool
+          mkdir -p _site/NeonChaser
           cp -r evolution-game/dist/* _site/evolution-game/
           cp -r stickersplitter-tool/dist/* _site/stickersplitter-tool/
+          cp -r NeonChaser/* _site/NeonChaser/
 
       - name: Create root index
         run: |
@@ -82,6 +84,10 @@ jobs:
                 <a href="stickersplitter-tool/" class="card">
                   <h2>LINE Sticker Splitter</h2>
                   <p>画像分割＆背景透過ツール - LINEスタンプシートの分割・加工</p>
+                </a>
+                <a href="NeonChaser/" class="card">
+                  <h2>Neon Chaser</h2>
+                  <p>3Dアクションローグライク - ネオンの世界を駆け抜けろ</p>
                 </a>
               </div>
             </div>
