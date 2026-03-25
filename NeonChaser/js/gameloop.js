@@ -1,5 +1,5 @@
 import { game, el, min, max, abs, sign, pow, atan, floor, R, R_Sign, PI } from './state.js';
-import { CFG } from './config.js';
+import { CFG, DISTANCE_SCALE } from './config.js';
 import {
     scene, cam, composer, sPass, floorMat, playerMesh, playerBox,
     matEnemyBreak, matEnemyNeonB, matEnemyUnbreak, matEnemyNeonU,
@@ -8,6 +8,9 @@ import {
 import { spawnEntity, spawnJumpEvent, spawnRocketWarning, spawnRocketsFromWarning, addEntity, spawnHealItem } from './entities.js';
 import { flashScreen, shakeCamera } from './effects.js';
 import { updateUI, showUpgradeUI, triggerGameOver } from './ui.js';
+import { checkAchievements } from './achievements.js';
+import { showAchievementPopup } from './menu.js';
+import { updateRainbowEffect } from './customization.js';
 
 export function animate() {
     requestAnimationFrame(animate);
@@ -79,6 +82,20 @@ export function animate() {
     } else {
         st.spd = min(st.maxSpd, st.spd + CFG.acc * dt);
     }
+
+    // Distance accumulation
+    st.dist += st.spd * dt * DISTANCE_SCALE;
+
+    // Achievement check (throttled to 0.5s)
+    st._achTimer = (st._achTimer || 0) + dt;
+    if (st._achTimer > 0.5) {
+        st._achTimer = 0;
+        const unlocked = checkAchievements(st.dist);
+        unlocked.forEach(a => showAchievementPopup(a));
+    }
+
+    // Rainbow effect
+    updateRainbowEffect(dt);
 
     if (st.invT > 0) {
         st.invT -= dt;

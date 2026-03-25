@@ -2,12 +2,16 @@ import { el, game, min, max, ceil, floor, R } from './state.js';
 import { CFG, UPGRADES } from './config.js';
 import { cam, playerMesh, scene } from './renderer.js';
 import { fetchAIFeedback } from './ai.js';
+import { addScore } from './score.js';
+import { calcMilesEarned, addMiles } from './gacha.js';
+import { applyCustomization } from './customization.js';
 
 export function updateUI() {
     const st = game.st;
     el('ui-lv').innerText = `Lv ${st.lv}`;
     el('ui-spd').innerText = floor(st.spd);
     el('ui-hp').innerText = ceil(st.hp);
+    el('ui-dist').innerText = (st.dist || 0).toFixed(2) + ' km';
     el('exp-fill').style.width = `${min(100, st.exp / st.nExp * 100)}%`;
     el('speed-fill').style.width = `${min(100, st.spd / st.maxSpd * 100)}%`;
 
@@ -55,7 +59,16 @@ export function triggerGameOver() {
     const st = game.st;
     if (st.isG) return;
     st.isG = true;
+
+    // Score & miles
+    const dist = st.dist || 0;
+    const milesEarned = calcMilesEarned(dist);
+    addMiles(milesEarned);
+    addScore(dist, st.lv);
+
     el('res-lv').innerText = st.lv;
+    el('res-dist').innerText = dist.toFixed(2) + ' km';
+    el('res-miles').innerText = '+' + milesEarned;
 
     el('ai-feedback').style.display = 'block';
     el('ai-loading').style.display = 'block';
@@ -85,6 +98,7 @@ export function restartGame() {
         sCrvSt: 'N', sCrvCd: CFG.sCrvBase + R() * CFG.sCrvRnd, sCrvTmr: 0, sCrvDir: 1, pLx: 0,
         isP: false, isG: false, spwnT: 0,
         rocketTmr: 20 + R() * 10,
+        dist: 0, _achTimer: 0,
         stats: { destroyedEnemies: 0, damageTaken: 0, dashCount: 0, jumpCount: 0 }
     });
     el('warning-container').classList.remove('active');
@@ -98,6 +112,8 @@ export function restartGame() {
     game.ents.length = 0;
     el('gameover-modal').classList.remove('active');
     game.clock.getDelta();
+
+    applyCustomization();
 }
 
 // Expose to window for onclick handlers in HTML

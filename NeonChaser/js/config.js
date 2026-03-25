@@ -23,3 +23,30 @@ export const UPGRADES = [
     { id: 'siz', i: '🛡️', t: 'Chassis Expansion', d: '車体が巨大化。<br>当たり判定が広がり巻き込みやすくなる' },
     { id: 'atk', i: '💥', t: 'Kinetic Amplifier', d: '攻撃力アップ。<br>より大きく硬い敵(赤色)を粉砕可能になる' }
 ];
+
+// --- Distance & Economy ---
+export const DISTANCE_SCALE = 0.001;   // spd * dt * DISTANCE_SCALE = km
+export const MILE_RATE = 10;           // miles per km
+export const GACHA_COST = 100;         // miles per pull
+
+export const RARITY_WEIGHTS = [
+    { rarity: 'C', weight: 50 },
+    { rarity: 'R', weight: 30 },
+    { rarity: 'E', weight: 15 },
+    { rarity: 'L', weight: 5 },
+];
+
+export const SCRAP_DUPE  = { C: 5, R: 15, E: 50, L: 200 };
+export const SCRAP_PRICE = { C: 50, R: 150, E: 500, L: 1500 };
+
+// --- Achievements ---
+export const ACHIEVEMENTS = [
+    { id: 'dist-1',   dist: 1,   name: 'First Kilometer',   icon: '🏁', desc: '1km走破' },
+    { id: 'dist-3',   dist: 3,   name: 'Warming Up',        icon: '🔥', desc: '3km走破' },
+    { id: 'dist-5',   dist: 5,   name: 'Road Warrior',      icon: '⚔️', desc: '5km走破' },
+    { id: 'dist-10',  dist: 10,  name: 'Highway Star',      icon: '⭐', desc: '10km走破' },
+    { id: 'dist-25',  dist: 25,  name: 'Neon Drifter',      icon: '💎', desc: '25km走破' },
+    { id: 'dist-50',  dist: 50,  name: 'Cyber Phantom',     icon: '👻', desc: '50km走破' },
+    { id: 'dist-100', dist: 100, name: 'Legend of the Grid', icon: '👑', desc: '100km走破' },
+    { id: 'dist-200', dist: 200, name: 'Infinite Runner',   icon: '∞',  desc: '200km走破' },
+];

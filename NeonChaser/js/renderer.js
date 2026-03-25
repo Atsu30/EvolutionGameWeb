@@ -79,7 +79,7 @@ floorGeo.rotateX(-PI / 2).translate(0, 0, -200);
 scene.add(new THREE.Mesh(floorGeo, floorMat));
 
 // --- Materials ---
-const MkMat = (c, e, i, r = 0.3, m = 0.5) =>
+export const MkMat = (c, e, i, r = 0.3, m = 0.5) =>
     new THREE.MeshStandardMaterial({ color: c, emissive: e, emissiveIntensity: i, roughness: r, metalness: m });
 
 export const matTire = MkMat(0x111111, 0, 0, 0.9, 0.1);

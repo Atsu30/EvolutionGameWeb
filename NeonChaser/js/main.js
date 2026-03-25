@@ -3,6 +3,7 @@ import { cam, rdr, composer, sPass } from './renderer.js';
 import { setupControls } from './controls.js';
 import { restartGame } from './ui.js';
 import { animate } from './gameloop.js';
+import './menu.js';
 
 // Window resize handler
 window.onresize = () => {
