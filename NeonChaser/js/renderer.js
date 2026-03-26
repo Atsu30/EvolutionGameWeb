@@ -227,19 +227,27 @@ function createSentinelMesh(bodyMat, neonMat) {
 
 // --- Trail Particle Pool ---
 const TRAIL_POOL_SIZE = 100;
-const geoTrailParticle = new THREE.SphereGeometry(0.1, 4, 4);
+const _trailGeos = {
+    sphere: new THREE.SphereGeometry(0.1, 4, 4),
+    cube:   new THREE.BoxGeometry(0.15, 0.15, 0.15),
+    plane:  new THREE.PlaneGeometry(0.25, 0.25),
+    ring:   new THREE.TorusGeometry(0.1, 0.03, 4, 6),
+};
 const trailPool = [];
+let _trailCfg = { size: 1, life: 0.5, count: 1, spread: 0.3, animated: false };
 
-function initTrailPool(color) {
+function initTrailPool(trailDef) {
     trailPool.forEach(p => scene.remove(p.mesh));
     trailPool.length = 0;
-    if (!color) return;
-    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+    if (!trailDef || !trailDef.color) { _trailCfg = { size: 1, life: 0.5, count: 1, spread: 0.3, animated: false }; return; }
+    _trailCfg = { size: trailDef.size || 1, life: trailDef.life || 0.5, count: trailDef.count || 1, spread: trailDef.spread || 0.3, animated: !!trailDef.animated };
+    const geo = _trailGeos[trailDef.geoType] || _trailGeos.sphere;
+    const mat = new THREE.MeshBasicMaterial({ color: trailDef.color, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
     for (let i = 0; i < TRAIL_POOL_SIZE; i++) {
-        const mesh = new THREE.Mesh(geoTrailParticle, mat.clone());
+        const mesh = new THREE.Mesh(geo, mat.clone());
         mesh.visible = false;
         scene.add(mesh);
-        trailPool.push({ mesh, life: 0, maxLife: 0.5 });
+        trailPool.push({ mesh, life: 0, maxLife: _trailCfg.life });
     }
 }
 

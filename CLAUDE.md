@@ -8,6 +8,10 @@ Monorepo containing multiple independent web tool projects, deployed together to
 
 Live site: https://atsu30.github.io/EvolutionGameWeb/
 
+## Workflow Rules
+
+- 1つのまとまりのあるタスクが完了するたびに、Gitコミットとプッシュを行うこと
+
 ## Build & Dev Commands
 
 Each project has its own `package.json`. Run commands from within the project directory.

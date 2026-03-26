@@ -272,13 +272,31 @@ function animate() {
 
     // --- Trail Particles ---
     if (trailPool.length > 0 && st.spd > 10) {
-        const sc = isDash ? 2 : 1;
-        for (let s = 0; s < sc; s++) {
+        const tc = _trailCfg;
+        const spawnCount = (isDash ? 2 : 1) * tc.count;
+        for (let s = 0; s < spawnCount; s++) {
             const free = trailPool.find(p => p.life <= 0);
-            if (free) { free.mesh.position.set(playerMesh.position.x+R_Sign()*0.3, playerMesh.position.y+0.5+R()*0.5, playerMesh.position.z+1.5+R()); free.life = free.maxLife; free.mesh.visible = true; free.mesh.material.opacity = 0.8; free.mesh.scale.setScalar(sc); }
+            if (free) {
+                free.mesh.position.set(
+                    playerMesh.position.x + R_Sign() * tc.spread,
+                    playerMesh.position.y + 0.5 + R() * 0.5,
+                    playerMesh.position.z + 1.5 + R()
+                );
+                free.life = free.maxLife;
+                free.mesh.visible = true;
+                free.mesh.material.opacity = 0.8;
+                free.mesh.scale.setScalar((isDash ? 2 : 1) * tc.size);
+                if (tc.animated) free.mesh.material.color.setHSL(R(), 1, 0.6);
+            }
         }
         for (const p of trailPool) {
-            if (p.life > 0) { p.life -= dt; p.mesh.material.opacity = max(0, p.life / p.maxLife) * 0.8; p.mesh.position.z += st.spd * dt * 0.5; if (p.life <= 0) p.mesh.visible = false; }
+            if (p.life > 0) {
+                p.life -= dt;
+                p.mesh.material.opacity = max(0, p.life / p.maxLife) * 0.8;
+                p.mesh.position.z += st.spd * dt * 0.5;
+                if (tc.animated) { const h = (p.life * 3) % 1; p.mesh.material.color.setHSL(h, 1, 0.6); }
+                if (p.life <= 0) p.mesh.visible = false;
+            }
         }
     }
 
