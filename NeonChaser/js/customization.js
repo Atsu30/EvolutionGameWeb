@@ -90,7 +90,7 @@ export function addItem(id) {
 
 export function ownsItem(id) {
     const inv = getInventory();
-    return [...inv.colors, ...inv.tires, ...inv.bodies].includes(id);
+    return [...inv.colors, ...inv.tires, ...inv.bodies, ...(inv.trails || [])].includes(id);
 }
 
 // --- Equipment ---
