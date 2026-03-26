@@ -137,7 +137,7 @@ function restartGame() {
         sCrvSt: 'N', sCrvCd: CFG.sCrvBase + R() * CFG.sCrvRnd, sCrvTmr: 0, sCrvDir: 1, pLx: 0,
         isP: false, isG: false, spwnT: 0, rocketTmr: 20 + R() * 10,
         dist: 0, _achTimer: 0,
-        blasterCount: 0, blasterDmg: 1, blasterTimer: 0,
+        blasterCount: 0, blasterDmg: CFG.blasterDmg, blasterTimer: 0,
         stats: { destroyedEnemies: 0, damageTaken: 0, dashCount: 0, jumpCount: 0 }
     });
     el('warning-container').classList.remove('active');

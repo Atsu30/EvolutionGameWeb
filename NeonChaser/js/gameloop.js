@@ -107,11 +107,13 @@ function animate() {
 
     // --- Blaster ---
     if (st.blasterCount > 0) {
-        st.blasterTimer -= dt;
-        if (st.blasterTimer <= 0) {
-            st.blasterTimer = BULLET_INTERVAL;
-            const offsets = st.blasterCount === 1 ? [0] : st.blasterCount === 2 ? [-1, 1] : [-2, 0, 2];
-            offsets.forEach(ox => spawnBullet(st.pLx, st.pY, playerMesh.position.z, ox));
+        st.blasterTimer += dt;
+        if (st.blasterTimer >= CFG.blasterInterval) {
+            st.blasterTimer = 0;
+            for (let b = 0; b < st.blasterCount; b++) {
+                const spread = (b - (st.blasterCount - 1) / 2) * 2.0;
+                spawnBullet(st.pLx, st.pY, playerMesh.position.z, spread);
+            }
         }
     }
 
@@ -141,7 +143,7 @@ function animate() {
             }
 
             if (e.type === 'bullet') {
-                e.mesh.position.z -= BULLET_SPD * dt;
+                e.mesh.position.z -= CFG.blasterSpeed * dt;
                 if (e.mesh.position.z < -260) { scene.remove(e.mesh); ents.splice(i, 1); continue; }
                 e.box.setFromObject(e.mesh);
                 // Bullet VS Enemy

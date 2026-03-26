@@ -5,7 +5,8 @@ const CFG = {
     rocketRatio: 0.07,
     laneW: 16, maxCrv: 0.0035, crvInt: 3.5, cfForce: 0.15,
     sCrvBase: 60, sCrvRnd: 30, sCrvWarn: 2.5, sCrvDur: 3.0, sCrvFrc: 0.022, sCrvSpd: 0.01,
-    spwnInt: 0.35, hitDecel: 15, wallDecel: 120, pGrav: 150, lvExp: 50, expMul: 1.5
+    spwnInt: 0.35, hitDecel: 15, wallDecel: 120, pGrav: 150, lvExp: 50, expMul: 1.5,
+    blasterInterval: 0.3, blasterSpeed: 200, blasterDmg: 1
 };
 
 const ENEMY_TYPES = {
@@ -22,13 +23,10 @@ const UPGRADES = [
     { id: 'grp', i: '🛞', t: 'Tire Grip', d: 'ハンドリングアップ。<br>遠心力に抗い急カーブに強くなる' },
     { id: 'siz', i: '🛡️', t: 'Chassis Expansion', d: '車体が巨大化。<br>当たり判定が広がり巻き込みやすくなる' },
     { id: 'def', i: '🛡️', t: 'Armor Plating', d: '被ダメージ5%軽減。<br>最大50%まで累積' },
-    { id: 'bls',  i: '🔫', t: 'Blaster Install', d: 'ブラスター装備。<br>前方に自動射撃', cond: st => st.blasterCount === 0 },
-    { id: 'bpow', i: '💥', t: 'Blaster Power', d: '弾ダメージ+1', cond: st => st.blasterCount > 0 },
-    { id: 'bnum', i: '🔫', t: 'Blaster Array', d: 'ブラスター+1門。<br>横に広がり殲滅力UP', cond: st => st.blasterCount > 0 && st.blasterCount < 3 },
+    { id: 'bls',  i: '🔫', t: 'Blaster Install', d: 'ブラスター装着。<br>前方に自動射撃開始', cond: st => st.blasterCount === 0 },
+    { id: 'bpow', i: '⚡', t: 'Blaster Power',   d: 'ブラスターの攻撃力+1', cond: st => st.blasterCount > 0 },
+    { id: 'bnum', i: '🔫', t: 'Blaster Array',   d: 'ブラスター+1門追加。<br>射撃範囲が横に広がる', cond: st => st.blasterCount > 0 && st.blasterCount < 3 },
 ];
-
-const BULLET_SPD = 200;
-const BULLET_INTERVAL = 0.3;
 
 // --- Distance & Economy ---
 const DISTANCE_SCALE = 0.001;
