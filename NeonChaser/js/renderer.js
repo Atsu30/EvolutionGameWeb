@@ -218,3 +218,90 @@ for (let i = 0; i < 50; i++) {
     p.userData = { rX: R_Sign(), rY: R_Sign(), rZ: R_Sign() };
     scene.add(p); game.pts.push(p);
 }
+
+// --- Preview Renderer (Customize Screen) ---
+let _pvRdr = null, _pvScene = null, _pvCam = null, _pvBike = null, _pvRunning = false, _pvRafId = null;
+
+function _initPreview() {
+    const c = el('preview-canvas');
+    if (!c || _pvRdr) return;
+    _pvRdr = new THREE.WebGLRenderer({ canvas: c, antialias: true, alpha: true });
+    _pvRdr.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    _pvRdr.setSize(c.clientWidth, c.clientHeight);
+
+    _pvScene = new THREE.Scene();
+    _pvCam = new THREE.PerspectiveCamera(50, c.clientWidth / c.clientHeight, 0.1, 100);
+    _pvCam.position.set(0, 3, 6);
+    _pvCam.lookAt(0, 0.5, 0);
+
+    _pvScene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    _pvScene.add(new THREE.HemisphereLight(0x0f172a, 0xec4899, 0.4));
+    const dl = new THREE.DirectionalLight(0xffffff, 0.8);
+    dl.position.set(5, 10, 5);
+    _pvScene.add(dl);
+}
+
+function _createPreviewBike() {
+    if (_pvBike) _pvScene.remove(_pvBike);
+    const eq = getEquipped();
+    const col = getColorDef(eq.colorId);
+    const bodyMat = MkMat(col.body, col.emit, 0.6);
+    const neonMat = MkMat(col.neon, col.nEmit, 2.0);
+    _pvBike = createBike(bodyMat, neonMat);
+    _pvBike.scale.setScalar(1.5);
+
+    // Apply tire customization
+    const tireDef = getTireDef(eq.tireId);
+    const tGeo = tireDef.geo();
+    _pvBike.userData.tires.forEach(tg => {
+        tg.children[0].geometry = tGeo;
+        tg.children[1].geometry = tGeo;
+        tg.children[2].geometry = new THREE.EdgesGeometry(tGeo);
+    });
+
+    // Apply body customization
+    const bodyDef = getBodyDef(eq.bodyId);
+    const bl = _pvBike.children[2];
+    if (bl) bl.geometry = new THREE.EdgesGeometry(bodyDef.geo());
+
+    _pvScene.add(_pvBike);
+}
+
+function updatePreviewBike(colorId, tireId, bodyId) {
+    if (!_pvBike || !_pvScene) return;
+    const col = getColorDef(colorId);
+    const bodyMat = MkMat(col.body, col.emit, 0.6);
+    const neonMat = MkMat(col.neon, col.nEmit, 2.0);
+    _pvBike.userData.changeMat(bodyMat, neonMat);
+
+    const tireDef = getTireDef(tireId);
+    const tGeo = tireDef.geo();
+    _pvBike.userData.tires.forEach(tg => {
+        tg.children[0].geometry = tGeo;
+        tg.children[1].geometry = tGeo;
+        tg.children[2].geometry = new THREE.EdgesGeometry(tGeo);
+    });
+
+    const bodyDef = getBodyDef(bodyId);
+    const bl = _pvBike.children[2];
+    if (bl) bl.geometry = new THREE.EdgesGeometry(bodyDef.geo());
+}
+
+function animatePreview() {
+    if (!_pvRunning) return;
+    _pvRafId = requestAnimationFrame(animatePreview);
+    if (_pvBike) _pvBike.rotation.y += 0.012;
+    _pvRdr.render(_pvScene, _pvCam);
+}
+
+function showPreview() {
+    _initPreview();
+    _createPreviewBike();
+    _pvRunning = true;
+    animatePreview();
+}
+
+function hidePreview() {
+    _pvRunning = false;
+    if (_pvRafId) { cancelAnimationFrame(_pvRafId); _pvRafId = null; }
+}

@@ -7,10 +7,15 @@ function _hideModal(id) { el(id).classList.remove('active'); _menuStack = _menuS
 
 function showMenu() { game.st.isP = true; _showModal('menu-modal'); }
 function hideMenu() {
+    if (_menuStack.includes('custom-modal') && typeof hidePreview === 'function') hidePreview();
     _menuStack.forEach(id => el(id).classList.remove('active')); _menuStack = [];
     if (!game.st.isG) { game.st.isP = false; game.clock.getDelta(); }
 }
-function goBack() { _menuStack.length > 1 ? _hideModal(_menuStack[_menuStack.length - 1]) : hideMenu(); }
+function goBack() {
+    const top = _menuStack[_menuStack.length - 1];
+    if (top === 'custom-modal' && typeof hidePreview === 'function') hidePreview();
+    _menuStack.length > 1 ? _hideModal(top) : hideMenu();
+}
 
 function showRanking() {
     const scores = getScores(), list = el('ranking-list');
@@ -57,8 +62,20 @@ function doPull() {
     _updateGachaDisplay();
 }
 
-function showCustomize() { _currentCustomTab = 'color'; _renderCustomize(); _showModal('custom-modal'); }
-function switchCustomTab(tab) { _currentCustomTab = tab; _renderCustomize(); }
+function showCustomize() {
+    _currentCustomTab = 'color';
+    _renderCustomize();
+    _showModal('custom-modal');
+    if (typeof showPreview === 'function') showPreview();
+}
+function switchCustomTab(tab) {
+    _currentCustomTab = tab;
+    _renderCustomize();
+    if (typeof updatePreviewBike === 'function') {
+        const eq = getEquipped();
+        updatePreviewBike(eq.colorId, eq.tireId, eq.bodyId);
+    }
+}
 function _renderCustomize() {
     ['color', 'tire', 'body', 'trail'].forEach(tab => { const t = el(`custom-tab-${tab}`); if (t) t.classList.toggle('active', tab === _currentCustomTab); });
     const inv = getInventory(), eq = getEquipped(), grid = el('custom-grid');
@@ -76,7 +93,15 @@ function _renderCustomize() {
         return `<div class="item-card ${isEq?'equipped':''}" onclick="equipItem('${_currentCustomTab}','${id}')">${swatch}<div class="item-name ${rc}">${def.name}</div>${isEq?'<div class="item-equipped">EQUIPPED</div>':''}</div>`;
     }).join('');
 }
-function equipItem(category, id) { setEquipped(category, id); applyCustomization(); _renderCustomize(); }
+function equipItem(category, id) {
+    setEquipped(category, id);
+    applyCustomization();
+    _renderCustomize();
+    if (typeof updatePreviewBike === 'function') {
+        const eq = getEquipped();
+        updatePreviewBike(eq.colorId, eq.tireId, eq.bodyId);
+    }
+}
 
 function showShop() { _renderShop(); _showModal('shop-modal'); }
 function _renderShop() {
