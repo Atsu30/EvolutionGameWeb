@@ -1,0 +1,119 @@
+/* --- Level Up Celebration --- */
+#levelup-modal .modal-title {
+    opacity: 0;
+    transform: scale(0.3);
+    transition: none;
+}
+#levelup-modal.active .modal-title {
+    animation: levelup-title 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes levelup-title {
+    0%   { opacity: 0; transform: scale(0.3) rotate(-5deg); text-shadow: 0 0 0 transparent; }
+    30%  { opacity: 1; transform: scale(1.3) rotate(2deg); text-shadow: 0 0 60px #60a5fa, 0 0 120px #3b82f6; }
+    50%  { transform: scale(0.95) rotate(-1deg); }
+    65%  { transform: scale(1.08) rotate(0.5deg); }
+    80%  { transform: scale(1); }
+    80%, 100% { opacity: 1; transform: scale(1) rotate(0deg); text-shadow: 0 0 30px #60a5fa, 0 0 60px #3b82f6; }
+}
+#levelup-modal.active .modal-title {
+    animation: levelup-title 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+               levelup-glow 1.5s 1.2s ease-in-out infinite alternate;
+}
+@keyframes levelup-glow {
+    0%   { text-shadow: 0 0 20px #60a5fa, 0 0 40px #3b82f6; }
+    100% { text-shadow: 0 0 40px #818cf8, 0 0 80px #6366f1, 0 0 120px #4f46e5; }
+}
+
+/* Particle burst container */
+.levelup-burst {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+.levelup-burst .burst-particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    opacity: 0;
+}
+#levelup-modal.active .burst-particle {
+    animation: burst-fly 1.4s ease-out forwards;
+}
+@keyframes burst-fly {
+    0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+    70%  { opacity: 0.8; }
+    100% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(0); }
+}
+
+/* Radial flash */
+.levelup-flash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 300px;
+    margin: -150px 0 0 -150px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(96,165,250,0.5) 0%, transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+#levelup-modal.active .levelup-flash {
+    animation: radial-flash 0.8s ease-out forwards;
+}
+@keyframes radial-flash {
+    0%   { opacity: 1; transform: scale(0.2); }
+    100% { opacity: 0; transform: scale(3); }
+}
+
+/* Card stagger animation */
+.upgrade-cards .card {
+    opacity: 0;
+    transform: translateY(60px) scale(0.8);
+    transition: none;
+}
+.upgrade-cards .card.card-reveal {
+    animation: card-slide-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes card-slide-in {
+    0%   { opacity: 0; transform: translateY(60px) scale(0.8); }
+    60%  { opacity: 1; transform: translateY(-8px) scale(1.03); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Click-blocking state */
+#levelup-modal.no-interact .upgrade-cards {
+    pointer-events: none;
+}
+#levelup-modal.no-interact .card {
+    cursor: default;
+}
+
+/* --- XP Popup --- */
+#xp-popup-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 15; overflow: hidden; }
+.xp-popup {
+    position: absolute;
+    font-weight: 900;
+    font-size: 16px;
+    color: #4ade80;
+    text-shadow: 0 0 8px #22c55e, 0 0 2px #000;
+    pointer-events: none;
+    animation: xp-float 0.9s ease-out forwards;
+    white-space: nowrap;
+}
+.xp-popup.xp-big {
+    font-size: 22px;
+    color: #fbbf24;
+    text-shadow: 0 0 12px #d97706, 0 0 3px #000;
+}
+@keyframes xp-float {
+    0%   { opacity: 1; transform: translateY(0) scale(1.2); }
+    20%  { transform: translateY(-8px) scale(1); }
+    100% { opacity: 0; transform: translateY(-50px) scale(0.7); }
+}

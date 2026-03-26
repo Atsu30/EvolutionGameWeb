@@ -1,6 +1,5 @@
 // --- Menu System ---
 let _menuStack = [];
-let _currentCustomTab = 'color';
 
 function _showModal(id) { _menuStack.push(id); el(id).classList.add('active'); }
 function _hideModal(id) { el(id).classList.remove('active'); _menuStack = _menuStack.filter(m => m !== id); }
@@ -20,7 +19,7 @@ function goBack() {
 
 function showRanking() {
     const scores = getScores(), list = el('ranking-list');
-    if (scores.length === 0) { list.innerHTML = '<div style="color:#64748b;text-align:center;padding:20px;">No records yet</div>'; }
+    if (scores.length === 0) { list.innerHTML = '<div style="color:#64748b;text-align:center;padding:20px;">記録なし</div>'; }
     else {
         list.innerHTML = scores.map((s, i) => {
             const rc = i === 0 ? '#fbbf24' : i === 1 ? '#94a3b8' : i === 2 ? '#b45309' : '#64748b';
@@ -45,7 +44,7 @@ function showAchievements() {
         } else if (claimed) {
             rightCol = `<span class="achieve-claimed">✅</span>`;
         } else {
-            rightCol = `<button class="claim-btn" onclick="achieveClaim('${a.id}')">CLAIM +${a.reward} Miles</button>`;
+            rightCol = `<button class="claim-btn" onclick="achieveClaim('${a.id}')">受取 +${a.reward} マイル</button>`;
         }
         return `<div class="achieve-row ${done ? (claimed ? 'unlocked claimed' : 'unlocked claimable') : 'locked'}"><span class="achieve-icon">${a.icon}</span><div class="achieve-info"><div class="achieve-name">${a.name}</div><div class="achieve-desc">${a.desc}</div></div>${rightCol}</div>`;
     }).join('');
@@ -53,188 +52,59 @@ function showAchievements() {
 }
 
 function achieveClaim(id) {
-    if (claimReward(id)) showAchievements();
-}
+    const achievement = ACHIEVEMENTS.find(a => a.id === id);
+    if (!achievement) return;
 
-function showGacha() {
-    _gachaPulling = false;
-    _updateGachaDisplay();
-    const res = el('gacha-result');
-    res.style.display = 'none';
-    res.className = 'gacha-result';
-    el('gacha-flash').className = 'gacha-flash';
-    _showModal('gacha-modal');
-}
-function _updateGachaDisplay(animateFrom) {
-    const w = getWallet();
-    if (animateFrom && typeof animateNumber === 'function') {
-        animateNumber(el('gacha-miles'), animateFrom.miles, w.miles, 600, '');
-        animateNumber(el('gacha-scrap'), animateFrom.scrap, w.scrap, 600, '');
-    } else {
-        el('gacha-miles').innerText = w.miles.toLocaleString();
-        el('gacha-scrap').innerText = w.scrap.toLocaleString();
+    // Find the clicked button
+    const btn = event.currentTarget;
+    const row = btn.closest('.achieve-row');
+    if (!btn || !row) { if (claimReward(id)) showAchievements(); return; }
+
+    // Get button position for effects
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    // 1. Mile popup float
+    const popup = document.createElement('div');
+    popup.className = 'claim-popup';
+    popup.innerText = `+${achievement.reward}`;
+    popup.style.left = cx + 'px';
+    popup.style.top = cy + 'px';
+    document.body.appendChild(popup);
+    setTimeout(() => popup.remove(), 1000);
+
+    // 2. Gold particle burst
+    const colors = ['#fbbf24', '#f59e0b', '#fcd34d', '#facc15', '#d97706'];
+    for (let i = 0; i < 7; i++) {
+        const p = document.createElement('div');
+        p.className = 'claim-particle';
+        const angle = (i / 7) * Math.PI * 2 + Math.random() * 0.5;
+        const dist = 30 + Math.random() * 40;
+        p.style.setProperty('--cpx', Math.cos(angle) * dist + 'px');
+        p.style.setProperty('--cpy', Math.sin(angle) * dist + 'px');
+        p.style.background = colors[i % colors.length];
+        p.style.left = cx + 'px';
+        p.style.top = cy + 'px';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 800);
     }
-    const btn = el('gacha-pull-btn'); btn.disabled = !canPull(); btn.style.opacity = canPull() ? '1' : '0.4';
-}
-let _gachaPulling = false;
-function doPull() {
-    if (!canPull() || _gachaPulling) return;
-    _gachaPulling = true;
-    const _walletBefore = getWallet();
-    const result = gachaPull(); if (!result) { _gachaPulling = false; return; }
 
-    const btn = el('gacha-pull-btn');
-    const res = el('gacha-result');
-    const flash = el('gacha-flash');
-    const burst = el('gacha-burst');
-    const rays = el('gacha-rays');
-    const r = result.rarity;
-    const rc = `rarity-${r}`;
-    const cl = { color: 'COLOR', tire: 'TIRE', body: 'BODY', trail: 'TRAIL' }[result.item.category] || 'ITEM';
+    // 3. Replace button with check mark
+    btn.style.transition = 'opacity 0.3s, transform 0.3s';
+    btn.style.opacity = '0';
+    btn.style.transform = 'scale(0.5)';
 
-    // Reset state
-    res.style.display = 'none';
-    res.className = 'gacha-result';
-    flash.className = 'gacha-flash';
-    burst.innerHTML = '';
-    rays.innerHTML = '';
-    rays.style.display = 'none';
-
-    // Stage 1: Button pulse
-    btn.classList.add('pulling');
-    btn.addEventListener('animationend', function onPulse() {
-        btn.classList.remove('pulling');
-        btn.removeEventListener('animationend', onPulse);
-
-        // Stage 2: Show result with rarity animation
-        res.style.display = 'block';
-        res.classList.add(`glow-${r}`);
-
-        // Build content
-        const rollClass = `gacha-roll roll-${r}`;
-        if (result.isDupe) {
-            res.innerHTML = `<div class="gacha-burst-container" id="gacha-burst"></div><div class="gacha-rays" id="gacha-rays"></div>`
-                + `<div class="${rollClass}"><div class="${rc}" style="font-size:14px;margin-bottom:4px;">[${r}] ${cl}</div>`
-                + `<div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:8px;">${result.item.name}</div>`
-                + `<div class="gacha-dupe" style="color:#fbbf24;">DUPLICATE! +${result.scrapGained} Scrap</div></div>`;
-        } else {
-            res.innerHTML = `<div class="gacha-burst-container" id="gacha-burst"></div><div class="gacha-rays" id="gacha-rays"></div>`
-                + `<div class="${rollClass}"><div class="${rc}" style="font-size:14px;margin-bottom:4px;">[${r}] ${cl}</div>`
-                + `<div class="gacha-new-badge" id="gacha-new-badge">NEW!</div>`
-                + `<div style="font-size:20px;font-weight:bold;" class="${rc}">${result.item.name}</div></div>`;
+    setTimeout(() => {
+        if (claimReward(id)) {
+            // Replace the button area with a checkmark
+            const check = document.createElement('span');
+            check.className = 'achieve-claimed claim-check-enter';
+            check.innerText = '✅';
+            btn.replaceWith(check);
         }
-
-        // Re-acquire burst/rays refs after innerHTML
-        const burstEl = res.querySelector('.gacha-burst-container');
-        const raysEl = res.querySelector('.gacha-rays');
-
-        // Particles: count by rarity
-        const pCounts = { C: 0, R: 4, E: 8, L: 16 };
-        const pColors = { C: ['#94a3b8'], R: ['#60a5fa', '#3b82f6', '#93c5fd'], E: ['#a78bfa', '#7c3aed', '#c4b5fd', '#e879f9'], L: ['#fbbf24', '#f59e0b', '#fcd34d', '#fff'] };
-        const count = pCounts[r] || 0;
-        const colors = pColors[r] || ['#fff'];
-        for (let i = 0; i < count; i++) {
-            const p = document.createElement('div');
-            p.className = 'g-particle';
-            const angle = (i / count) * Math.PI * 2 + Math.random() * 0.3;
-            const dist = 60 + Math.random() * 80;
-            p.style.setProperty('--gx', Math.cos(angle) * dist + 'px');
-            p.style.setProperty('--gy', Math.sin(angle) * dist + 'px');
-            p.style.background = colors[i % colors.length];
-            p.style.width = p.style.height = (3 + Math.random() * 5) + 'px';
-            p.style.animationDelay = (0.6 + Math.random() * 0.2) + 's';
-            burstEl.appendChild(p);
-        }
-
-        // Screen flash for E/L
-        if (r === 'E' || r === 'L') {
-            const flashEl = el('gacha-flash');
-            flashEl.className = 'gacha-flash flash-' + r;
-        }
-
-        // Shake for L
-        if (r === 'L') {
-            res.classList.add('gacha-shake');
-
-            // Light rays for L
-            raysEl.style.display = '';
-            for (let i = 0; i < 12; i++) {
-                const ray = document.createElement('div');
-                ray.className = 'gacha-ray';
-                ray.style.transform = `rotate(${i * 30}deg)`;
-                raysEl.appendChild(ray);
-            }
-        }
-
-        // Stage 3: NEW badge bounce (delayed)
-        if (!result.isDupe) {
-            const delay = { C: 1100, R: 1400, E: 1600, L: 1800 }[r] || 1200;
-            setTimeout(() => {
-                const badge = document.getElementById('gacha-new-badge');
-                if (badge) badge.classList.add('show');
-            }, delay);
-        }
-
-        // Re-enable pull
-        const unlockDelay = { C: 1200, R: 1600, E: 2000, L: 2400 }[r] || 1500;
-        setTimeout(() => { _gachaPulling = false; }, unlockDelay);
-
-        _updateGachaDisplay(_walletBefore);
-    }, { once: true });
+    }, 300);
 }
-
-function showCustomize() {
-    _currentCustomTab = 'color';
-    _renderCustomize();
-    _showModal('custom-modal');
-    if (typeof showPreview === 'function') showPreview();
-}
-function switchCustomTab(tab) {
-    _currentCustomTab = tab;
-    _renderCustomize();
-    if (typeof updatePreviewBike === 'function') {
-        const eq = getEquipped();
-        updatePreviewBike(eq.colorId, eq.tireId, eq.bodyId);
-    }
-}
-function _renderCustomize() {
-    ['color', 'tire', 'body', 'trail'].forEach(tab => { const t = el(`custom-tab-${tab}`); if (t) t.classList.toggle('active', tab === _currentCustomTab); });
-    const inv = getInventory(), eq = getEquipped(), grid = el('custom-grid');
-    let items, equippedId, allDefs;
-    if (_currentCustomTab === 'color') { allDefs = getAllColors(); equippedId = eq.colorId; items = ['color-default', ...inv.colors]; }
-    else if (_currentCustomTab === 'tire') { allDefs = getAllTires(); equippedId = eq.tireId; items = ['tire-default', ...inv.tires]; }
-    else if (_currentCustomTab === 'body') { allDefs = getAllBodies(); equippedId = eq.bodyId; items = ['body-default', ...inv.bodies]; }
-    else { allDefs = getAllTrails(); equippedId = eq.trailId; items = ['trail-default', ...(inv.trails || [])]; }
-    grid.innerHTML = items.map(id => {
-        const def = allDefs[id]; if (!def) return '';
-        const isEq = id === equippedId, rc = def.rarity !== '-' ? `rarity-${def.rarity}` : '';
-        let swatch = '';
-        if (_currentCustomTab === 'color' && def.neon) swatch = `<div class="color-swatch" style="background:#${def.neon.toString(16).padStart(6,'0')};box-shadow:0 0 10px #${def.neon.toString(16).padStart(6,'0')};"></div>`;
-        else if (_currentCustomTab === 'trail' && def.color) swatch = `<div class="color-swatch" style="background:#${def.color.toString(16).padStart(6,'0')};box-shadow:0 0 10px #${def.color.toString(16).padStart(6,'0')};"></div>`;
-        return `<div class="item-card ${isEq?'equipped':''}" onclick="equipItem('${_currentCustomTab}','${id}')">${swatch}<div class="item-name ${rc}">${def.name}</div>${isEq?'<div class="item-equipped">EQUIPPED</div>':''}</div>`;
-    }).join('');
-}
-function equipItem(category, id) {
-    setEquipped(category, id);
-    applyCustomization();
-    _renderCustomize();
-    if (typeof updatePreviewBike === 'function') {
-        const eq = getEquipped();
-        updatePreviewBike(eq.colorId, eq.tireId, eq.bodyId);
-    }
-}
-
-function showShop() { _renderShop(); _showModal('shop-modal'); }
-function _renderShop() {
-    const w = getWallet(); el('shop-scrap').innerText = w.scrap.toLocaleString();
-    const items = getShopItems(), list = el('shop-list');
-    if (!items.length) { list.innerHTML = '<div style="color:#64748b;text-align:center;padding:20px;">All items owned!</div>'; return; }
-    list.innerHTML = items.map(item => {
-        const cb = w.scrap >= item.price, cl = { color: 'COLOR', tire: 'TIRE', body: 'BODY', trail: 'TRAIL' }[item.category] || 'ITEM';
-        return `<div class="shop-row"><div><span class="rarity-${item.rarity}">[${item.rarity}] ${cl}</span><span style="color:#fff;font-weight:bold;margin-left:8px;">${item.name}</span></div><button class="shop-buy-btn ${cb?'':'disabled'}" onclick="shopBuy('${item.id}')" ${cb?'':'disabled'}>${item.price} Scrap</button></div>`;
-    }).join('');
-}
-function shopBuy(itemId) { if (buyWithScrap(itemId)) _renderShop(); }
 
 let _popupQueue = [], _popupActive = false;
 function showAchievementPopup(a) { _popupQueue.push(a); if (!_popupActive) _processPopup(); }

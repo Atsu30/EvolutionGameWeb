@@ -15,7 +15,7 @@ function animate() {
             st.sCrvSt = 'W'; st.sCrvTmr = CFG.sCrvWarn;
             st.sCrvDir = R() < 0.5 ? 1 : -1;
             el('warning-container').classList.add('active');
-            el('w-text').innerText = st.sCrvDir > 0 ? "SHARP TURN RIGHT" : "SHARP TURN LEFT";
+            el('w-text').innerText = st.sCrvDir > 0 ? "急カーブ 右" : "急カーブ 左";
             el('w-icon').innerText = st.sCrvDir > 0 ? "≫" : "≪";
             st.tCrv = 0;
         } else {

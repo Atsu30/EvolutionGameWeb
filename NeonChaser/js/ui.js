@@ -128,6 +128,12 @@ function triggerGameOver() {
     el('gameover-modal').classList.add('active');
 }
 
+function startFromTitle() {
+    el('title-modal').classList.remove('active');
+    game.st.isP = false;
+    game.clock.getDelta();
+}
+
 function restartGame() {
     const st = game.st;
     Object.assign(st, {

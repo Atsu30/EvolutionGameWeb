@@ -225,17 +225,27 @@ NeonChaser/
 ├── index.html          # HTML構造 + CDNスクリプト読み込み
 ├── SPEC.md             # 本仕様書
 ├── css/
-│   └── style.css       # 全スタイル（HUD・モーダル・エフェクト・レスポンシブ）
+│   ├── style.css       # ベーススタイル（HUD・モーダル・ボタン・メニュー・実績・カスタム・ショップ・レスポンシブ）
+│   ├── gacha.css       # ガチャ演出（レアリティ別ロール・パーティクル・フラッシュ・光線）
+│   └── effects.css     # レベルアップ演出・XPポップアップ・カードアニメーション
 └── js/
     ├── main.js         # エントリポイント（リサイズ処理・初期化・ループ開始）
-    ├── config.js       # ゲーム定数（CFG, ENEMY_DEFS, ROCKET_DEF, UPGRADES）
+    ├── config.js       # ゲーム定数（CFG, ENEMY_DEFS, ROCKET_DEF, UPGRADES, ACHIEVEMENTS）
     ├── state.js        # 共有ステート（game オブジェクト）・Mathヘルパー
+    ├── storage.js      # localStorage CRUD（ウォレット・インベントリ・装備）
     ├── renderer.js     # Three.jsシーン・カメラ・ポストプロセス・マテリアル・ジオメトリ・メッシュファクトリ
     ├── entities.js     # エンティティ生成・スポーン関数
-    ├── effects.js      # 画面フラッシュ・カメラシェイク
-    ├── ui.js           # HUD更新・アップグレードUI・ゲームオーバー・リスタート
-    ├── gameloop.js     # メインループ（物理・カーブ・衝突判定・環境更新）
+    ├── effects.js      # 画面フラッシュ・カメラシェイク・破壊パーティクル
+    ├── score.js        # スコア管理（ランキングlocalStorage）
+    ├── achievements.js # 実績判定・進捗管理
+    ├── customization.js # バイクカスタマイズ（カラー・タイヤ・ボディ・トレイル定義・適用）
+    ├── gacha.js        # ガチャロジック（抽選・重複処理・ショップ販売リスト）
+    ├── ui.js           # HUD更新・アップグレードUI・ゲームオーバー・リスタート・タイトル画面
+    ├── menu.js         # メニュー開閉・ナビゲーション・ランキング・実績表示
+    ├── gacha-ui.js     # ガチャUI（プル演出・レアリティ別アニメーション）
+    ├── customize-ui.js # カスタマイズUI・ショップUI
     ├── controls.js     # キーボード＆タッチ入力
+    ├── gameloop.js     # メインループ（物理・カーブ・衝突判定・環境更新）
     └── ai.js           # Gemini API連携
 ```
 

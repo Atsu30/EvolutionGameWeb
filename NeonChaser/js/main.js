@@ -10,6 +10,7 @@ window.onresize = () => {
 window.onload = () => {
     setupControls();
     restartGame();
+    game.st.isP = true; // タイトル画面で一時停止
     game.clock.start();
     animate();
 };

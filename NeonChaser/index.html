@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Chaser - 3D Action Roguelike</title>
+    <title>Neon Chaser - 3Dアクションローグライク</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/gacha.css">
+    <link rel="stylesheet" href="css/effects.css">
     <!-- Three.js & PostProcessing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
@@ -20,7 +22,7 @@
     <div id="damage-flash"></div>
 
     <div id="warning-container">
-        <div class="warning-text" id="w-text">SHARP TURN</div>
+        <div class="warning-text" id="w-text">急カーブ</div>
         <div class="warning-icon" id="w-icon">≫</div>
     </div>
 
@@ -34,15 +36,15 @@
         <button class="menu-btn" onclick="showMenu()">☰</button>
         <div class="hud-container">
             <div class="hud-box">
-                <div class="hud-header"><div class="hud-title">Level</div><div class="level-text" id="ui-lv">Lv 1</div></div>
+                <div class="hud-header"><div class="hud-title">レベル</div><div class="level-text" id="ui-lv">Lv 1</div></div>
                 <div class="bar-bg"><div class="bar-fill" id="exp-fill" style="background: linear-gradient(90deg, #10b981, #34d399); box-shadow: 0 0 5px #34d399;"></div></div>
             </div>
             <div class="hud-box">
-                <div class="hud-header"><div class="hud-title">Speed</div><div class="level-text" id="ui-spd" style="color:#60a5fa; text-shadow:0 0 5px #3b82f6;">0</div></div>
+                <div class="hud-header"><div class="hud-title">速度</div><div class="level-text" id="ui-spd" style="color:#60a5fa; text-shadow:0 0 5px #3b82f6;">0</div></div>
                 <div class="bar-bg"><div class="bar-fill" id="speed-fill"></div></div>
             </div>
             <div class="hud-box">
-                <div class="hud-header"><div class="hud-title">Armor</div><div class="level-text" id="ui-hp" style="color:#86efac; text-shadow:0 0 5px #22c55e;">100</div></div>
+                <div class="hud-header"><div class="hud-title">装甲</div><div class="level-text" id="ui-hp" style="color:#86efac; text-shadow:0 0 5px #22c55e;">100</div></div>
                 <div class="bar-bg"><div class="bar-fill" id="hp-fill"></div></div>
             </div>
         </div>
@@ -54,113 +56,123 @@
         <div class="touch-zone" id="t-right"></div>
     </div>
 
+    <!-- Title Screen -->
+    <div id="title-modal" class="modal-overlay active">
+        <div class="title-logo">NEON CHASER</div>
+        <div class="title-sub">3Dアクションローグライク</div>
+        <div style="display:flex; flex-direction:column; gap:12px; align-items:center; margin-top:40px;">
+            <button class="btn" onclick="startFromTitle()">ゲームスタート</button>
+            <button class="btn btn-secondary" onclick="showMenu()">メニュー</button>
+        </div>
+    </div>
+
     <!-- Level Up -->
     <div id="levelup-modal" class="modal-overlay">
         <div class="levelup-flash"></div>
         <div class="levelup-burst" id="levelup-burst"></div>
-        <div class="modal-title">LEVEL UP!</div>
+        <div class="modal-title">レベルアップ！</div>
         <div class="upgrade-cards" id="upgrades"></div>
     </div>
 
     <!-- Game Over -->
     <div id="gameover-modal" class="modal-overlay">
-        <div class="modal-title" style="color:#ef4444;">SYSTEM CRASH</div>
-        <div style="color:white; font-size:24px; margin-bottom:6px;">Final Level: <span id="res-lv" style="font-weight:bold; color:#4ade80;">1</span></div>
+        <div class="modal-title" style="color:#ef4444;">システムクラッシュ</div>
+        <div style="color:white; font-size:24px; margin-bottom:6px;">到達レベル: <span id="res-lv" style="font-weight:bold; color:#4ade80;">1</span></div>
         <div style="color:#facc15; font-size:22px; font-weight:900; margin-bottom:4px;"><span id="res-dist">0.00 km</span></div>
-        <div style="color:#34d399; font-size:16px; margin-bottom:16px;">Miles Earned: <span id="res-miles" style="font-weight:bold;">+0</span></div>
+        <div style="color:#34d399; font-size:16px; margin-bottom:16px;">獲得マイル: <span id="res-miles" style="font-weight:bold;">+0</span></div>
 
         <div id="ai-feedback" class="ai-feedback">
-            <div id="ai-loading" class="ai-loading">✨ AI ANALYZING RIDING DATA...</div>
+            <div id="ai-loading" class="ai-loading">✨ AIが走行データを解析中...</div>
             <div id="ai-result" style="display: none;">
-                <div class="ai-title-label">AI ASSIGNED TITLE</div>
+                <div class="ai-title-label">AI称号</div>
                 <div id="ai-title" class="ai-title-text"></div>
                 <div id="ai-desc" class="ai-desc"></div>
             </div>
         </div>
 
         <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
-            <button class="btn" onclick="restartGame()">REBOOT SYSTEM</button>
-            <button class="btn btn-secondary" onclick="showRanking()">RANKING</button>
-            <button class="btn btn-secondary" onclick="showMenu()">MENU</button>
+            <button class="btn" onclick="restartGame()">もう一度</button>
+            <button class="btn btn-secondary" onclick="showRanking()">ランキング</button>
+            <button class="btn btn-secondary" onclick="showMenu()">メニュー</button>
         </div>
     </div>
 
     <!-- Menu -->
     <div id="menu-modal" class="modal-overlay">
-        <div class="modal-title">MAIN MENU</div>
+        <div class="modal-title">メインメニュー</div>
         <div class="menu-grid">
             <div class="menu-card" onclick="showRanking()">
-                <div class="menu-card-icon">📊</div><div class="menu-card-label">RANKING</div>
+                <div class="menu-card-icon">📊</div><div class="menu-card-label">ランキング</div>
             </div>
             <div class="menu-card" onclick="showAchievements()">
-                <div class="menu-card-icon">🏆</div><div class="menu-card-label">ACHIEVEMENTS</div>
+                <div class="menu-card-icon">🏆</div><div class="menu-card-label">実績</div>
             </div>
             <div class="menu-card" onclick="showGacha()">
-                <div class="menu-card-icon">🎰</div><div class="menu-card-label">GACHA</div>
+                <div class="menu-card-icon">🎰</div><div class="menu-card-label">ガチャ</div>
             </div>
             <div class="menu-card" onclick="showCustomize()">
-                <div class="menu-card-icon">🔧</div><div class="menu-card-label">CUSTOMIZE</div>
+                <div class="menu-card-icon">🔧</div><div class="menu-card-label">カスタム</div>
             </div>
             <div class="menu-card" onclick="showShop()">
-                <div class="menu-card-icon">🛒</div><div class="menu-card-label">SHOP</div>
+                <div class="menu-card-icon">🛒</div><div class="menu-card-label">ショップ</div>
             </div>
         </div>
-        <button class="btn btn-secondary" onclick="hideMenu()" style="margin-top:30px;">CLOSE</button>
+        <button class="btn btn-secondary" onclick="hideMenu()" style="margin-top:30px;">閉じる</button>
     </div>
 
     <!-- Ranking -->
     <div id="ranking-modal" class="modal-overlay">
-        <div class="modal-title">RANKING</div>
+        <div class="modal-title">ランキング</div>
         <div id="ranking-list" class="modal-scroll"></div>
-        <button class="btn btn-secondary" onclick="goBack()">BACK</button>
+        <button class="btn btn-secondary" onclick="goBack()">戻る</button>
     </div>
 
     <!-- Achievements -->
     <div id="achieve-modal" class="modal-overlay">
-        <div class="modal-title">ACHIEVEMENTS</div>
-        <div style="color:#64748b; margin-bottom:16px; font-size:14px;">Unlocked: <span id="achieve-progress" style="color:#34d399; font-weight:bold;">0 / 8</span></div>
+        <div class="modal-title">実績</div>
+        <div style="color:#64748b; margin-bottom:16px; font-size:14px;">解放済み: <span id="achieve-progress" style="color:#34d399; font-weight:bold;">0 / 8</span></div>
         <div id="achieve-list" class="modal-scroll"></div>
-        <button class="btn btn-secondary" onclick="goBack()">BACK</button>
+        <button class="btn btn-secondary" onclick="goBack()">戻る</button>
     </div>
 
     <!-- Gacha -->
     <div id="gacha-modal" class="modal-overlay">
         <div class="gacha-flash" id="gacha-flash"></div>
-        <div class="modal-title">GACHA</div>
+        <div class="modal-title">ガチャ</div>
         <div class="wallet-display">
-            <span>Miles: <strong id="gacha-miles">0</strong></span>
-            <span>Scrap: <strong id="gacha-scrap">0</strong></span>
+            <span>マイル: <strong id="gacha-miles">0</strong></span>
+            <span>スクラップ: <strong id="gacha-scrap">0</strong></span>
         </div>
         <div id="gacha-result" class="gacha-result" style="display:none;">
             <div class="gacha-rays" id="gacha-rays"></div>
             <div class="gacha-burst-container" id="gacha-burst"></div>
         </div>
-        <button class="btn" id="gacha-pull-btn" onclick="doPull()">PULL x1 — 100 Miles</button>
-        <button class="btn btn-secondary" onclick="goBack()" style="margin-top:12px;">BACK</button>
+        <button class="btn" id="gacha-pull-btn" onclick="doPull()">1回引く — 100マイル</button>
+        <button class="btn btn-secondary" onclick="goBack()" style="margin-top:12px;">戻る</button>
     </div>
 
     <!-- Customize -->
     <div id="custom-modal" class="modal-overlay">
-        <div class="modal-title">CUSTOMIZE</div>
+        <div class="modal-title">カスタム</div>
         <div class="preview-wrapper">
             <canvas id="preview-canvas" width="240" height="160"></canvas>
         </div>
         <div class="sub-tabs">
-            <button class="sub-tab active" id="custom-tab-color" onclick="switchCustomTab('color')">COLOR</button>
-            <button class="sub-tab" id="custom-tab-tire" onclick="switchCustomTab('tire')">TIRES</button>
-            <button class="sub-tab" id="custom-tab-body" onclick="switchCustomTab('body')">BODY</button>
-            <button class="sub-tab" id="custom-tab-trail" onclick="switchCustomTab('trail')">TRAIL</button>
+            <button class="sub-tab active" id="custom-tab-color" onclick="switchCustomTab('color')">カラー</button>
+            <button class="sub-tab" id="custom-tab-tire" onclick="switchCustomTab('tire')">タイヤ</button>
+            <button class="sub-tab" id="custom-tab-body" onclick="switchCustomTab('body')">ボディ</button>
+            <button class="sub-tab" id="custom-tab-trail" onclick="switchCustomTab('trail')">トレイル</button>
         </div>
         <div id="custom-grid" class="item-grid"></div>
-        <button class="btn btn-secondary" onclick="goBack()" style="margin-top:16px;">BACK</button>
+        <button class="btn btn-secondary" onclick="goBack()" style="margin-top:16px;">戻る</button>
     </div>
 
     <!-- Shop -->
     <div id="shop-modal" class="modal-overlay">
-        <div class="modal-title">SHOP</div>
-        <div style="color:#94a3b8; margin-bottom:16px;">Scrap: <strong id="shop-scrap" style="color:#fbbf24;">0</strong></div>
+        <div class="modal-title">ショップ</div>
+        <div style="color:#94a3b8; margin-bottom:16px;">スクラップ: <strong id="shop-scrap" style="color:#fbbf24;">0</strong></div>
         <div id="shop-list" class="modal-scroll"></div>
-        <button class="btn btn-secondary" onclick="goBack()">BACK</button>
+        <button class="btn btn-secondary" onclick="goBack()">戻る</button>
     </div>
 
     <!-- Debug: show errors on screen -->
@@ -186,6 +198,8 @@
     <script src="js/entities.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/menu.js"></script>
+    <script src="js/gacha-ui.js"></script>
+    <script src="js/customize-ui.js"></script>
     <script src="js/controls.js"></script>
     <script src="js/gameloop.js"></script>
     <script src="js/main.js"></script>
