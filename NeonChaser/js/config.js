@@ -43,30 +43,30 @@ const SCRAP_PRICE = { C: 50, R: 150, E: 500, L: 1500 };
 
 // --- Achievements ---
 const ACHIEVEMENTS = [
-    // Distance
-    { id: 'dist-1',   type: 'dist', dist: 1,   name: 'First Kilometer',   icon: '🏁', desc: '1km走破' },
-    { id: 'dist-3',   type: 'dist', dist: 3,   name: 'Warming Up',        icon: '🔥', desc: '3km走破' },
-    { id: 'dist-5',   type: 'dist', dist: 5,   name: 'Road Warrior',      icon: '⚔️', desc: '5km走破' },
-    { id: 'dist-10',  type: 'dist', dist: 10,  name: 'Highway Star',      icon: '⭐', desc: '10km走破' },
-    { id: 'dist-25',  type: 'dist', dist: 25,  name: 'Neon Drifter',      icon: '💎', desc: '25km走破' },
-    { id: 'dist-50',  type: 'dist', dist: 50,  name: 'Cyber Phantom',     icon: '👻', desc: '50km走破' },
-    { id: 'dist-100', type: 'dist', dist: 100, name: 'Legend of the Grid', icon: '👑', desc: '100km走破' },
-    { id: 'dist-200', type: 'dist', dist: 200, name: 'Infinite Runner',   icon: '∞',  desc: '200km走破' },
-    // Combat
-    { id: 'kill-10',  type: 'stat', stat: 'destroyedEnemies', val: 10,  name: 'First Blood',    icon: '🎯', desc: '1ランで敵10体撃破' },
-    { id: 'kill-50',  type: 'stat', stat: 'destroyedEnemies', val: 50,  name: 'Destroyer',      icon: '💀', desc: '1ランで敵50体撃破' },
-    { id: 'kill-100', type: 'stat', stat: 'destroyedEnemies', val: 100, name: 'Annihilator',    icon: '☠️', desc: '1ランで敵100体撃破' },
-    // Dash
-    { id: 'dash-5',   type: 'stat', stat: 'dashCount',        val: 5,   name: 'Speed Junkie',   icon: '💨', desc: '1ランでダッシュ5回' },
-    { id: 'dash-20',  type: 'stat', stat: 'dashCount',        val: 20,  name: 'Dash Master',    icon: '🌀', desc: '1ランでダッシュ20回' },
-    // Jump
-    { id: 'jump-3',   type: 'stat', stat: 'jumpCount',        val: 3,   name: 'Airborne',       icon: '🦘', desc: '1ランでジャンプ3回' },
-    { id: 'jump-10',  type: 'stat', stat: 'jumpCount',        val: 10,  name: 'Sky Rider',      icon: '🚀', desc: '1ランでジャンプ10回' },
-    // Level
-    { id: 'lv-5',     type: 'stat', stat: 'lv',               val: 5,   name: 'Getting Serious', icon: '🔰', desc: 'Lv5到達' },
-    { id: 'lv-10',    type: 'stat', stat: 'lv',               val: 10,  name: 'Overclocked',    icon: '⚡', desc: 'Lv10到達' },
-    { id: 'lv-20',    type: 'stat', stat: 'lv',               val: 20,  name: 'Unstoppable',    icon: '🔥', desc: 'Lv20到達' },
-    // Challenge
-    { id: 'nodmg-3',  type: 'nodmg', dist: 3,  name: 'Untouchable',  icon: '🛡️', desc: 'ノーダメージで3km' },
-    { id: 'nodmg-10', type: 'nodmg', dist: 10, name: 'Perfect Run',  icon: '💎', desc: 'ノーダメージで10km' },
+    // Distance (50~500 miles, proportional to distance)
+    { id: 'dist-1',   type: 'dist', dist: 1,   name: 'First Kilometer',   icon: '🏁', desc: '1km走破',    reward: 50  },
+    { id: 'dist-3',   type: 'dist', dist: 3,   name: 'Warming Up',        icon: '🔥', desc: '3km走破',    reward: 80  },
+    { id: 'dist-5',   type: 'dist', dist: 5,   name: 'Road Warrior',      icon: '⚔️', desc: '5km走破',    reward: 100 },
+    { id: 'dist-10',  type: 'dist', dist: 10,  name: 'Highway Star',      icon: '⭐', desc: '10km走破',   reward: 200 },
+    { id: 'dist-25',  type: 'dist', dist: 25,  name: 'Neon Drifter',      icon: '💎', desc: '25km走破',   reward: 300 },
+    { id: 'dist-50',  type: 'dist', dist: 50,  name: 'Cyber Phantom',     icon: '👻', desc: '50km走破',   reward: 400 },
+    { id: 'dist-100', type: 'dist', dist: 100, name: 'Legend of the Grid', icon: '👑', desc: '100km走破',  reward: 500 },
+    { id: 'dist-200', type: 'dist', dist: 200, name: 'Infinite Runner',   icon: '∞',  desc: '200km走破',  reward: 800 },
+    // Combat (30~200 miles)
+    { id: 'kill-10',  type: 'stat', stat: 'destroyedEnemies', val: 10,  name: 'First Blood',    icon: '🎯', desc: '1ランで敵10体撃破',   reward: 30  },
+    { id: 'kill-50',  type: 'stat', stat: 'destroyedEnemies', val: 50,  name: 'Destroyer',      icon: '💀', desc: '1ランで敵50体撃破',   reward: 100 },
+    { id: 'kill-100', type: 'stat', stat: 'destroyedEnemies', val: 100, name: 'Annihilator',    icon: '☠️', desc: '1ランで敵100体撃破',  reward: 200 },
+    // Dash (30~100 miles)
+    { id: 'dash-5',   type: 'stat', stat: 'dashCount',        val: 5,   name: 'Speed Junkie',   icon: '💨', desc: '1ランでダッシュ5回',  reward: 30  },
+    { id: 'dash-20',  type: 'stat', stat: 'dashCount',        val: 20,  name: 'Dash Master',    icon: '🌀', desc: '1ランでダッシュ20回', reward: 80  },
+    // Jump (30~100 miles)
+    { id: 'jump-3',   type: 'stat', stat: 'jumpCount',        val: 3,   name: 'Airborne',       icon: '🦘', desc: '1ランでジャンプ3回',  reward: 30  },
+    { id: 'jump-10',  type: 'stat', stat: 'jumpCount',        val: 10,  name: 'Sky Rider',      icon: '🚀', desc: '1ランでジャンプ10回', reward: 80  },
+    // Level (50~200 miles)
+    { id: 'lv-5',     type: 'stat', stat: 'lv',               val: 5,   name: 'Getting Serious', icon: '🔰', desc: 'Lv5到達',   reward: 50  },
+    { id: 'lv-10',    type: 'stat', stat: 'lv',               val: 10,  name: 'Overclocked',    icon: '⚡', desc: 'Lv10到達',  reward: 150 },
+    { id: 'lv-20',    type: 'stat', stat: 'lv',               val: 20,  name: 'Unstoppable',    icon: '🔥', desc: 'Lv20到達',  reward: 300 },
+    // Challenge (100~500 miles)
+    { id: 'nodmg-3',  type: 'nodmg', dist: 3,  name: 'Untouchable',  icon: '🛡️', desc: 'ノーダメージで3km',  reward: 100 },
+    { id: 'nodmg-10', type: 'nodmg', dist: 10, name: 'Perfect Run',  icon: '💎', desc: 'ノーダメージで10km', reward: 500 },
 ];

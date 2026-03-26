@@ -27,6 +27,9 @@
     <!-- Achievement popup toast -->
     <div id="achieve-popup" class="achieve-popup"></div>
 
+    <!-- XP Popup container -->
+    <div id="xp-popup-container"></div>
+
     <div id="ui-layer">
         <button class="menu-btn" onclick="showMenu()">☰</button>
         <div class="hud-container">
@@ -122,12 +125,16 @@
 
     <!-- Gacha -->
     <div id="gacha-modal" class="modal-overlay">
+        <div class="gacha-flash" id="gacha-flash"></div>
         <div class="modal-title">GACHA</div>
         <div class="wallet-display">
             <span>Miles: <strong id="gacha-miles">0</strong></span>
             <span>Scrap: <strong id="gacha-scrap">0</strong></span>
         </div>
-        <div id="gacha-result" class="gacha-result" style="display:none;"></div>
+        <div id="gacha-result" class="gacha-result" style="display:none;">
+            <div class="gacha-rays" id="gacha-rays"></div>
+            <div class="gacha-burst-container" id="gacha-burst"></div>
+        </div>
         <button class="btn" id="gacha-pull-btn" onclick="doPull()">PULL x1 — 100 Miles</button>
         <button class="btn btn-secondary" onclick="goBack()" style="margin-top:12px;">BACK</button>
     </div>

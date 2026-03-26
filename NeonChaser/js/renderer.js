@@ -225,17 +225,17 @@ let _pvRdr = null, _pvScene = null, _pvCam = null, _pvBike = null, _pvRunning = 
 function _initPreview() {
     const c = el('preview-canvas');
     if (!c || _pvRdr) return;
-    _pvRdr = new THREE.WebGLRenderer({ canvas: c, antialias: true, alpha: true });
+    _pvRdr = new THREE.WebGLRenderer({ canvas: c, antialias: true, alpha: false });
+    _pvRdr.setClearColor(0x0a0a14, 1);
     _pvRdr.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     _pvRdr.setSize(c.clientWidth, c.clientHeight);
 
     _pvScene = new THREE.Scene();
     _pvCam = new THREE.PerspectiveCamera(50, c.clientWidth / c.clientHeight, 0.1, 100);
-    _pvCam.position.set(0, 3, 6);
-    _pvCam.lookAt(0, 0.5, 0);
+    _pvCam.position.set(3, 4, 5);
+    _pvCam.lookAt(0, 1, 0);
 
     _pvScene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    _pvScene.add(new THREE.HemisphereLight(0x0f172a, 0xec4899, 0.4));
     const dl = new THREE.DirectionalLight(0xffffff, 0.8);
     dl.position.set(5, 10, 5);
     _pvScene.add(dl);

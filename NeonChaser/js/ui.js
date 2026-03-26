@@ -93,8 +93,19 @@ function triggerGameOver() {
     addMiles(milesEarned);
     addScore(dist, st.lv);
     el('res-lv').innerText = st.lv;
-    el('res-dist').innerText = dist.toFixed(2) + ' km';
-    el('res-miles').innerText = '+' + milesEarned;
+    // Animate numbers with count-up effect (delayed to sync with modal appearance)
+    el('res-dist').innerText = '0.00 km';
+    el('res-miles').innerText = '+0';
+    setTimeout(() => {
+        animateNumber(el('res-dist'), 0, dist, 1200, ' km');
+        animateNumber(el('res-miles'), 0, milesEarned, 1000, '');
+        // Prefix '+' for miles after animation starts
+        const _origMiles = el('res-miles');
+        const _milesUpdate = setInterval(() => {
+            if (!_origMiles.innerText.startsWith('+')) _origMiles.innerText = '+' + _origMiles.innerText;
+        }, 16);
+        setTimeout(() => clearInterval(_milesUpdate), 1100);
+    }, 400);
     el('ai-feedback').style.display = 'block';
     el('ai-loading').style.display = 'block';
     el('ai-result').style.display = 'none';

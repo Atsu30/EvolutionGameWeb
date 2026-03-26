@@ -25,3 +25,15 @@ function checkAchievements(currentDist, stats) {
     if (newlyUnlocked.length > 0) storageSave('achievements-v1', progress);
     return newlyUnlocked;
 }
+
+function claimReward(achieveId) {
+    const progress = getAchievementProgress();
+    const entry = progress[achieveId];
+    if (!entry || !entry.unlocked || entry.claimed) return false;
+    const def = ACHIEVEMENTS.find(a => a.id === achieveId);
+    if (!def || !def.reward) return false;
+    progress[achieveId].claimed = true;
+    storageSave('achievements-v1', progress);
+    addMiles(def.reward);
+    return true;
+}
