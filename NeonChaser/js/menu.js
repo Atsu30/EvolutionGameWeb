@@ -42,9 +42,9 @@ function showAchievements() {
         if (!done) {
             rightCol = `<span class="achieve-check">🔒</span>`;
         } else if (claimed) {
-            rightCol = `<span class="achieve-claimed">+${a.reward}mi</span>`;
+            rightCol = `<span class="achieve-claimed">✅</span>`;
         } else {
-            rightCol = `<button class="achieve-claim-btn" onclick="achieveClaim('${a.id}')">CLAIM<br><span class="achieve-reward-text">+${a.reward}mi</span></button>`;
+            rightCol = `<button class="claim-btn" onclick="achieveClaim('${a.id}')">CLAIM +${a.reward} Miles</button>`;
         }
         return `<div class="achieve-row ${done ? (claimed ? 'unlocked claimed' : 'unlocked claimable') : 'locked'}"><span class="achieve-icon">${a.icon}</span><div class="achieve-info"><div class="achieve-name">${a.name}</div><div class="achieve-desc">${a.desc}</div></div>${rightCol}</div>`;
     }).join('');

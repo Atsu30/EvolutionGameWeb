@@ -29,11 +29,11 @@ function checkAchievements(currentDist, stats) {
 function claimReward(achieveId) {
     const progress = getAchievementProgress();
     const entry = progress[achieveId];
-    if (!entry || !entry.unlocked || entry.claimed) return false;
+    if (!entry || !entry.unlocked || entry.claimed) return 0;
     const def = ACHIEVEMENTS.find(a => a.id === achieveId);
-    if (!def || !def.reward) return false;
+    if (!def || !def.reward) return 0;
     progress[achieveId].claimed = true;
     storageSave('achievements-v1', progress);
     addMiles(def.reward);
-    return true;
+    return def.reward;
 }

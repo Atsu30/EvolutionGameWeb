@@ -67,6 +67,6 @@ const ACHIEVEMENTS = [
     { id: 'lv-10',    type: 'stat', stat: 'lv',               val: 10,  name: 'Overclocked',    icon: '⚡', desc: 'Lv10到達',  reward: 150 },
     { id: 'lv-20',    type: 'stat', stat: 'lv',               val: 20,  name: 'Unstoppable',    icon: '🔥', desc: 'Lv20到達',  reward: 300 },
     // Challenge (100~500 miles)
-    { id: 'nodmg-3',  type: 'nodmg', dist: 3,  name: 'Untouchable',  icon: '🛡️', desc: 'ノーダメージで3km',  reward: 100 },
+    { id: 'nodmg-3',  type: 'nodmg', dist: 3,  name: 'Untouchable',  icon: '🛡️', desc: 'ノーダメージで3km',  reward: 200 },
     { id: 'nodmg-10', type: 'nodmg', dist: 10, name: 'Perfect Run',  icon: '💎', desc: 'ノーダメージで10km', reward: 500 },
 ];
