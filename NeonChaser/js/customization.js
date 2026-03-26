@@ -103,9 +103,8 @@ function applyCustomization() {
     const tireDef = getTireDef(eq.tireId);
     const newTireGeo = tireDef.geo();
     playerMesh.userData.tires.forEach(tireGroup => {
-        tireGroup.children[0].geometry = newTireGeo;
-        tireGroup.children[1].geometry = newTireGeo;
-        tireGroup.children[2].geometry = new THREE.EdgesGeometry(newTireGeo);
+        // Tire is wireframe only (single LineSegments child)
+        tireGroup.children[0].geometry = new THREE.EdgesGeometry(newTireGeo);
     });
 
     const bodyDef = getBodyDef(eq.bodyId);

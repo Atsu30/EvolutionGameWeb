@@ -10,9 +10,9 @@ const CFG = {
 };
 
 const ENEMY_TYPES = {
-    drone:    { hp: 1,   atk: 0,  w: 0.8, exp: 10, speed: 0.7 },
-    shard:    { hp: 1,   atk: 15, w: 1.2, exp: 20, speed: 0.6 },
-    sentinel: { hp: 999, atk: 40, w: 2.5, exp: 0,  speed: 0.4 },
+    drone:    { hp: 1,   atk: 0,  w: 1.2, exp: 10, speed: 0.7 },
+    shard:    { hp: 1,   atk: 15, w: 1.4, exp: 20, speed: 0.6 },
+    sentinel: { hp: 999, atk: 40, w: 1.8, exp: 0,  speed: 0.4 },
 };
 
 const ROCKET_DEF = { hp: 1, atk: 30, w: 1.5, exp: 40 };

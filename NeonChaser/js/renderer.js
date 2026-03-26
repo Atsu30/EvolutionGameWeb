@@ -124,10 +124,9 @@ function createBike(bodyMat, neonMat) {
     const grp = new THREE.Group();
     const makeTire = z => {
         const g = new THREE.Group();
-        const t = new THREE.Mesh(geoTire, matTire);
-        const r = new THREE.Mesh(geoRim, neonMat);
+        // Wireframe only — edge lines for tire shape
         const e = new THREE.LineSegments(new THREE.EdgesGeometry(geoTire), neonMat);
-        g.add(t, r, e); g.position.set(0, 0.55, z); return g;
+        g.add(e); g.position.set(0, 0.55, z); return g;
     };
     const fTire = makeTire(-1.3), rTire = makeTire(1.3);
     const nl = new THREE.LineSegments(new THREE.EdgesGeometry(geoBody), neonMat);
@@ -135,7 +134,7 @@ function createBike(bodyMat, neonMat) {
     grp.add(fTire, rTire, nl);
     grp.userData = {
         tires: [fTire, rTire],
-        changeMat: (b, n) => { nl.material = n; fTire.children[1].material = n; fTire.children[2].material = n; rTire.children[1].material = n; rTire.children[2].material = n; }
+        changeMat: (b, n) => { nl.material = n; fTire.children[0].material = n; rTire.children[0].material = n; }
     };
     return grp;
 }
@@ -184,8 +183,8 @@ function createZigzagMesh(bodyMat, neonMat) {
 // --- Enemy Type Meshes ---
 const geoDrone = new THREE.IcosahedronGeometry(0.6, 0);
 const geoShard = new THREE.OctahedronGeometry(1.0, 0);
-const geoSentRing = new THREE.TorusGeometry(1.5, 0.4, 8, 16);
-const geoSentCore = new THREE.SphereGeometry(0.6, 8, 8);
+const geoSentRing = new THREE.TorusGeometry(0.9, 0.25, 8, 16);
+const geoSentCore = new THREE.SphereGeometry(0.4, 8, 8);
 
 function createDroneMesh(bodyMat, neonMat) {
     const grp = new THREE.Group();
@@ -301,9 +300,7 @@ function _createPreviewBike() {
     const tireDef = getTireDef(eq.tireId);
     const tGeo = tireDef.geo();
     _pvBike.userData.tires.forEach(tg => {
-        tg.children[0].geometry = tGeo;
-        tg.children[1].geometry = tGeo;
-        tg.children[2].geometry = new THREE.EdgesGeometry(tGeo);
+        tg.children[0].geometry = new THREE.EdgesGeometry(tGeo);
     });
 
     // Apply body customization
@@ -324,9 +321,7 @@ function updatePreviewBike(colorId, tireId, bodyId) {
     const tireDef = getTireDef(tireId);
     const tGeo = tireDef.geo();
     _pvBike.userData.tires.forEach(tg => {
-        tg.children[0].geometry = tGeo;
-        tg.children[1].geometry = tGeo;
-        tg.children[2].geometry = new THREE.EdgesGeometry(tGeo);
+        tg.children[0].geometry = new THREE.EdgesGeometry(tGeo);
     });
 
     const bodyDef = getBodyDef(bodyId);
