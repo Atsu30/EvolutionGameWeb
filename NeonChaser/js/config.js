@@ -1,4 +1,5 @@
-export const CFG = {
+// --- Game Constants ---
+const CFG = {
     maxSpd: 120, acc: 40, steer: 35, size: 1.0, kb: 1.0, hp: 100, guardDmg: 20, healRate: 0.15, healAmt: 20,
     dashRatio: 0.08, dashDur: 2.5, dashSpdMul: 1.6, jmpRatio: 0.05, jmpPow: 45, grav: 100,
     rocketRatio: 0.07,
@@ -7,7 +8,7 @@ export const CFG = {
     spwnInt: 0.35, hitDecel: 15, wallDecel: 120, pGrav: 150, lvExp: 50, expMul: 1.5
 };
 
-export const ENEMY_DEFS = [
+const ENEMY_DEFS = [
     { lv: 1, kb: 1.0, w: 1.0, dmg: 10, exp: 10 },
     { lv: 2, kb: 2.0, w: 1.3, dmg: 20, exp: 20 },
     { lv: 3, kb: 3.0, w: 1.7, dmg: 30, exp: 35 },
@@ -15,10 +16,10 @@ export const ENEMY_DEFS = [
     { lv: 5, kb: 5.0, w: 3.0, dmg: 60, exp: 80 }
 ];
 
-export const ROCKET_DEF = { lv: 3, kb: 3.0, w: 1.5, dmg: 30, exp: 40 };
-export const ZIGZAG_DEF = { lv: 2, kb: 2.0, w: 1.3, dmg: 25, exp: 30, zigFreq: 4, zigAmp: 12 };
+const ROCKET_DEF = { lv: 3, kb: 3.0, w: 1.5, dmg: 30, exp: 40 };
+const ZIGZAG_DEF = { lv: 2, kb: 2.0, w: 1.3, dmg: 25, exp: 30, zigFreq: 4, zigAmp: 12 };
 
-export const UPGRADES = [
+const UPGRADES = [
     { id: 'spd', i: '⚡', t: 'Engine Overclock', d: '最高速度アップ。<br>※カーブで遠心力に負けやすくなる' },
     { id: 'grp', i: '🛞', t: 'Tire Grip', d: 'ハンドリングアップ。<br>遠心力に抗い急カーブに強くなる' },
     { id: 'siz', i: '🛡️', t: 'Chassis Expansion', d: '車体が巨大化。<br>当たり判定が広がり巻き込みやすくなる' },
@@ -26,22 +27,22 @@ export const UPGRADES = [
 ];
 
 // --- Distance & Economy ---
-export const DISTANCE_SCALE = 0.001;   // spd * dt * DISTANCE_SCALE = km
-export const MILE_RATE = 10;           // miles per km
-export const GACHA_COST = 100;         // miles per pull
+const DISTANCE_SCALE = 0.001;
+const MILE_RATE = 10;
+const GACHA_COST = 100;
 
-export const RARITY_WEIGHTS = [
+const RARITY_WEIGHTS = [
     { rarity: 'C', weight: 50 },
     { rarity: 'R', weight: 30 },
     { rarity: 'E', weight: 15 },
     { rarity: 'L', weight: 5 },
 ];
 
-export const SCRAP_DUPE  = { C: 5, R: 15, E: 50, L: 200 };
-export const SCRAP_PRICE = { C: 50, R: 150, E: 500, L: 1500 };
+const SCRAP_DUPE  = { C: 5, R: 15, E: 50, L: 200 };
+const SCRAP_PRICE = { C: 50, R: 150, E: 500, L: 1500 };
 
 // --- Achievements ---
-export const ACHIEVEMENTS = [
+const ACHIEVEMENTS = [
     // Distance
     { id: 'dist-1',   type: 'dist', dist: 1,   name: 'First Kilometer',   icon: '🏁', desc: '1km走破' },
     { id: 'dist-3',   type: 'dist', dist: 3,   name: 'Warming Up',        icon: '🔥', desc: '3km走破' },

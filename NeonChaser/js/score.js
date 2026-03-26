@@ -1,17 +1,13 @@
-import { load, save } from './storage.js';
-
-const KEY = 'scores-v1';
-const MAX = 10;
-
-export function getScores() {
-    return load(KEY, []);
+// --- Score & Ranking ---
+function getScores() {
+    return storageLoad('scores-v1', []);
 }
 
-export function addScore(dist, lv) {
+function addScore(dist, lv) {
     const scores = getScores();
     scores.push({ dist: Math.round(dist * 100) / 100, lv, date: Date.now() });
     scores.sort((a, b) => b.dist - a.dist);
-    if (scores.length > MAX) scores.length = MAX;
-    save(KEY, scores);
+    if (scores.length > 10) scores.length = 10;
+    storageSave('scores-v1', scores);
     return scores;
 }

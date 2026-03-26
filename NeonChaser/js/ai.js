@@ -1,7 +1,8 @@
-const apiKey = "";
+// --- Gemini API ---
+const _aiApiKey = "";
 
-export async function fetchAIFeedback(stats) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+async function fetchAIFeedback(stats) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${_aiApiKey}`;
     const prompt = `あなたはサイバーパンク世界のAIナビゲーターです。プレイヤーのバイクゲームの走行データを分析し、称号と評価をJSON形式で返して。
 データ: 到達Lv: ${stats.lv}, 粉砕した敵: ${stats.destroyed}, 被ダメージ回数: ${stats.damage}, ダッシュ回数: ${stats.dash}, ジャンプ回数: ${stats.jump}
 要件:

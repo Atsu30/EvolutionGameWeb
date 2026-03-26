@@ -152,15 +152,30 @@
     </div>
 
     <!-- Debug: show errors on screen -->
-    <div id="error-log" style="position:fixed;bottom:0;left:0;width:100%;max-height:40vh;overflow-y:auto;background:rgba(0,0,0,0.9);color:#f87171;font-family:monospace;font-size:12px;padding:8px;z-index:9999;display:none;pointer-events:auto;"></div>
+    <div id="error-log" style="position:fixed;bottom:0;left:0;width:100%;max-height:40vh;overflow-y:auto;background:rgba(0,0,0,0.9);color:#f87171;font-family:monospace;font-size:12px;padding:8px;z-index:9999;display:none;user-select:text;-webkit-user-select:text;pointer-events:auto;"></div>
     <script>
         const _errLog = document.getElementById('error-log');
-        function _showErr(msg) { _errLog.style.display = 'block'; _errLog.innerHTML += msg + '<br>'; }
+        function _showErr(msg) { _errLog.style.display = 'block'; _errLog.innerHTML += '<div>' + msg + '</div>'; }
         window.onerror = (m, s, l, c, e) => _showErr(`[ERROR] ${m} (${s}:${l}:${c})`);
         window.addEventListener('unhandledrejection', e => _showErr(`[PROMISE] ${e.reason}`));
-        const _origConsError = console.error;
-        console.error = (...a) => { _showErr(`[console.error] ${a.join(' ')}`); _origConsError.apply(console, a); };
     </script>
-    <script type="module" src="js/main.js"></script>
+
+    <!-- Game Scripts (order matters) -->
+    <script src="js/state.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/score.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/customization.js"></script>
+    <script src="js/gacha.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/controls.js"></script>
+    <script src="js/gameloop.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

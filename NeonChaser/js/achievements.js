@@ -1,14 +1,10 @@
-import { load, save } from './storage.js';
-import { ACHIEVEMENTS } from './config.js';
-
-const KEY = 'achievements-v1';
-
-export function getProgress() {
-    return load(KEY, {});
+// --- Achievements ---
+function getAchievementProgress() {
+    return storageLoad('achievements-v1', {});
 }
 
-export function checkAchievements(currentDist, stats) {
-    const progress = getProgress();
+function checkAchievements(currentDist, stats) {
+    const progress = getAchievementProgress();
     const newlyUnlocked = [];
     for (const a of ACHIEVEMENTS) {
         if (progress[a.id]) continue;
@@ -26,6 +22,6 @@ export function checkAchievements(currentDist, stats) {
             newlyUnlocked.push(a);
         }
     }
-    if (newlyUnlocked.length > 0) save(KEY, progress);
+    if (newlyUnlocked.length > 0) storageSave('achievements-v1', progress);
     return newlyUnlocked;
 }

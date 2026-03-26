@@ -1,13 +1,14 @@
-const PREFIX = 'nc-';
+// --- localStorage Wrapper ---
+const STORAGE_PREFIX = 'nc-';
 
-export function load(key, fallback) {
+function storageLoad(key, fallback) {
     try {
-        const raw = localStorage.getItem(PREFIX + key);
+        const raw = localStorage.getItem(STORAGE_PREFIX + key);
         return raw ? JSON.parse(raw) : fallback;
     } catch { return fallback; }
 }
 
-export function save(key, data) {
-    try { localStorage.setItem(PREFIX + key, JSON.stringify(data)); }
+function storageSave(key, data) {
+    try { localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(data)); }
     catch { /* quota exceeded */ }
 }

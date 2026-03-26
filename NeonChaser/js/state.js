@@ -1,9 +1,10 @@
-export const el = id => document.getElementById(id);
-export const { min, max, random, floor, ceil, PI, abs, sign, pow, atan, atan2 } = Math;
-export const R = () => random();
-export const R_Sign = () => (R() - 0.5) * 2;
+// --- Shared State & Helpers ---
+const el = id => document.getElementById(id);
+const { min, max, random, floor, ceil, PI, abs, sign, pow, atan, atan2 } = Math;
+const R = () => random();
+const R_Sign = () => (R() - 0.5) * 2;
 
-export const game = {
+const game = {
     st: {},
     keys: { l: false, r: false },
     ents: [],
