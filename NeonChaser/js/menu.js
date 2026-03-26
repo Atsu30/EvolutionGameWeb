@@ -8,6 +8,7 @@ function _hideModal(id) { el(id).classList.remove('active'); _menuStack = _menuS
 function showMenu() { game.st.isP = true; _showModal('menu-modal'); }
 function hideMenu() {
     if (_menuStack.includes('custom-modal') && typeof hidePreview === 'function') hidePreview();
+    if (_gachaPulling) _gachaPulling = false;
     _menuStack.forEach(id => el(id).classList.remove('active')); _menuStack = [];
     if (!game.st.isG) { game.st.isP = false; game.clock.getDelta(); }
 }
