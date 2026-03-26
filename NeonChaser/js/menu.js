@@ -5,7 +5,7 @@ import { getProgress } from './achievements.js';
 import { getWallet, canPull, pull, buyWithScrap, getShopItems } from './gacha.js';
 import {
     getInventory, getEquipped, setEquipped, applyCustomization,
-    getAllColors, getAllTires, getAllBodies, GACHA_POOL
+    getAllColors, getAllTires, getAllBodies, getAllTrails, GACHA_POOL
 } from './customization.js';
 
 let menuStack = [];
@@ -111,7 +111,8 @@ export function doPull() {
     const res = el('gacha-result');
     res.style.display = 'block';
     const rarityClass = `rarity-${result.rarity}`;
-    const categoryLabel = result.item.category === 'color' ? 'COLOR' : result.item.category === 'tire' ? 'TIRE' : 'BODY';
+    const catLabels = { color: 'COLOR', tire: 'TIRE', body: 'BODY', trail: 'TRAIL' };
+    const categoryLabel = catLabels[result.item.category] || 'ITEM';
 
     if (result.isDupe) {
         res.innerHTML = `
@@ -136,9 +137,9 @@ export function showCustomize() {
 
 function renderCustomize() {
     // Sub-tabs
-    ['color', 'tire', 'body'].forEach(tab => {
+    ['color', 'tire', 'body', 'trail'].forEach(tab => {
         const tabEl = el(`custom-tab-${tab}`);
-        tabEl.classList.toggle('active', tab === currentCustomTab);
+        if (tabEl) tabEl.classList.toggle('active', tab === currentCustomTab);
     });
 
     const inv = getInventory();
@@ -154,10 +155,14 @@ function renderCustomize() {
         allDefs = getAllTires();
         equippedId = eq.tireId;
         items = ['tire-default', ...inv.tires];
-    } else {
+    } else if (currentCustomTab === 'body') {
         allDefs = getAllBodies();
         equippedId = eq.bodyId;
         items = ['body-default', ...inv.bodies];
+    } else {
+        allDefs = getAllTrails();
+        equippedId = eq.trailId;
+        items = ['trail-default', ...(inv.trails || [])];
     }
 
     grid.innerHTML = items.map(id => {
@@ -165,9 +170,12 @@ function renderCustomize() {
         if (!def) return '';
         const isEquipped = id === equippedId;
         const rarityClass = def.rarity !== '-' ? `rarity-${def.rarity}` : '';
-        const colorSwatch = currentCustomTab === 'color'
-            ? `<div class="color-swatch" style="background:#${def.neon.toString(16).padStart(6, '0')};box-shadow:0 0 10px #${def.neon.toString(16).padStart(6, '0')};"></div>`
-            : '';
+        let colorSwatch = '';
+        if (currentCustomTab === 'color' && def.neon) {
+            colorSwatch = `<div class="color-swatch" style="background:#${def.neon.toString(16).padStart(6, '0')};box-shadow:0 0 10px #${def.neon.toString(16).padStart(6, '0')};"></div>`;
+        } else if (currentCustomTab === 'trail' && def.color) {
+            colorSwatch = `<div class="color-swatch" style="background:#${def.color.toString(16).padStart(6, '0')};box-shadow:0 0 10px #${def.color.toString(16).padStart(6, '0')};"></div>`;
+        }
         return `<div class="item-card ${isEquipped ? 'equipped' : ''}" onclick="equipItem('${currentCustomTab}','${id}')">
             ${colorSwatch}
             <div class="item-name ${rarityClass}">${def.name}</div>

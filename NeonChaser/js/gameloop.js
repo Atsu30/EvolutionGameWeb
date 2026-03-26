@@ -3,9 +3,10 @@ import { CFG, DISTANCE_SCALE } from './config.js';
 import {
     scene, cam, composer, sPass, floorMat, playerMesh, playerBox,
     matEnemyBreak, matEnemyNeonB, matEnemyUnbreak, matEnemyNeonU,
-    matEnemyKnock, matEnemyNeonK, createRocket
+    matEnemyKnock, matEnemyNeonK, matZigzagBody, matZigzagNeon,
+    createRocket, trailPool
 } from './renderer.js';
-import { spawnEntity, spawnJumpEvent, spawnRocketWarning, spawnRocketsFromWarning, addEntity, spawnHealItem } from './entities.js';
+import { spawnEntity, spawnJumpEvent, spawnRocketWarning, spawnRocketsFromWarning, spawnZigzagEntity, addEntity, spawnHealItem, spawnMul, rocketInterval } from './entities.js';
 import { flashScreen, shakeCamera } from './effects.js';
 import { updateUI, showUpgradeUI, triggerGameOver } from './ui.js';
 import { checkAchievements } from './achievements.js';
@@ -42,15 +43,19 @@ export function animate() {
 
         st.rocketTmr -= dt;
         st.spwnT += dt;
-        const spwnInt = max(0.1, CFG.spwnInt * (CFG.maxSpd / max(10, st.spd)));
+        const dist = st.dist || 0;
+        const spwnInt = max(0.1, CFG.spwnInt * (CFG.maxSpd / max(10, st.spd)) * spawnMul(dist));
         if (st.spwnT > spwnInt) {
-            if (st.rocketTmr <= 0) {
+            if (dist >= 5 && st.rocketTmr <= 0) {
                 spawnRocketWarning();
-                st.rocketTmr = 20 + R() * 10;
+                st.rocketTmr = rocketInterval(dist);
                 st.spwnT = -0.5;
-            } else if (R() < CFG.jmpRatio) {
+            } else if (dist >= 2 && R() < CFG.jmpRatio) {
                 spawnJumpEvent();
                 st.spwnT = -1.0;
+            } else if (dist >= 5 && R() < (min(0.15, 0.05 + dist * 0.002))) {
+                spawnZigzagEntity();
+                st.spwnT = 0;
             } else {
                 spawnEntity();
                 st.spwnT = 0;
@@ -90,7 +95,7 @@ export function animate() {
     st._achTimer = (st._achTimer || 0) + dt;
     if (st._achTimer > 0.5) {
         st._achTimer = 0;
-        const unlocked = checkAchievements(st.dist);
+        const unlocked = checkAchievements(st.dist, { ...st.stats, lv: st.lv });
         unlocked.forEach(a => showAchievementPopup(a));
     }
 
@@ -172,7 +177,19 @@ export function animate() {
             if (e.xS !== 0) { e.lX += e.xS * dt; e.xS *= pow(0.01, dt); if (abs(e.lX) > CFG.laneW) { e.lX = sign(e.lX) * CFG.laneW; e.xS *= -0.5; } }
             e.mesh.position.x = e.lX + st.crv * e.mesh.position.z * e.mesh.position.z;
 
-            if (e.type === 'enemy' || e.type === 'rocket') {
+            if (e.type === 'zigzag') {
+                // Zigzag swerving logic
+                e.zigTime = (e.zigTime || 0) + dt;
+                e.lX = e.zigBase + Math.sin(e.zigTime * e.def.zigFreq) * e.def.zigAmp;
+                if (abs(e.lX) > CFG.laneW) e.lX = sign(e.lX) * CFG.laneW;
+                e.mesh.position.x = e.lX + st.crv * e.mesh.position.z * e.mesh.position.z;
+                e.mesh.rotation.z += 5 * dt; // spinning visual
+                if (e.cTmr > 0) e.cTmr -= dt;
+
+                const canBreak = isDash || st.kb >= e.def.kb;
+                if (canBreak && e.mS !== 'B') { e.mesh.userData.changeMat(matEnemyBreak, matEnemyNeonB); e.mS = 'B'; }
+                else if (!canBreak && e.mS !== 'U') { e.mesh.userData.changeMat(matZigzagBody, matZigzagNeon); e.mS = 'U'; }
+            } else if (e.type === 'enemy' || e.type === 'rocket' || e.type === 'zigzag') {
                 if (e.type === 'rocket') e.mesh.userData.orbs.rotation.z += 10 * dt;
                 else e.mesh.userData.tires.forEach(t => t.rotation.x -= e.zS * dt * 0.2);
                 e.mesh.rotation.y = atan(2 * st.crv * e.mesh.position.z);
@@ -194,7 +211,7 @@ export function animate() {
                     e.state = 'B'; st.hp = min(st.maxHp, st.hp + CFG.healAmt); flashScreen('rgba(52,211,153,.4)');
                 } else if (e.type === 'jmp') {
                     if (st.pY < 0.5) { st.pVY = CFG.jmpPow * (isDash ? 1.2 : 1); flashScreen('rgba(16,185,129,.3)'); st.stats.jumpCount++; }
-                } else if (e.type === 'enemy' || e.type === 'rocket') {
+                } else if (e.type === 'enemy' || e.type === 'rocket' || e.type === 'zigzag') {
                     if (isDash || st.kb >= e.def.kb) {
                         e.state = 'K'; e.mesh.userData.changeMat(matEnemyKnock, matEnemyNeonK);
                         if (!isDash) { st.spd = max(0, st.spd - CFG.hitDecel); st.hStop = 0.05 + e.def.lv * 0.03; } else st.hStop = 0.02;
@@ -233,10 +250,10 @@ export function animate() {
             if (e.mesh.position.z > 15 || e.mesh.position.z < -250) { scene.remove(e.mesh); ents.splice(i, 1); continue; }
 
             // Enemy VS Enemy
-            if (e.type === 'enemy' || e.type === 'rocket') {
+            if (e.type === 'enemy' || e.type === 'rocket' || e.type === 'zigzag') {
                 for (let j = i - 1; j >= 0; j--) {
                     const o = ents[j];
-                    if (o.state === 'A' && (o.type === 'enemy' || o.type === 'rocket') && e.cTmr <= 0 && o.cTmr <= 0 && e.box.intersectsBox(o.box)) {
+                    if (o.state === 'A' && (o.type === 'enemy' || o.type === 'rocket' || o.type === 'zigzag') && e.cTmr <= 0 && o.cTmr <= 0 && e.box.intersectsBox(o.box)) {
                         if (e.isWall && o.isWall) continue;
                         if (e.def.lv !== o.def.lv) {
                             const v = e.def.lv > o.def.lv ? o : e, a = e.def.lv > o.def.lv ? e : o;
@@ -276,6 +293,34 @@ export function animate() {
     } else {
         cam.position.x = st.cB_X;
         cam.position.y = st.cB_Y;
+    }
+
+    // --- Trail Particles ---
+    if (trailPool.length > 0 && st.spd > 10) {
+        const spawnCount = isDash ? 2 : 1;
+        for (let s = 0; s < spawnCount; s++) {
+            const free = trailPool.find(p => p.life <= 0);
+            if (free) {
+                free.mesh.position.set(
+                    playerMesh.position.x + R_Sign() * 0.3,
+                    playerMesh.position.y + 0.5 + R() * 0.5,
+                    playerMesh.position.z + 1.5 + R()
+                );
+                free.life = free.maxLife;
+                free.mesh.visible = true;
+                free.mesh.material.opacity = 0.8;
+                const sc = isDash ? 2 : 1;
+                free.mesh.scale.setScalar(sc);
+            }
+        }
+        for (const p of trailPool) {
+            if (p.life > 0) {
+                p.life -= dt;
+                p.mesh.material.opacity = max(0, p.life / p.maxLife) * 0.8;
+                p.mesh.position.z += st.spd * dt * 0.5;
+                if (p.life <= 0) { p.mesh.visible = false; }
+            }
+        }
     }
 
     composer.render();

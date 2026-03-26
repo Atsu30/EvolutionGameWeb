@@ -1,6 +1,6 @@
 import { load, save } from './storage.js';
 import { PI } from './state.js';
-import { MkMat, playerMesh, geoTire, geoBody } from './renderer.js';
+import { MkMat, playerMesh, geoTire, geoBody, initTrailPool } from './renderer.js';
 
 const INV_KEY = 'inventory-v1';
 const EQP_KEY = 'equip-v1';
@@ -42,32 +42,47 @@ const BODIES = {
 
 function applyGeo(g, fn) { fn(g); return g; }
 
+// --- Trail Presets ---
+const TRAILS = {
+    'trail-default':  { name: 'None',           rarity: '-', color: null },
+    'trail-cyan':     { name: 'Cyber Stream',   rarity: 'C', color: 0x00ffff },
+    'trail-fire':     { name: 'Fire Trail',     rarity: 'C', color: 0xff6600 },
+    'trail-electric': { name: 'Lightning',      rarity: 'R', color: 0x60a5fa },
+    'trail-sakura':   { name: 'Cherry Blossom', rarity: 'R', color: 0xf0abfc },
+    'trail-gold':     { name: 'Golden Path',    rarity: 'E', color: 0xfcd34d },
+    'trail-void':     { name: 'Dark Matter',    rarity: 'L', color: 0x8b5cf6 },
+};
+
 // --- Gacha Pool (excludes defaults) ---
 export const GACHA_POOL = [
     ...Object.entries(COLORS).filter(([, v]) => v.rarity !== '-').map(([id, v]) => ({ id, name: v.name, category: 'color', rarity: v.rarity })),
     ...Object.entries(TIRES).filter(([, v]) => v.rarity !== '-').map(([id, v]) => ({ id, name: v.name, category: 'tire', rarity: v.rarity })),
     ...Object.entries(BODIES).filter(([, v]) => v.rarity !== '-').map(([id, v]) => ({ id, name: v.name, category: 'body', rarity: v.rarity })),
+    ...Object.entries(TRAILS).filter(([, v]) => v.rarity !== '-').map(([id, v]) => ({ id, name: v.name, category: 'trail', rarity: v.rarity })),
 ];
 
 export function getColorDef(id) { return COLORS[id] || COLORS['color-default']; }
 export function getTireDef(id)  { return TIRES[id] || TIRES['tire-default']; }
 export function getBodyDef(id)  { return BODIES[id] || BODIES['body-default']; }
+export function getTrailDef(id) { return TRAILS[id] || TRAILS['trail-default']; }
 
 export function getAllColors() { return COLORS; }
 export function getAllTires()  { return TIRES; }
 export function getAllBodies() { return BODIES; }
+export function getAllTrails() { return TRAILS; }
 
 // --- Inventory ---
 export function getInventory() {
-    return load(INV_KEY, { colors: [], tires: [], bodies: [] });
+    return load(INV_KEY, { colors: [], tires: [], bodies: [], trails: [] });
 }
 
 export function addItem(id) {
     const inv = getInventory();
     const pool = GACHA_POOL.find(p => p.id === id);
     if (!pool) return;
-    const key = pool.category === 'color' ? 'colors' : pool.category === 'tire' ? 'tires' : 'bodies';
-    if (!inv[key].includes(id)) {
+    const catMap = { color: 'colors', tire: 'tires', body: 'bodies', trail: 'trails' };
+    const key = catMap[pool.category];
+    if (key && !inv[key].includes(id)) {
         inv[key].push(id);
         save(INV_KEY, inv);
     }
@@ -80,7 +95,7 @@ export function ownsItem(id) {
 
 // --- Equipment ---
 export function getEquipped() {
-    return load(EQP_KEY, { colorId: 'color-default', tireId: 'tire-default', bodyId: 'body-default' });
+    return load(EQP_KEY, { colorId: 'color-default', tireId: 'tire-default', bodyId: 'body-default', trailId: 'trail-default' });
 }
 
 export function setEquipped(category, id) {
@@ -88,6 +103,7 @@ export function setEquipped(category, id) {
     if (category === 'color') eq.colorId = id;
     else if (category === 'tire') eq.tireId = id;
     else if (category === 'body') eq.bodyId = id;
+    else if (category === 'trail') eq.trailId = id;
     save(EQP_KEY, eq);
 }
 
@@ -127,6 +143,10 @@ export function applyCustomization() {
     if (bodyLine) {
         bodyLine.geometry = new THREE.EdgesGeometry(newBodyGeo);
     }
+
+    // Trail
+    const trailDef = getTrailDef(eq.trailId);
+    initTrailPool(trailDef.color);
 }
 
 export function updateRainbowEffect(dt) {

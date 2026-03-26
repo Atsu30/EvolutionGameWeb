@@ -89,6 +89,8 @@ export const matEnemyBreak = MkMat(0x064e3b, 0x022c22, 0.5);
 export const matEnemyNeonB = MkMat(0x10b981, 0x059669, 1.0);
 export const matEnemyUnbreak = MkMat(0xbe123c, 0x9f1239, 0.8);
 export const matEnemyNeonU = MkMat(0xff0055, 0xe11d48, 2.0);
+export const matZigzagBody = MkMat(0xd97706, 0x92400e, 0.6);
+export const matZigzagNeon = MkMat(0xfbbf24, 0xfbbf24, 2.0);
 export const matEnemyKnock = MkMat(0x94a3b8, 0x334155, 0.5, 0.5, 0.5);
 export const matEnemyNeonK = MkMat(0x1e293b, 0x1e293b, 1.0);
 export const matDash = MkMat(0x00ffff, 0x00ffff, 2.0);
@@ -165,6 +167,50 @@ export function createRocket(bodyMat, neonMat) {
     grp.add(orbs);
     grp.userData = { orbs, changeMat: (b, n) => { bd.material = b; nl.material = n; oMats.forEach(o => o.material = n); } };
     return grp;
+}
+
+// --- Zigzag Enemy Mesh Factory ---
+const geoZBar1 = new THREE.BoxGeometry(0.3, 0.3, 3.0);
+const geoZBar2 = new THREE.BoxGeometry(3.0, 0.3, 0.3);
+const geoZCore = new THREE.SphereGeometry(0.4, 8, 8);
+
+export function createZigzagMesh(bodyMat, neonMat) {
+    const grp = new THREE.Group();
+    const bar1 = new THREE.Mesh(geoZBar1, bodyMat);
+    const bar2 = new THREE.Mesh(geoZBar2, bodyMat);
+    const core = new THREE.Mesh(geoZCore, neonMat);
+    const edge1 = new THREE.LineSegments(new THREE.EdgesGeometry(geoZBar1), neonMat);
+    const edge2 = new THREE.LineSegments(new THREE.EdgesGeometry(geoZBar2), neonMat);
+    const edgeC = new THREE.LineSegments(new THREE.EdgesGeometry(geoZCore), neonMat);
+    bar1.position.y = 1; bar2.position.y = 1; core.position.y = 1;
+    edge1.position.y = 1; edge2.position.y = 1; edgeC.position.y = 1;
+    grp.add(bar1, bar2, core, edge1, edge2, edgeC);
+    grp.userData = {
+        changeMat: (b, n) => {
+            bar1.material = b; bar2.material = b; core.material = n;
+            edge1.material = n; edge2.material = n; edgeC.material = n;
+        }
+    };
+    return grp;
+}
+
+// --- Trail Particle Pool ---
+const TRAIL_POOL_SIZE = 100;
+const geoTrailParticle = new THREE.SphereGeometry(0.1, 4, 4);
+export const trailPool = [];
+
+export function initTrailPool(color) {
+    // Clear existing
+    trailPool.forEach(p => scene.remove(p.mesh));
+    trailPool.length = 0;
+    if (!color) return;
+    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+    for (let i = 0; i < TRAIL_POOL_SIZE; i++) {
+        const mesh = new THREE.Mesh(geoTrailParticle, mat.clone());
+        mesh.visible = false;
+        scene.add(mesh);
+        trailPool.push({ mesh, life: 0, maxLife: 0.5 });
+    }
 }
 
 // --- Player ---
