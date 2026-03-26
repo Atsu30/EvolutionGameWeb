@@ -78,10 +78,9 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 .achieve-desc { font-size: 12px; color: #64748b; }
 .achieve-check { font-size: 18px; }
 .achieve-row.claimable { background: rgba(250, 204, 21, 0.08); }
-.achieve-claim-btn { padding: 6px 14px; font-size: 12px; font-weight: 900; color: #000; background: linear-gradient(135deg, #facc15, #fbbf24); border: none; border-radius: 8px; cursor: pointer; pointer-events: auto; letter-spacing: 1px; text-transform: uppercase; animation: claim-pulse 1.5s ease-in-out infinite; flex-shrink: 0; line-height: 1.3; }
-.achieve-claim-btn:hover { transform: scale(1.08); }
-.achieve-reward-text { font-size: 10px; font-weight: bold; opacity: 0.7; }
-.achieve-claimed { font-size: 12px; font-weight: bold; color: #10b981; flex-shrink: 0; }
+.claim-btn { padding: 6px 14px; font-size: 11px; font-weight: 900; color: #000; background: linear-gradient(135deg, #facc15, #fbbf24); border: none; border-radius: 8px; cursor: pointer; pointer-events: auto; letter-spacing: 1px; text-transform: uppercase; animation: claim-pulse 1.5s ease-in-out infinite; flex-shrink: 0; white-space: nowrap; }
+.claim-btn:hover { transform: scale(1.08); }
+.achieve-claimed { font-size: 18px; flex-shrink: 0; }
 @keyframes claim-pulse { 0%, 100% { box-shadow: 0 0 6px rgba(250, 204, 21, 0.4); } 50% { box-shadow: 0 0 18px rgba(250, 204, 21, 0.8), 0 0 30px rgba(250, 204, 21, 0.3); } }
 
 /* --- Gacha --- */

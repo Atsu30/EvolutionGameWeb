@@ -64,16 +64,22 @@ function showGacha() {
     el('gacha-flash').className = 'gacha-flash';
     _showModal('gacha-modal');
 }
-function _updateGachaDisplay() {
+function _updateGachaDisplay(animateFrom) {
     const w = getWallet();
-    el('gacha-miles').innerText = w.miles.toLocaleString();
-    el('gacha-scrap').innerText = w.scrap.toLocaleString();
+    if (animateFrom && typeof animateNumber === 'function') {
+        animateNumber(el('gacha-miles'), animateFrom.miles, w.miles, 600, '');
+        animateNumber(el('gacha-scrap'), animateFrom.scrap, w.scrap, 600, '');
+    } else {
+        el('gacha-miles').innerText = w.miles.toLocaleString();
+        el('gacha-scrap').innerText = w.scrap.toLocaleString();
+    }
     const btn = el('gacha-pull-btn'); btn.disabled = !canPull(); btn.style.opacity = canPull() ? '1' : '0.4';
 }
 let _gachaPulling = false;
 function doPull() {
     if (!canPull() || _gachaPulling) return;
     _gachaPulling = true;
+    const _walletBefore = getWallet();
     const result = gachaPull(); if (!result) { _gachaPulling = false; return; }
 
     const btn = el('gacha-pull-btn');
@@ -172,7 +178,7 @@ function doPull() {
         const unlockDelay = { C: 1200, R: 1600, E: 2000, L: 2400 }[r] || 1500;
         setTimeout(() => { _gachaPulling = false; }, unlockDelay);
 
-        _updateGachaDisplay();
+        _updateGachaDisplay(_walletBefore);
     }, { once: true });
 }
 
