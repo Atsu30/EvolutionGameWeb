@@ -141,16 +141,19 @@ function animate() {
                 e.mesh.position.x = e.lX + st.crv * e.mesh.position.z * e.mesh.position.z;
                 e.mesh.rotation.z += 5 * dt;
                 if (e.cTmr > 0) e.cTmr -= dt;
-                const canBreak = isDash || st.kb >= e.def.kb;
+                const canBreak = isDash || e.def.hp <= 1;
                 if (canBreak && e.mS !== 'B') { e.mesh.userData.changeMat(matEnemyBreak, matEnemyNeonB); e.mS = 'B'; }
                 else if (!canBreak && e.mS !== 'U') { e.mesh.userData.changeMat(matZigzagBody, matZigzagNeon); e.mS = 'U'; }
             } else if (e.type === 'enemy' || e.type === 'rocket') {
                 if (e.type === 'rocket') e.mesh.userData.orbs.rotation.z += 10 * dt;
-                else e.mesh.userData.tires.forEach(t => t.rotation.x -= e.zS * dt * 0.2);
-                e.mesh.rotation.y = atan(2 * st.crv * e.mesh.position.z);
-                e.mesh.rotation.z += (st.crv * -40 - e.mesh.rotation.z) * 10 * dt;
+                else {
+                    // Geometric enemy rotation
+                    if (e.def === ENEMY_TYPES.drone) { e.mesh.rotation.x += 1.5 * dt; e.mesh.rotation.y += 2 * dt; }
+                    else if (e.def === ENEMY_TYPES.sentinel) { e.mesh.rotation.z += 0.8 * dt; }
+                    else { e.mesh.rotation.y += 3 * dt; }
+                }
                 if (e.cTmr > 0) e.cTmr -= dt;
-                const canBreak = isDash || st.kb >= e.def.kb;
+                const canBreak = isDash || e.def.hp <= 1;
                 if (canBreak && e.mS !== 'B') { e.mesh.userData.changeMat(matEnemyBreak, matEnemyNeonB); e.mS = 'B'; }
                 else if (!canBreak && e.mS !== 'U') { e.mesh.userData.changeMat(matEnemyUnbreak, matEnemyNeonU); e.mS = 'U'; }
             } else if (e.type === 'heal') { e.mesh.rotation.y += 3 * dt; e.mesh.rotation.z += dt; }
@@ -163,24 +166,25 @@ function animate() {
                 else if (e.type === 'heal') { e.state = 'B'; st.hp = min(st.maxHp, st.hp + CFG.healAmt); flashScreen('rgba(52,211,153,.4)'); }
                 else if (e.type === 'jmp') { if (st.pY < 0.5) { st.pVY = CFG.jmpPow * (isDash ? 1.2 : 1); flashScreen('rgba(16,185,129,.3)'); st.stats.jumpCount++; } }
                 else if (e.type === 'enemy' || e.type === 'rocket' || e.type === 'zigzag') {
-                    if (isDash || st.kb >= e.def.kb) {
+                    if (isDash || e.def.hp <= 1) {
                         e.state = 'K'; e.mesh.userData.changeMat(matEnemyKnock, matEnemyNeonK);
-                        if (!isDash) { st.spd = max(0, st.spd - CFG.hitDecel); st.hStop = 0.05 + e.def.lv * 0.03; } else st.hStop = 0.02;
+                        if (!isDash) { st.spd = max(0, st.spd - CFG.hitDecel); st.hStop = 0.05; } else st.hStop = 0.02;
                         const dfX = e.lX - st.pLx, dx = abs(dfX) < 0.5 ? R_Sign() : dfX, m = isDash ? 2 : 1;
-                        e.v.set(dx * 15 * st.kb * m, (30 + R() * 40) * st.kb * m, -((st.spd - e.zS) * 0.8 + R() * 50) * st.kb * m);
+                        e.v.set(dx * 15 * m, (30 + R() * 40) * m, -((st.spd - e.zS) * 0.8 + R() * 50) * m);
                         e.aV.set(R_Sign() * 10, R_Sign() * 10, R_Sign() * 10);
                         const p = e.mesh.position.clone(); p.project(cam);
                         if (p.z <= 1.0) { const ui = game.shockIdx; sU.c.value[ui].set((p.x+1)/2,(p.y+1)/2); sU.t.value[ui]=0.001; sU.a.value[ui]=1; game.shockIdx=(ui+1)%3; }
                         flashScreen('rgba(255,255,255,.3)'); st.exp += e.def.exp; st.stats.destroyedEnemies++;
-                        showXpPopup(e.mesh.position, e.def.exp, e.def.lv);
-                        spawnDestroyEffect(e.mesh.position, e.def.lv, e.type === 'zigzag' ? 0xfbbf24 : 0x00ffff);
+                        showXpPopup(e.mesh.position, e.def.exp, e.def.hp > 1 ? 4 : 1);
+                        spawnDestroyEffect(e.mesh.position, e.def.hp > 1 ? 4 : 1, e.type === 'zigzag' ? 0xfbbf24 : 0x00ffff);
                         if (st.exp >= st.nExp) { st.isP = true; st.lv++; st.exp -= st.nExp; st.nExp = floor(st.nExp * CFG.expMul); showUpgradeUI(); el('levelup-modal').classList.add('active'); }
                         if (R() < CFG.healRate) spawnHealItem(e.lX, e.mesh.position.z);
                     } else {
                         if (st.invT <= 0) {
-                            const dfX = st.pLx - e.lX, dx = abs(dfX) < 0.5 ? R_Sign() : dfX, pf = 30 + e.def.lv * 5;
+                            const dmg = e.def.atk * (1 - st.def);
+                            const dfX = st.pLx - e.lX, dx = abs(dfX) < 0.5 ? R_Sign() : dfX, pf = 35;
                             st.bVX = sign(dx) * pf; e.xS = -sign(dx) * pf * 0.5; e.cTmr = 0.5;
-                            st.spd = max(0, st.spd - (15 + e.def.lv * 5)); st.hp -= e.def.dmg;
+                            st.spd = max(0, st.spd - 20); st.hp -= dmg;
                             st.invT = 0.5; st.hStop = 0.1; shakeCamera(0.3, 2.5); flashScreen('rgba(255,0,0,.5)');
                             st.stats.damageTaken++;
                             if (st.hp <= 0 && !st.isG) triggerGameOver();
@@ -196,8 +200,8 @@ function animate() {
                     const o = ents[j];
                     if (o.state === 'A' && (o.type === 'enemy' || o.type === 'rocket' || o.type === 'zigzag') && e.cTmr <= 0 && o.cTmr <= 0 && e.box.intersectsBox(o.box)) {
                         if (e.isWall && o.isWall) continue;
-                        if (e.def.lv !== o.def.lv) {
-                            const v = e.def.lv > o.def.lv ? o : e, a = e.def.lv > o.def.lv ? e : o;
+                        if (e.def.hp !== o.def.hp) {
+                            const v = e.def.hp > o.def.hp ? o : e, a = e.def.hp > o.def.hp ? e : o;
                             if (!v.isWall) { v.state = 'K'; v.mesh.userData.changeMat(matEnemyKnock, matEnemyNeonK); v.v.set(sign(v.lX - a.lX || R_Sign()) * 20, 20 + R() * 20, a.zS - v.zS + 30); v.aV.set(R_Sign() * 5, R_Sign() * 5, R_Sign() * 5); }
                         } else {
                             const dx = e.lX - o.lX || R_Sign();

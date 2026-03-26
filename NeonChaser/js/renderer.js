@@ -179,6 +179,51 @@ function createZigzagMesh(bodyMat, neonMat) {
     return grp;
 }
 
+// --- Enemy Type Meshes ---
+const geoDrone = new THREE.IcosahedronGeometry(0.6, 0);
+const geoShard = new THREE.OctahedronGeometry(1.0, 0);
+const geoSentRing = new THREE.TorusGeometry(1.5, 0.4, 8, 16);
+const geoSentCore = new THREE.SphereGeometry(0.6, 8, 8);
+
+function createDroneMesh(bodyMat, neonMat) {
+    const grp = new THREE.Group();
+    const body = new THREE.Mesh(geoDrone, bodyMat);
+    const edge = new THREE.LineSegments(new THREE.EdgesGeometry(geoDrone), neonMat);
+    body.position.y = 1; edge.position.y = 1;
+    grp.add(body, edge);
+    grp.userData = {
+        changeMat: (b, n) => { body.material = b; edge.material = n; }
+    };
+    return grp;
+}
+
+function createShardMesh(bodyMat, neonMat) {
+    const grp = new THREE.Group();
+    const body = new THREE.Mesh(geoShard, bodyMat);
+    const edge = new THREE.LineSegments(new THREE.EdgesGeometry(geoShard), neonMat);
+    body.position.y = 1; edge.position.y = 1;
+    grp.add(body, edge);
+    grp.userData = {
+        changeMat: (b, n) => { body.material = b; edge.material = n; }
+    };
+    return grp;
+}
+
+function createSentinelMesh(bodyMat, neonMat) {
+    const grp = new THREE.Group();
+    const ring = new THREE.Mesh(geoSentRing, bodyMat);
+    const ringEdge = new THREE.LineSegments(new THREE.EdgesGeometry(geoSentRing), neonMat);
+    const core = new THREE.Mesh(geoSentCore, neonMat);
+    const coreEdge = new THREE.LineSegments(new THREE.EdgesGeometry(geoSentCore), neonMat);
+    ring.position.y = 1.5; ringEdge.position.y = 1.5;
+    core.position.y = 1.5; coreEdge.position.y = 1.5;
+    grp.add(ring, ringEdge, core, coreEdge);
+    grp.userData = {
+        changeMat: (b, n) => { ring.material = b; ringEdge.material = n; core.material = n; coreEdge.material = n; }
+    };
+    return grp;
+}
+
 // --- Trail Particle Pool ---
 const TRAIL_POOL_SIZE = 100;
 const geoTrailParticle = new THREE.SphereGeometry(0.1, 4, 4);

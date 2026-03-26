@@ -9,14 +9,12 @@ function addEntity(type, mesh, lx, zs = 0, def = null, isWall = false) {
     });
 }
 
-function getEnemyLevel(dist) {
+function getEnemyType(dist) {
     const r = R();
-    if (dist < 2)       return r < 0.7 ? 0 : 1;
-    else if (dist < 5)  return r < 0.4 ? 0 : r < 0.75 ? 1 : 2;
-    else if (dist < 10) return r < 0.25 ? 0 : r < 0.55 ? 1 : r < 0.8 ? 2 : 3;
-    else if (dist < 20) return r < 0.1 ? 0 : r < 0.3 ? 1 : r < 0.6 ? 2 : r < 0.85 ? 3 : 4;
-    else if (dist < 50) return r < 0.05 ? 0 : r < 0.2 ? 1 : r < 0.45 ? 2 : r < 0.75 ? 3 : 4;
-    else                return r < 0.1 ? 1 : r < 0.3 ? 2 : r < 0.6 ? 3 : 4;
+    if (dist < 3)       return r < 0.85 ? 'drone' : 'shard';
+    else if (dist < 8)  return r < 0.5 ? 'drone' : r < 0.9 ? 'shard' : 'sentinel';
+    else if (dist < 20) return r < 0.3 ? 'drone' : r < 0.75 ? 'shard' : 'sentinel';
+    else                return r < 0.15 ? 'drone' : r < 0.55 ? 'shard' : 'sentinel';
 }
 
 function spawnMul(dist) { return dist < 10 ? 1.0 : dist < 20 ? 0.8 : 0.65; }
@@ -30,12 +28,13 @@ function spawnEntity() {
         mesh.position.set(lx, 0, -200);
         addEntity('dash', mesh, lx);
     } else {
-        const lvi = getEnemyLevel(dist), def = ENEMY_DEFS[lvi];
-        const mesh = createBike(matEnemyUnbreak, matEnemyNeonU);
+        const typeName = getEnemyType(dist), def = ENEMY_TYPES[typeName];
+        const meshFactory = { drone: createDroneMesh, shard: createShardMesh, sentinel: createSentinelMesh }[typeName];
+        const mesh = meshFactory(matEnemyUnbreak, matEnemyNeonU);
         const lx = R_Sign() * (CFG.laneW - def.w / 2);
         mesh.scale.set(def.w, def.w * 1.2, def.w * 1.5);
         mesh.position.set(lx, 0, -200);
-        addEntity('enemy', mesh, lx, st.maxSpd * (0.6 + R() * 0.3), def);
+        addEntity('enemy', mesh, lx, st.maxSpd * (def.speed + R() * 0.2), def);
     }
 }
 
@@ -57,7 +56,7 @@ function spawnJumpEvent() {
             m.position.set(lx, 0.25, -200); m.rotation.x = -PI / 16;
             addEntity('jmp', m, lx, wSpd);
         } else {
-            const def = ENEMY_DEFS[4], mesh = createBike(matEnemyUnbreak, matEnemyNeonU);
+            const def = ENEMY_TYPES.sentinel, mesh = createSentinelMesh(matEnemyUnbreak, matEnemyNeonU);
             mesh.scale.set(def.w, def.w * 1.2, def.w * 1.5);
             mesh.position.set(lx, 0, -200);
             addEntity('enemy', mesh, lx, wSpd, def, true);

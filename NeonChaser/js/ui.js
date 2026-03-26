@@ -74,7 +74,7 @@ function selectUpgrade(id) {
     if (id === 'spd') st.maxSpd += 20;
     if (id === 'grp') st.steer += 12;
     if (id === 'siz') { st.size += 0.3; playerMesh.scale.setScalar(1.5 * st.size); }
-    if (id === 'atk') st.kb += 1.0;
+    if (id === 'def') st.def = min(0.5, st.def + 0.05);
     const modal = el('levelup-modal');
     modal.classList.remove('active');
     modal.classList.remove('no-interact');
@@ -126,7 +126,7 @@ function triggerGameOver() {
 function restartGame() {
     const st = game.st;
     Object.assign(st, {
-        spd: 0, maxSpd: CFG.maxSpd, steer: CFG.steer, size: CFG.size, kb: CFG.kb, hp: CFG.hp, maxHp: CFG.hp,
+        spd: 0, maxSpd: CFG.maxSpd, steer: CFG.steer, size: CFG.size, def: CFG.def, hp: CFG.hp, maxHp: CFG.hp,
         dTimer: 0, pY: 0, pVY: 0, bVX: 0, invT: 0, pBank: 0, hStop: 0, cShkT: 0, cShkI: 0, cB_X: 0, cB_Y: 8,
         lv: 1, exp: 0, nExp: CFG.lvExp, crv: 0, tCrv: 0, cTmr: 0,
         sCrvSt: 'N', sCrvCd: CFG.sCrvBase + R() * CFG.sCrvRnd, sCrvTmr: 0, sCrvDir: 1, pLx: 0,
