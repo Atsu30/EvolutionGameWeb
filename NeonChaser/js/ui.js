@@ -18,21 +18,68 @@ function updateUI() {
 
 function showUpgradeUI() {
     const container = el('upgrades'); container.innerHTML = '';
-    [...UPGRADES].sort(() => 0.5 - R()).slice(0, 3).forEach(u => {
+    const modal = el('levelup-modal');
+
+    // Block clicks during celebration
+    modal.classList.add('no-interact');
+
+    // Spawn burst particles
+    const burst = el('levelup-burst');
+    burst.innerHTML = '';
+    const colors = ['#60a5fa','#818cf8','#f472b6','#34d399','#fbbf24','#22d3ee'];
+    for (let i = 0; i < 24; i++) {
+        const p = document.createElement('div');
+        p.className = 'burst-particle';
+        const angle = (i / 24) * Math.PI * 2;
+        const dist = 120 + Math.random() * 160;
+        p.style.setProperty('--bx', Math.cos(angle) * dist + 'px');
+        p.style.setProperty('--by', Math.sin(angle) * dist + 'px');
+        p.style.background = colors[i % colors.length];
+        p.style.animationDelay = (Math.random() * 0.3) + 's';
+        p.style.width = p.style.height = (4 + Math.random() * 6) + 'px';
+        burst.appendChild(p);
+    }
+
+    // Build cards (hidden initially)
+    const chosen = [...UPGRADES].sort(() => 0.5 - R()).slice(0, 3);
+    chosen.forEach(u => {
         const card = document.createElement('div'); card.className = 'card';
         card.onclick = () => selectUpgrade(u.id);
         card.innerHTML = `<div class="card-icon">${u.i}</div><div><div class="card-title">${u.t}</div><div class="card-desc">${u.d}</div></div>`;
         container.appendChild(card);
     });
+
+    // Stagger-reveal cards after 1.2s, then enable clicks
+    const cards = container.querySelectorAll('.card');
+    const staggerDelay = 200; // ms between each card
+    const startDelay = 1200;  // ms before first card appears
+
+    cards.forEach((card, i) => {
+        setTimeout(() => {
+            card.classList.add('card-reveal');
+        }, startDelay + i * staggerDelay);
+    });
+
+    // Enable clicks after all cards are revealed
+    const totalRevealTime = startDelay + cards.length * staggerDelay + 400;
+    setTimeout(() => {
+        modal.classList.remove('no-interact');
+    }, totalRevealTime);
 }
 
 function selectUpgrade(id) {
     const st = game.st;
+    // Ignore clicks if still in celebration phase
+    if (el('levelup-modal').classList.contains('no-interact')) return;
     if (id === 'spd') st.maxSpd += 20;
     if (id === 'grp') st.steer += 12;
     if (id === 'siz') { st.size += 0.3; playerMesh.scale.setScalar(1.5 * st.size); }
     if (id === 'atk') st.kb += 1.0;
-    el('levelup-modal').classList.remove('active');
+    const modal = el('levelup-modal');
+    modal.classList.remove('active');
+    modal.classList.remove('no-interact');
+    // Reset card reveal classes so animations replay next time
+    modal.querySelectorAll('.card.card-reveal').forEach(c => c.classList.remove('card-reveal'));
     st.cB_X = 0; st.cB_Y = 8; cam.position.set(0, 8, 15);
     game.clock.getDelta(); st.isP = false;
 }
