@@ -62,8 +62,9 @@ function animate() {
         if (st.dTimer <= 0) { st.spd = st.maxSpd; el('speed-lines').style.opacity = '0'; game.pts.forEach(p => p.scale.z = 1); }
     } else { st.spd = min(st.maxSpd, st.spd + CFG.acc * dt); }
 
-    // Distance & achievements
+    // Distance & achievements & stage
     st.dist += st.spd * dt * DISTANCE_SCALE;
+    if (typeof checkStageTransition === 'function') checkStageTransition(st.dist);
     st._achTimer = (st._achTimer || 0) + dt;
     if (st._achTimer > 0.5) {
         st._achTimer = 0;
@@ -224,7 +225,8 @@ function animate() {
                         if (R() < CFG.healRate) spawnHealItem(e.lX, e.mesh.position.z);
                     } else {
                         if (st.invT <= 0) {
-                            const dmg = e.def.atk * (1 - st.def);
+                            const sMul = typeof getStageDef === 'function' ? getStageDef().enemyAtkMul : 1;
+                            const dmg = e.def.atk * sMul * (1 - st.def);
                             const dfX = st.pLx - e.lX, dx = abs(dfX) < 0.5 ? R_Sign() : dfX, pf = 35;
                             st.bVX = sign(dx) * pf; e.xS = -sign(dx) * pf * 0.5; e.cTmr = 0.5;
                             st.spd = max(0, st.spd - 20); st.hp -= dmg;

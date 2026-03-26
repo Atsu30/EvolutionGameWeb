@@ -51,17 +51,21 @@ dirLight.position.set(10, 20, 10); scene.add(dirLight);
 
 // --- Floor Shader ---
 const floorMat = new THREE.ShaderMaterial({
-    uniforms: { time: { value: 0 }, crv: { value: 0 } },
+    uniforms: { time: { value: 0 }, crv: { value: 0 }, col1: { value: new THREE.Vector3(0, 0.1, 0.3) }, col2: { value: new THREE.Vector3(0, 0.4, 0.8) }, wave: { value: 0 } },
     vertexShader: `
         uniform float crv; varying vec2 vUv; varying vec3 vPos;
         void main() { vUv = uv; vec3 p = position; p.x += crv * p.z * p.z; vPos = p; gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0); }`,
     fragmentShader: `
-        uniform float time; varying vec2 vUv; varying vec3 vPos;
+        uniform float time; uniform vec3 col1; uniform vec3 col2; uniform float wave;
+        varying vec2 vUv; varying vec3 vPos;
         void main() {
-            vec2 uv = vUv * vec2(30.0, 120.0); uv.y -= time * 4.0; vec2 g = abs(fract(uv - 0.5) - 0.5);
+            vec2 uv = vUv * vec2(30.0, 120.0); uv.y -= time * 4.0;
+            uv.x += sin(uv.y * 0.05 + time * 2.0) * wave * 0.5;
+            uv.y += cos(uv.x * 0.03 + time * 1.5) * wave * 0.3;
+            vec2 g = abs(fract(uv - 0.5) - 0.5);
             float glow = max(smoothstep(0.06, 0.0, g.x), smoothstep(0.06, 0.0, g.y));
             float road = smoothstep(16.5, 16.0, abs((vUv.x - 0.5) * 300.0));
-            vec3 baseCol = mix(vec3(0.0, 0.1, 0.3), vec3(0.0, 0.4, 0.8), road);
+            vec3 baseCol = mix(col1, col2, road);
             gl_FragColor = vec4(baseCol * glow * 0.5 * smoothstep(-350.0, -20.0, vPos.z), 1.0);
         }`,
     transparent: true, blending: THREE.AdditiveBlending, depthWrite: false

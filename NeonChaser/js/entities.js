@@ -1,12 +1,17 @@
 // --- Entity Management ---
 function addEntity(type, mesh, lx, zs = 0, def = null, isWall = false) {
     scene.add(mesh);
+    // Apply stage multiplier to enemy stats
+    let curHp = def ? def.hp : 1;
+    if (def && (type === 'enemy' || type === 'rocket' || type === 'zigzag') && typeof getStageDef === 'function') {
+        const s = getStageDef();
+        if (def.hp < 999) curHp = ceil(def.hp * s.enemyHpMul);
+    }
     game.ents.push({
         type, def, mesh, lX: lx, box: new THREE.Box3(),
         state: 'A', v: new THREE.Vector3(), aV: new THREE.Vector3(),
         zS: zs, xS: 0, cTmr: 0, isWall, mS: 'U',
-        zigTime: 0, zigBase: lx,
-        curHp: def ? def.hp : 1
+        zigTime: 0, zigBase: lx, curHp
     });
 }
 

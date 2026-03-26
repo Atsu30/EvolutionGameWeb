@@ -154,5 +154,6 @@ function restartGame() {
     game.ents.forEach(e => scene.remove(e.mesh)); game.ents.length = 0;
     el('gameover-modal').classList.remove('active');
     game.clock.getDelta();
+    if (typeof resetStage === 'function') resetStage();
     applyCustomization();
 }
