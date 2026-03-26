@@ -21,8 +21,14 @@ const UPGRADES = [
     { id: 'spd', i: '⚡', t: 'Engine Overclock', d: '最高速度アップ。<br>※カーブで遠心力に負けやすくなる' },
     { id: 'grp', i: '🛞', t: 'Tire Grip', d: 'ハンドリングアップ。<br>遠心力に抗い急カーブに強くなる' },
     { id: 'siz', i: '🛡️', t: 'Chassis Expansion', d: '車体が巨大化。<br>当たり判定が広がり巻き込みやすくなる' },
-    { id: 'def', i: '🛡️', t: 'Armor Plating', d: '被ダメージ5%軽減。<br>最大50%まで累積' }
+    { id: 'def', i: '🛡️', t: 'Armor Plating', d: '被ダメージ5%軽減。<br>最大50%まで累積' },
+    { id: 'bls',  i: '🔫', t: 'Blaster Install', d: 'ブラスター装備。<br>前方に自動射撃', cond: st => st.blasterCount === 0 },
+    { id: 'bpow', i: '💥', t: 'Blaster Power', d: '弾ダメージ+1', cond: st => st.blasterCount > 0 },
+    { id: 'bnum', i: '🔫', t: 'Blaster Array', d: 'ブラスター+1門。<br>横に広がり殲滅力UP', cond: st => st.blasterCount > 0 && st.blasterCount < 3 },
 ];
+
+const BULLET_SPD = 200;
+const BULLET_INTERVAL = 0.3;
 
 // --- Distance & Economy ---
 const DISTANCE_SCALE = 0.001;

@@ -89,6 +89,8 @@ const matDash = MkMat(0x00ffff, 0x00ffff, 2.0);
 const matHeart = MkMat(0xfca5a5, 0xff0055, 2.0);
 const matJump = MkMat(0x34d399, 0x059669, 1.0);
 const matPil = MkMat(0x8b5cf6, 0xa855f7, 1.5);
+const matBullet = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false });
+const geoBullet = new THREE.SphereGeometry(0.2, 6, 6);
 
 // --- Geometries ---
 const _applyGeo = (g, func) => { func(g); return g; };

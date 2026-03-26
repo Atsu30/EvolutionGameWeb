@@ -105,6 +105,16 @@ function animate() {
     st.cB_X += (st.pLx * 0.25 - st.cB_X) * 5 * dt;
     cam.rotation.z += (st.crv * 30 - st.pBank * 0.2 - cam.rotation.z) * 3 * dt;
 
+    // --- Blaster ---
+    if (st.blasterCount > 0) {
+        st.blasterTimer -= dt;
+        if (st.blasterTimer <= 0) {
+            st.blasterTimer = BULLET_INTERVAL;
+            const offsets = st.blasterCount === 1 ? [0] : st.blasterCount === 2 ? [-1, 1] : [-2, 0, 2];
+            offsets.forEach(ox => spawnBullet(st.pLx, st.pY, playerMesh.position.z, ox));
+        }
+    }
+
     // --- Environment ---
     floorMat.uniforms.time.value += dt * st.spd * 0.05;
     floorMat.uniforms.crv.value = st.crv;
@@ -130,6 +140,37 @@ function animate() {
                 e.cTmr -= dt; if (e.cTmr <= 0) { e.state = 'B'; spawnRocketsFromWarning(e); } continue;
             }
 
+            if (e.type === 'bullet') {
+                e.mesh.position.z -= BULLET_SPD * dt;
+                if (e.mesh.position.z < -260) { scene.remove(e.mesh); ents.splice(i, 1); continue; }
+                e.box.setFromObject(e.mesh);
+                // Bullet VS Enemy
+                let bulletHit = false;
+                for (let j = ents.length - 1; j >= 0; j--) {
+                    const t = ents[j];
+                    if (j === i || t.state !== 'A') continue;
+                    if (t.type !== 'enemy' && t.type !== 'rocket' && t.type !== 'zigzag') continue;
+                    if (e.box.intersectsBox(t.box)) {
+                        t.curHp -= st.blasterDmg;
+                        if (t.curHp <= 0) {
+                            t.state = 'K'; t.mesh.userData.changeMat(matEnemyKnock, matEnemyNeonK);
+                            t.v.set(R_Sign() * 10, 20 + R() * 30, -(st.spd * 0.5 + R() * 30));
+                            t.aV.set(R_Sign() * 10, R_Sign() * 10, R_Sign() * 10);
+                            st.exp += t.def.exp; st.stats.destroyedEnemies++;
+                            showXpPopup(t.mesh.position, t.def.exp, t.def.hp > 1 ? 4 : 1);
+                            spawnDestroyEffect(t.mesh.position, t.def.hp > 1 ? 4 : 1, 0x00ffff);
+                            if (st.exp >= st.nExp) { st.isP = true; st.lv++; st.exp -= st.nExp; st.nExp = floor(st.nExp * CFG.expMul); showUpgradeUI(); el('levelup-modal').classList.add('active'); }
+                            if (R() < CFG.healRate) spawnHealItem(t.lX, t.mesh.position.z);
+                        } else {
+                            flashScreen('rgba(0,255,255,.15)');
+                        }
+                        bulletHit = true; break;
+                    }
+                }
+                if (bulletHit) { scene.remove(e.mesh); ents.splice(i, 1); }
+                continue;
+            }
+
             e.mesh.position.z += (st.spd - e.zS) * dt;
             if (e.xS !== 0) { e.lX += e.xS * dt; e.xS *= pow(0.01, dt); if (abs(e.lX) > CFG.laneW) { e.lX = sign(e.lX) * CFG.laneW; e.xS *= -0.5; } }
             e.mesh.position.x = e.lX + st.crv * e.mesh.position.z * e.mesh.position.z;
@@ -141,7 +182,7 @@ function animate() {
                 e.mesh.position.x = e.lX + st.crv * e.mesh.position.z * e.mesh.position.z;
                 e.mesh.rotation.z += 5 * dt;
                 if (e.cTmr > 0) e.cTmr -= dt;
-                const canBreak = isDash || e.def.hp <= 1;
+                const canBreak = isDash || e.curHp <= 1;
                 if (canBreak && e.mS !== 'B') { e.mesh.userData.changeMat(matEnemyBreak, matEnemyNeonB); e.mS = 'B'; }
                 else if (!canBreak && e.mS !== 'U') { e.mesh.userData.changeMat(matZigzagBody, matZigzagNeon); e.mS = 'U'; }
             } else if (e.type === 'enemy' || e.type === 'rocket') {
@@ -153,7 +194,7 @@ function animate() {
                     else { e.mesh.rotation.y += 3 * dt; }
                 }
                 if (e.cTmr > 0) e.cTmr -= dt;
-                const canBreak = isDash || e.def.hp <= 1;
+                const canBreak = isDash || e.curHp <= 1;
                 if (canBreak && e.mS !== 'B') { e.mesh.userData.changeMat(matEnemyBreak, matEnemyNeonB); e.mS = 'B'; }
                 else if (!canBreak && e.mS !== 'U') { e.mesh.userData.changeMat(matEnemyUnbreak, matEnemyNeonU); e.mS = 'U'; }
             } else if (e.type === 'heal') { e.mesh.rotation.y += 3 * dt; e.mesh.rotation.z += dt; }
@@ -166,7 +207,7 @@ function animate() {
                 else if (e.type === 'heal') { e.state = 'B'; st.hp = min(st.maxHp, st.hp + CFG.healAmt); flashScreen('rgba(52,211,153,.4)'); }
                 else if (e.type === 'jmp') { if (st.pY < 0.5) { st.pVY = CFG.jmpPow * (isDash ? 1.2 : 1); flashScreen('rgba(16,185,129,.3)'); st.stats.jumpCount++; } }
                 else if (e.type === 'enemy' || e.type === 'rocket' || e.type === 'zigzag') {
-                    if (isDash || e.def.hp <= 1) {
+                    if (isDash || e.curHp <= 1) {
                         e.state = 'K'; e.mesh.userData.changeMat(matEnemyKnock, matEnemyNeonK);
                         if (!isDash) { st.spd = max(0, st.spd - CFG.hitDecel); st.hStop = 0.05; } else st.hStop = 0.02;
                         const dfX = e.lX - st.pLx, dx = abs(dfX) < 0.5 ? R_Sign() : dfX, m = isDash ? 2 : 1;

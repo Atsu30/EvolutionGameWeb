@@ -40,8 +40,10 @@ function showUpgradeUI() {
         burst.appendChild(p);
     }
 
-    // Build cards (hidden initially)
-    const chosen = [...UPGRADES].sort(() => 0.5 - R()).slice(0, 3);
+    // Build cards (hidden initially) — filter by conditions
+    const st = game.st;
+    const available = UPGRADES.filter(u => !u.cond || u.cond(st));
+    const chosen = [...available].sort(() => 0.5 - R()).slice(0, 3);
     chosen.forEach(u => {
         const card = document.createElement('div'); card.className = 'card';
         card.onclick = () => selectUpgrade(u.id);
@@ -75,6 +77,9 @@ function selectUpgrade(id) {
     if (id === 'grp') st.steer += 12;
     if (id === 'siz') { st.size += 0.3; playerMesh.scale.setScalar(1.5 * st.size); }
     if (id === 'def') st.def = min(0.5, st.def + 0.05);
+    if (id === 'bls') { st.blasterCount = 1; st.blasterDmg = 1; }
+    if (id === 'bpow') st.blasterDmg += 1;
+    if (id === 'bnum') st.blasterCount = min(3, st.blasterCount + 1);
     const modal = el('levelup-modal');
     modal.classList.remove('active');
     modal.classList.remove('no-interact');
@@ -132,6 +137,7 @@ function restartGame() {
         sCrvSt: 'N', sCrvCd: CFG.sCrvBase + R() * CFG.sCrvRnd, sCrvTmr: 0, sCrvDir: 1, pLx: 0,
         isP: false, isG: false, spwnT: 0, rocketTmr: 20 + R() * 10,
         dist: 0, _achTimer: 0,
+        blasterCount: 0, blasterDmg: 1, blasterTimer: 0,
         stats: { destroyedEnemies: 0, damageTaken: 0, dashCount: 0, jumpCount: 0 }
     });
     el('warning-container').classList.remove('active');

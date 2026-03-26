@@ -5,7 +5,19 @@ function addEntity(type, mesh, lx, zs = 0, def = null, isWall = false) {
         type, def, mesh, lX: lx, box: new THREE.Box3(),
         state: 'A', v: new THREE.Vector3(), aV: new THREE.Vector3(),
         zS: zs, xS: 0, cTmr: 0, isWall, mS: 'U',
-        zigTime: 0, zigBase: lx
+        zigTime: 0, zigBase: lx,
+        curHp: def ? def.hp : 1
+    });
+}
+
+function spawnBullet(x, y, z, offsetX) {
+    const mesh = new THREE.Mesh(geoBullet, matBullet.clone());
+    mesh.position.set(x + offsetX, y + 1, z);
+    scene.add(mesh);
+    game.ents.push({
+        type: 'bullet', def: null, mesh, lX: x + offsetX, box: new THREE.Box3(),
+        state: 'A', v: new THREE.Vector3(), aV: new THREE.Vector3(),
+        zS: 0, xS: 0, cTmr: 0, isWall: false, mS: '', zigTime: 0, zigBase: 0, curHp: 1
     });
 }
 
