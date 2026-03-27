@@ -56,8 +56,27 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 .title-logo {
     font-size: 72px; font-weight: 900; color: #fff; line-height: 0.9;
     letter-spacing: 10px; text-transform: uppercase;
-    text-shadow: 0 0 40px #60a5fa, 0 0 80px #3b82f6, 0 0 120px #2563eb, 0 4px 20px rgba(0,0,0,0.8);
-    animation: title-glow 2s ease-in-out infinite alternate;
+    text-shadow: 0 0 30px #d946ef, 0 0 60px #a21caf, 0 0 100px #86198f, 0 4px 20px rgba(0,0,0,0.8);
+    animation: title-glow 2s ease-in-out infinite alternate, title-flicker 4s linear infinite;
+    position: relative;
+}
+/* Glitch layers */
+.title-logo::before, .title-logo::after {
+    content: attr(data-text);
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+}
+.title-logo::before {
+    color: #22d3ee;
+    animation: glitch-1 3s infinite linear;
+    clip-path: inset(0 0 70% 0);
+    text-shadow: 0 0 20px #22d3ee;
+}
+.title-logo::after {
+    color: #d946ef;
+    animation: glitch-2 3s infinite linear;
+    clip-path: inset(60% 0 0 0);
+    text-shadow: 0 0 20px #d946ef;
 }
 .title-sub {
     font-size: 14px; font-weight: 700; color: #60a5fa; letter-spacing: 8px; margin-top: 20px;
@@ -68,8 +87,22 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     animation: tap-pulse 1.5s ease-in-out infinite;
 }
 @keyframes title-glow {
-    0% { text-shadow: 0 0 30px #60a5fa, 0 0 60px #3b82f6, 0 4px 20px rgba(0,0,0,0.8); }
-    100% { text-shadow: 0 0 50px #818cf8, 0 0 100px #6366f1, 0 0 150px #4f46e5, 0 4px 20px rgba(0,0,0,0.8); }
+    0% { text-shadow: 0 0 30px #d946ef, 0 0 60px #a21caf, 0 4px 20px rgba(0,0,0,0.8); }
+    100% { text-shadow: 0 0 50px #e879f9, 0 0 100px #d946ef, 0 0 150px #a21caf, 0 4px 20px rgba(0,0,0,0.8); }
+}
+@keyframes title-flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: 0.6; }
+}
+@keyframes glitch-1 {
+    0%, 85%, 88%, 100% { transform: translate(0); }
+    86% { transform: translate(-4px, -2px); }
+    87% { transform: translate(4px, 1px); }
+}
+@keyframes glitch-2 {
+    0%, 90%, 93%, 100% { transform: translate(0); }
+    91% { transform: translate(3px, 2px); }
+    92% { transform: translate(-3px, -1px); }
 }
 @keyframes tap-pulse {
     0%, 100% { opacity: 0.4; }
