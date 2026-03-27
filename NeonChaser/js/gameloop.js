@@ -163,7 +163,6 @@ function animate() {
                             showXpPopup(t.mesh.position, t.def.exp, t.def.hp > 1 ? 4 : 1);
                             spawnDestroyEffect(t.mesh.position, t.def.hp > 1 ? 4 : 1, 0x00ffff);
                             if (st.exp >= st.nExp) { st.isP = true; st.lv++; st.exp -= st.nExp; st.nExp = floor(st.nExp * CFG.expMul); showUpgradeUI(); el('levelup-modal').classList.add('active'); }
-                            if (R() < CFG.healRate) spawnHealItem(t.lX, t.mesh.position.z);
                         } else {
                             // Hit flash: enemy glows white briefly
                             bulletHitFlash(t);
@@ -228,7 +227,6 @@ function animate() {
                         showXpPopup(e.mesh.position, e.def.exp, e.def.hp > 1 ? 4 : 1);
                         spawnDestroyEffect(e.mesh.position, e.def.hp > 1 ? 4 : 1, e.type === 'zigzag' ? 0xfbbf24 : 0x00ffff);
                         if (st.exp >= st.nExp) { st.isP = true; st.lv++; st.exp -= st.nExp; st.nExp = floor(st.nExp * CFG.expMul); showUpgradeUI(); el('levelup-modal').classList.add('active'); }
-                        if (R() < CFG.healRate) spawnHealItem(e.lX, e.mesh.position.z);
                     } else {
                         if (st.invT <= 0) {
                             const sMul = typeof getStageDef === 'function' ? getStageDef().enemyAtkMul : 1;

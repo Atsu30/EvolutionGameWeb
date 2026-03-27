@@ -78,6 +78,7 @@ function selectUpgrade(id) {
     if (id === 'siz') { st.size += 0.3; playerMesh.scale.setScalar(1.5 * st.size); }
     if (id === 'def') st.def = min(0.5, st.def + 0.05);
     if (id === 'bls') { st.blasterCount = 1; st.blasterDmg = 1; }
+    if (id === 'heal') st.hp = min(st.maxHp, st.hp + st.maxHp * 0.5);
     if (id === 'bpow') st.blasterDmg += 1;
     if (id === 'bnum') st.blasterCount = min(3, st.blasterCount + 1);
     const modal = el('levelup-modal');

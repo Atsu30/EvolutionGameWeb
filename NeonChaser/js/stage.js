@@ -36,6 +36,24 @@ const STAGES = [
         enemyHpMul: 2,
         enemyAtkMul: 1.5,
     },
+    {
+        name: 'ヴォルケーノ',
+        dist: 25,
+        fogColor: 0x1a0500,
+        fogDensity: 0.020,
+        floorCol1: [0.3, 0.05, 0.0],
+        floorCol2: [0.8, 0.2, 0.0],
+        floorWave: 0.5,
+        pillarColor: 0xdc2626,
+        pillarEmit: 0xef4444,
+        bgColors: [0xef4444, 0xf97316, 0xfbbf24],
+        bgOpacity: 0.35,
+        ambientColor: 0xfca5a5,
+        hemiSky: 0x450a0a,
+        hemiGround: 0xdc2626,
+        enemyHpMul: 3,
+        enemyAtkMul: 2,
+    },
 ];
 
 let _currentStage = 0;
