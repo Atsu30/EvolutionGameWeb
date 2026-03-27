@@ -113,7 +113,7 @@ function animate() {
             st.blasterTimer = 0;
             for (let b = 0; b < st.blasterCount; b++) {
                 const spread = (b - (st.blasterCount - 1) / 2) * 2.0;
-                spawnBullet(st.pLx, st.pY, playerMesh.position.z, spread);
+                spawnBullet(st.pLx, st.pY, playerMesh.position.z, spread, st.blasterDmg);
             }
         }
     }
@@ -165,7 +165,13 @@ function animate() {
                             if (st.exp >= st.nExp) { st.isP = true; st.lv++; st.exp -= st.nExp; st.nExp = floor(st.nExp * CFG.expMul); showUpgradeUI(); el('levelup-modal').classList.add('active'); }
                             if (R() < CFG.healRate) spawnHealItem(t.lX, t.mesh.position.z);
                         } else {
-                            flashScreen('rgba(0,255,255,.15)');
+                            // Hit flash: enemy glows white briefly
+                            bulletHitFlash(t);
+                            // Small hit sparks at impact point
+                            spawnDestroyEffect(e.mesh.position, 1, 0x00ffff);
+                            // Light knockback
+                            const dx = t.lX - st.pLx;
+                            t.xS += (abs(dx) < 0.5 ? R_Sign() : sign(dx)) * 5;
                         }
                         bulletHit = true; break;
                     }

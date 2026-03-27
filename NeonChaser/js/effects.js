@@ -73,6 +73,21 @@ function animateNumber(element, from, to, duration, suffix) {
     requestAnimationFrame(update);
 }
 
+// --- Bullet Hit Flash ---
+const _matHitWhite = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending });
+function bulletHitFlash(entity) {
+    if (!entity.mesh || !entity.mesh.userData.changeMat) return;
+    // Save current material state key to restore correct colors
+    const wasBreakable = entity.mS;
+    entity.mesh.userData.changeMat(_matHitWhite, _matHitWhite);
+    setTimeout(() => {
+        if (entity.state !== 'A') return;
+        if (wasBreakable === 'B') entity.mesh.userData.changeMat(matEnemyBreak, matEnemyNeonB);
+        else if (entity.type === 'zigzag') entity.mesh.userData.changeMat(matZigzagBody, matZigzagNeon);
+        else entity.mesh.userData.changeMat(matEnemyUnbreak, matEnemyNeonU);
+    }, 80);
+}
+
 function updateDestroyParticles(dt) {
     for (let i = _destroyParticles.length - 1; i >= 0; i--) {
         const p = _destroyParticles[i];

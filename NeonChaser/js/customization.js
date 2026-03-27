@@ -22,6 +22,7 @@ const _TIRES = {
     'tire-hex':     { name: 'ヘックスコア',     rarity: 'R', geo: () => _applyGeo(new THREE.CylinderGeometry(0.55, 0.55, 0.3, 6), g => g.rotateZ(PI / 2)) },
     'tire-ring':    { name: 'プラズマリング',   rarity: 'R', geo: () => _applyGeo(new THREE.TorusGeometry(0.5, 0.06, 6, 16), g => g.rotateZ(PI / 2)) },
     'tire-blade':   { name: 'ブレードホイール', rarity: 'E', geo: () => _applyGeo(new THREE.OctahedronGeometry(0.5, 0), g => { g.scale(0.5, 1, 1); g.rotateZ(PI / 2); return g; }) },
+    'tire-dodeca':  { name: 'ドデカホイール',   rarity: 'E', geo: () => new THREE.DodecahedronGeometry(0.45, 0) },
     'tire-hover':   { name: 'ホバーユニット',   rarity: 'L', geo: () => new THREE.BoxGeometry(0.3, 0.3, 0.3) },
 };
 

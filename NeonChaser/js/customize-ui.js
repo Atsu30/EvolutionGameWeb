@@ -10,10 +10,9 @@ function showCustomize() {
 function switchCustomTab(tab) {
     _currentCustomTab = tab;
     _renderCustomize();
-    if (typeof updatePreviewBike === 'function') {
-        const eq = getEquipped();
-        updatePreviewBike(eq.colorId, eq.tireId, eq.bodyId);
-    }
+    const eq = getEquipped();
+    if (typeof updatePreviewBike === 'function') updatePreviewBike(eq.colorId, eq.tireId, eq.bodyId);
+    if (typeof updatePreviewTrail === 'function') updatePreviewTrail(_currentCustomTab === 'trail' ? eq.trailId : null);
 }
 function _renderCustomize() {
     ['color', 'tire', 'body', 'trail'].forEach(tab => { const t = el(`custom-tab-${tab}`); if (t) t.classList.toggle('active', tab === _currentCustomTab); });
@@ -36,10 +35,9 @@ function equipItem(category, id) {
     setEquipped(category, id);
     applyCustomization();
     _renderCustomize();
-    if (typeof updatePreviewBike === 'function') {
-        const eq = getEquipped();
-        updatePreviewBike(eq.colorId, eq.tireId, eq.bodyId);
-    }
+    const eq = getEquipped();
+    if (typeof updatePreviewBike === 'function') updatePreviewBike(eq.colorId, eq.tireId, eq.bodyId);
+    if (typeof updatePreviewTrail === 'function' && _currentCustomTab === 'trail') updatePreviewTrail(eq.trailId);
 }
 
 function showShop() { _renderShop(); _showModal('shop-modal'); }

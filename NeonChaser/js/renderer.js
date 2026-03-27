@@ -340,10 +340,57 @@ function updatePreviewBike(colorId, tireId, bodyId) {
     if (bl) bl.geometry = new THREE.EdgesGeometry(bodyDef.geo());
 }
 
+// --- Preview Trail ---
+let _pvTrailParticles = [];
+let _pvTrailDef = null;
+
+function updatePreviewTrail(trailId) {
+    // Clear old trail particles
+    _pvTrailParticles.forEach(p => _pvScene.remove(p.mesh));
+    _pvTrailParticles = [];
+    const def = getTrailDef(trailId);
+    _pvTrailDef = (def && def.color) ? def : null;
+}
+
+function _animatePreviewTrail() {
+    if (!_pvTrailDef || !_pvBike) return;
+    const def = _pvTrailDef;
+    const geo = _trailGeos[def.geoType] || _trailGeos.sphere;
+    // Spawn particles behind bike
+    for (let i = 0; i < (def.count || 1); i++) {
+        if (_pvTrailParticles.length > 30) {
+            const old = _pvTrailParticles.shift();
+            _pvScene.remove(old.mesh);
+        }
+        const mat = new THREE.MeshBasicMaterial({ color: def.color, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false });
+        if (def.animated) mat.color.setHSL(Math.random(), 1, 0.6);
+        const mesh = new THREE.Mesh(geo, mat);
+        const spread = def.spread || 0.3;
+        mesh.position.set(
+            _pvBike.position.x + (Math.random() - 0.5) * spread * 2,
+            _pvBike.position.y + 0.5 + Math.random() * 0.3,
+            _pvBike.position.z + 1.0 + Math.random() * 0.5
+        );
+        mesh.scale.setScalar(def.size || 1);
+        _pvScene.add(mesh);
+        _pvTrailParticles.push({ mesh, life: def.life || 0.5, maxLife: def.life || 0.5 });
+    }
+    // Update existing
+    for (let i = _pvTrailParticles.length - 1; i >= 0; i--) {
+        const p = _pvTrailParticles[i];
+        p.life -= 0.016;
+        p.mesh.material.opacity = Math.max(0, p.life / p.maxLife) * 0.7;
+        p.mesh.position.z += 0.02;
+        if (def.animated) { const h = (p.life * 3) % 1; p.mesh.material.color.setHSL(h, 1, 0.6); }
+        if (p.life <= 0) { _pvScene.remove(p.mesh); _pvTrailParticles.splice(i, 1); }
+    }
+}
+
 function animatePreview() {
     if (!_pvRunning) return;
     _pvRafId = requestAnimationFrame(animatePreview);
     if (_pvBike) _pvBike.rotation.y += 0.012;
+    _animatePreviewTrail();
     _pvRdr.render(_pvScene, _pvCam);
 }
 
@@ -357,4 +404,7 @@ function showPreview() {
 function hidePreview() {
     _pvRunning = false;
     if (_pvRafId) { cancelAnimationFrame(_pvRafId); _pvRafId = null; }
+    _pvTrailParticles.forEach(p => { if (_pvScene) _pvScene.remove(p.mesh); });
+    _pvTrailParticles = [];
+    _pvTrailDef = null;
 }

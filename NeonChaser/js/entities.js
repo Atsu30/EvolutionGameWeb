@@ -15,8 +15,10 @@ function addEntity(type, mesh, lx, zs = 0, def = null, isWall = false) {
     });
 }
 
-function spawnBullet(x, y, z, offsetX) {
+function spawnBullet(x, y, z, offsetX, dmg) {
     const mesh = new THREE.Mesh(geoBullet, matBullet.clone());
+    const sc = 1 + (dmg - 1) * 0.25;
+    mesh.scale.setScalar(sc);
     mesh.position.set(x + offsetX, y + 1, z);
     scene.add(mesh);
     game.ents.push({
