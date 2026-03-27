@@ -60,8 +60,7 @@ const floorMat = new THREE.ShaderMaterial({
         varying vec2 vUv; varying vec3 vPos;
         void main() {
             vec2 uv = vUv * vec2(30.0, 120.0); uv.y -= time * 4.0;
-            uv.x += sin(uv.y * 0.05 + time * 2.0) * wave * 0.5;
-            uv.y += cos(uv.x * 0.03 + time * 1.5) * wave * 0.3;
+            uv.y += sin(uv.x * 0.08 + time * 0.8) * wave * 0.15;
             vec2 g = abs(fract(uv - 0.5) - 0.5);
             float glow = max(smoothstep(0.06, 0.0, g.x), smoothstep(0.06, 0.0, g.y));
             float road = smoothstep(16.5, 16.0, abs((vUv.x - 0.5) * 300.0));
