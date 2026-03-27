@@ -35,26 +35,78 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 .achieve-popup { position: fixed; top: 60px; right: -350px; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; border-radius: 12px; padding: 12px 20px; color: #a7f3d0; font-weight: bold; font-size: 14px; z-index: 200; transition: right 0.4s ease; backdrop-filter: blur(8px); box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); pointer-events: none; }
 .achieve-popup.show { right: 10px; }
 
+/* --- Page Overlays (Title / Menu) --- */
+.page-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    pointer-events: auto; z-index: 100;
+    opacity: 0; visibility: hidden; transition: opacity 0.4s ease;
+}
+.page-overlay.active { opacity: 1; visibility: visible; }
+
 /* --- Title Screen --- */
+#title-page { background: rgba(2,2,8,0.7); cursor: pointer; }
+.title-scanlines {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(0,255,255,0.015) 2px, rgba(0,255,255,0.015) 4px);
+    pointer-events: none;
+}
+.title-content { position: relative; z-index: 1; text-align: center; }
 .title-logo {
-    font-size: 64px;
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 0 40px #60a5fa, 0 0 80px #3b82f6, 0 0 120px #2563eb;
-    letter-spacing: 8px;
-    text-transform: uppercase;
+    font-size: 72px; font-weight: 900; color: #fff; line-height: 0.9;
+    letter-spacing: 10px; text-transform: uppercase;
+    text-shadow: 0 0 40px #60a5fa, 0 0 80px #3b82f6, 0 0 120px #2563eb, 0 4px 20px rgba(0,0,0,0.8);
     animation: title-glow 2s ease-in-out infinite alternate;
 }
 .title-sub {
-    font-size: 18px;
-    color: #94a3b8;
-    letter-spacing: 4px;
-    margin-top: 12px;
+    font-size: 14px; font-weight: 700; color: #60a5fa; letter-spacing: 8px; margin-top: 20px;
+    text-shadow: 0 0 10px #3b82f6;
+}
+.title-tap {
+    font-size: 16px; font-weight: 700; color: #94a3b8; letter-spacing: 6px; margin-top: 60px;
+    animation: tap-pulse 1.5s ease-in-out infinite;
 }
 @keyframes title-glow {
-    0% { text-shadow: 0 0 30px #60a5fa, 0 0 60px #3b82f6; }
-    100% { text-shadow: 0 0 50px #818cf8, 0 0 100px #6366f1, 0 0 150px #4f46e5; }
+    0% { text-shadow: 0 0 30px #60a5fa, 0 0 60px #3b82f6, 0 4px 20px rgba(0,0,0,0.8); }
+    100% { text-shadow: 0 0 50px #818cf8, 0 0 100px #6366f1, 0 0 150px #4f46e5, 0 4px 20px rgba(0,0,0,0.8); }
 }
+@keyframes tap-pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
+.title-ver {
+    position: absolute; bottom: 20px; right: 20px;
+    font-size: 11px; color: #334155; letter-spacing: 1px;
+}
+
+/* --- Main Menu Page --- */
+#menu-page { background: rgba(2,2,8,0.85); backdrop-filter: blur(12px); }
+.menu-page-inner {
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+    max-width: 440px; width: 100%; padding: 20px;
+}
+.menu-logo-small {
+    font-size: 24px; font-weight: 900; color: #fff; letter-spacing: 6px;
+    text-shadow: 0 0 20px #60a5fa, 0 0 40px #3b82f6;
+    margin-bottom: 8px;
+}
+.menu-start-btn {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    width: 100%; max-width: 320px; padding: 18px 32px;
+    font-size: 22px; font-weight: 900; color: #fff; letter-spacing: 3px;
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    border: 2px solid rgba(96, 165, 250, 0.4);
+    border-radius: 16px; cursor: pointer;
+    box-shadow: 0 0 30px rgba(37, 99, 235, 0.3), 0 8px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    pointer-events: auto;
+}
+.menu-start-btn:hover {
+    transform: scale(1.04) translateY(-2px);
+    box-shadow: 0 0 50px rgba(37, 99, 235, 0.5), 0 12px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.menu-start-btn:active { transform: scale(0.97); }
+.menu-start-icon { font-size: 18px; }
 
 /* --- モーダル --- */
 .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,5,10,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; z-index: 100; backdrop-filter: blur(10px); overflow-y: auto; padding: 20px; box-sizing: border-box; }
@@ -84,14 +136,25 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 .btn-secondary:active { transform: scale(0.95); }
 
 /* --- Menu Grid --- */
-.menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 400px; }
-.menu-card { background: linear-gradient(145deg, #1e1e2f, #151520); border: 2px solid #334; border-radius: 16px; padding: 24px 16px; cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; text-align: center; pointer-events: auto; }
-.menu-card:hover { border-color: #60a5fa; box-shadow: 0 10px 25px rgba(37,99,235,0.35), 0 0 15px rgba(96, 165, 250, 0.15); transform: translateY(-6px); }
-.menu-card:active { transform: translateY(-1px) scale(0.97); box-shadow: 0 4px 10px rgba(37,99,235,0.2); }
-.menu-card-icon { font-size: 36px; margin-bottom: 8px; transition: transform 0.2s ease; }
+.menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 400px; width: 100%; }
+.menu-card {
+    background: linear-gradient(160deg, rgba(30,30,50,0.9), rgba(15,15,25,0.95));
+    border: 1px solid rgba(96,165,250,0.15); border-radius: 14px; padding: 20px 12px;
+    cursor: pointer; text-align: center; pointer-events: auto; position: relative; overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.menu-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #60a5fa, transparent); opacity: 0;
+    transition: opacity 0.25s ease;
+}
+.menu-card:hover::before { opacity: 1; }
+.menu-card:hover { border-color: rgba(96,165,250,0.4); box-shadow: 0 8px 25px rgba(37,99,235,0.25), 0 0 20px rgba(96,165,250,0.1); transform: translateY(-4px); }
+.menu-card:active { transform: translateY(0) scale(0.97); }
+.menu-card-icon { font-size: 32px; margin-bottom: 8px; transition: transform 0.2s ease; }
 .menu-card:hover .menu-card-icon { transform: scale(1.15); }
-.menu-card-label { font-size: 11px; font-weight: 900; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; transition: color 0.2s ease; }
-.menu-card:hover .menu-card-label { color: #cbd5e1; }
+.menu-card-label { font-size: 10px; font-weight: 900; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase; transition: color 0.2s ease; }
+.menu-card:hover .menu-card-label { color: #94a3b8; }
 
 /* --- Ranking --- */
 .rank-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #1e293b; transition: background 0.15s ease; }
@@ -248,7 +311,13 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     .menu-card-icon { font-size: 28px; }
     .item-grid { grid-template-columns: repeat(3, 1fr); }
     #preview-canvas { width: 200px; height: 140px; }
-    .title-logo { font-size: 36px; letter-spacing: 4px; }
-    .title-sub { font-size: 14px; }
+    .title-logo { font-size: 44px; letter-spacing: 5px; }
+    .title-sub { font-size: 11px; letter-spacing: 5px; }
+    .title-tap { font-size: 13px; margin-top: 40px; }
+    .menu-logo-small { font-size: 18px; }
+    .menu-start-btn { font-size: 18px; padding: 14px 24px; }
+    .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .menu-card { padding: 14px 8px; }
+    .menu-card-icon { font-size: 26px; }
     .stage-popup { font-size: 32px; letter-spacing: 3px; }
 }

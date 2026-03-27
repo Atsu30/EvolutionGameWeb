@@ -4,17 +4,22 @@ let _menuStack = [];
 function _showModal(id) { _menuStack.push(id); el(id).classList.add('active'); }
 function _hideModal(id) { el(id).classList.remove('active'); _menuStack = _menuStack.filter(m => m !== id); }
 
-function showMenu() { game.st.isP = true; _showModal('menu-modal'); }
+function showMenu() { game.st.isP = true; }
 function hideMenu() {
     if (_menuStack.includes('custom-modal') && typeof hidePreview === 'function') hidePreview();
     if (_gachaPulling) _gachaPulling = false;
     _menuStack.forEach(id => el(id).classList.remove('active')); _menuStack = [];
-    if (!game.st.isG) { game.st.isP = false; game.clock.getDelta(); }
+    // Return to menu page, not directly to game
+    el('menu-page').classList.add('active');
 }
 function goBack() {
     const top = _menuStack[_menuStack.length - 1];
     if (top === 'custom-modal' && typeof hidePreview === 'function') hidePreview();
-    _menuStack.length > 1 ? _hideModal(top) : hideMenu();
+    if (_menuStack.length > 1) { _hideModal(top); }
+    else {
+        _menuStack.forEach(id => el(id).classList.remove('active')); _menuStack = [];
+        el('menu-page').classList.add('active');
+    }
 }
 
 function showRanking() {

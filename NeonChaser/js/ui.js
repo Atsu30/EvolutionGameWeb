@@ -114,8 +114,24 @@ function triggerGameOver() {
     el('gameover-modal').classList.add('active');
 }
 
-function startFromTitle() {
-    el('title-modal').classList.remove('active');
+function goToMenu() {
+    el('title-page').classList.remove('active');
+    el('menu-page').classList.add('active');
+}
+
+function goToMenuPage() {
+    game.st.isP = true;
+    // Close any open sub-modals
+    if (typeof hidePreview === 'function') hidePreview();
+    _menuStack.forEach(id => el(id).classList.remove('active'));
+    _menuStack = [];
+    el('gameover-modal').classList.remove('active');
+    el('menu-page').classList.add('active');
+}
+
+function startGame() {
+    el('menu-page').classList.remove('active');
+    if (game.st.isG) restartGame();
     game.st.isP = false;
     game.clock.getDelta();
 }
@@ -139,6 +155,8 @@ function restartGame() {
     game.pts.forEach(p => p.scale.z = 1);
     game.ents.forEach(e => scene.remove(e.mesh)); game.ents.length = 0;
     el('gameover-modal').classList.remove('active');
+    el('menu-page').classList.remove('active');
+    el('title-page').classList.remove('active');
     game.clock.getDelta();
     if (typeof resetStage === 'function') resetStage();
     applyCustomization();
