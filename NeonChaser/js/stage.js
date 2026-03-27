@@ -23,7 +23,7 @@ const STAGES = [
             break: [0x064e3b, 0x022c22], neonB: [0x10b981, 0x059669],
             zigzag: [0xd97706, 0x92400e], zigzagNeon: [0xfbbf24, 0xfbbf24],
         },
-        enemyPool: [{ type: 'drone', weight: 50 }, { type: 'shard', weight: 35 }, { type: 'sentinel', weight: 15 }],
+        enemyPool: [{ type: 'drone', weight: 65 }, { type: 'shard', weight: 25 }, { type: 'sentinel', weight: 10 }],
         zigzag: false,
         rocket: false,
     },
