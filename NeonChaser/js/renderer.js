@@ -425,12 +425,21 @@ function updateEnemyColors(colors) {
     matZigzagNeon.color.setHex(colors.zigzagNeon[0]); matZigzagNeon.emissive.setHex(colors.zigzagNeon[1]);
 }
 
-// --- Preview Renderer (Customize Screen) ---
+// --- Preview Renderer (shared by Customize & Shop) ---
 let _pvRdr = null, _pvScene = null, _pvCam = null, _pvBike = null, _pvRunning = false, _pvRafId = null;
+let _pvCanvasId = null;
 
-function _initPreview() {
-    const c = el('preview-canvas');
-    if (!c || _pvRdr) return;
+function _initPreview(canvasId) {
+    canvasId = canvasId || 'preview-canvas';
+    const c = el(canvasId);
+    if (!c) return;
+    // If switching to a different canvas, dispose old renderer
+    if (_pvRdr && _pvCanvasId !== canvasId) {
+        _pvRdr.dispose();
+        _pvRdr = null; _pvScene = null; _pvCam = null; _pvBike = null;
+    }
+    if (_pvRdr) return;
+    _pvCanvasId = canvasId;
     _pvRdr = new THREE.WebGLRenderer({ canvas: c, antialias: true, alpha: false });
     _pvRdr.setClearColor(0x0a0a14, 1);
     _pvRdr.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -541,11 +550,34 @@ function animatePreview() {
     _pvRdr.render(_pvScene, _pvCam);
 }
 
-function showPreview() {
-    _initPreview();
+function showPreview(canvasId) {
+    _initPreview(canvasId);
     _createPreviewBike();
+    const eq = getEquipped();
+    updatePreviewTrail(eq.trailId);
     _pvRunning = true;
     animatePreview();
+}
+
+/** Temporarily preview a single item on the bike (for shop hover) */
+function previewShopItem(itemId) {
+    if (!_pvBike) return;
+    const eq = getEquipped();
+    let colorId = eq.colorId, tireId = eq.tireId, bodyId = eq.bodyId, trailId = eq.trailId;
+    if (itemId.startsWith('color-')) colorId = itemId;
+    else if (itemId.startsWith('tire-')) tireId = itemId;
+    else if (itemId.startsWith('body-')) bodyId = itemId;
+    else if (itemId.startsWith('trail-')) trailId = itemId;
+    updatePreviewBike(colorId, tireId, bodyId);
+    updatePreviewTrail(trailId);
+}
+
+/** Revert preview to current equipped state */
+function resetShopPreview() {
+    if (!_pvBike) return;
+    const eq = getEquipped();
+    updatePreviewBike(eq.colorId, eq.tireId, eq.bodyId);
+    updatePreviewTrail(eq.trailId);
 }
 
 function hidePreview() {

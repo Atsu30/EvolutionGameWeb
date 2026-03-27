@@ -176,7 +176,10 @@
     <!-- Shop -->
     <div id="shop-modal" class="modal-overlay">
         <div class="modal-title">ショップ</div>
-        <div style="color:#94a3b8; margin-bottom:16px;">スクラップ: <strong id="shop-scrap" style="color:#fbbf24;">0</strong></div>
+        <div class="preview-wrapper">
+            <canvas id="shop-preview-canvas" width="240" height="160"></canvas>
+        </div>
+        <div style="color:#94a3b8; margin-bottom:12px; font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:1px;">スクラップ: <strong id="shop-scrap" style="color:#fbbf24; font-family:'Orbitron',sans-serif; font-size:15px;">0</strong></div>
         <div id="shop-list" class="modal-scroll"></div>
         <button class="btn btn-secondary" onclick="goBack()">戻る</button>
     </div>

@@ -591,7 +591,7 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     margin-bottom: 16px;
     flex-shrink: 0;
 }
-#preview-canvas {
+#preview-canvas, #shop-preview-canvas {
     width: 240px;
     height: 160px;
     border: 1px solid rgba(217,70,239,0.25);

@@ -5,7 +5,7 @@ function showCustomize() {
     _currentCustomTab = 'color';
     _renderCustomize();
     _showModal('custom-modal');
-    if (typeof showPreview === 'function') showPreview();
+    if (typeof showPreview === 'function') showPreview('preview-canvas');
 }
 function switchCustomTab(tab) {
     _currentCustomTab = tab;
@@ -40,14 +40,23 @@ function equipItem(category, id) {
     if (typeof updatePreviewTrail === 'function' && _currentCustomTab === 'trail') updatePreviewTrail(eq.trailId);
 }
 
-function showShop() { _renderShop(); _showModal('shop-modal'); }
+function showShop() {
+    _renderShop();
+    _showModal('shop-modal');
+    if (typeof showPreview === 'function') showPreview('shop-preview-canvas');
+}
 function _renderShop() {
     const w = getWallet(); el('shop-scrap').innerText = w.scrap.toLocaleString();
     const items = getShopItems(), list = el('shop-list');
     if (!items.length) { list.innerHTML = '<div style="color:#64748b;text-align:center;padding:20px;">全アイテム取得済み！</div>'; return; }
     list.innerHTML = items.map(item => {
         const cb = w.scrap >= item.price, cl = { color: 'カラー', tire: 'タイヤ', body: 'ボディ', trail: 'トレイル' }[item.category] || 'ITEM';
-        return `<div class="shop-row"><div><span class="rarity-${item.rarity}">[${item.rarity}] ${cl}</span><span style="color:#fff;font-weight:bold;margin-left:8px;">${item.name}</span></div><button class="shop-buy-btn ${cb?'':'disabled'}" onclick="shopBuy('${item.id}')" ${cb?'':'disabled'}>${item.price} Scrap</button></div>`;
+        return `<div class="shop-row" onmouseenter="previewShopItem('${item.id}')" onmouseleave="resetShopPreview()" ontouchstart="previewShopItem('${item.id}')"><div><span class="rarity-${item.rarity}">[${item.rarity}] ${cl}</span><span style="color:#fff;font-weight:bold;margin-left:8px;">${item.name}</span></div><button class="shop-buy-btn ${cb?'':'disabled'}" onclick="shopBuy('${item.id}')" ${cb?'':'disabled'}>${item.price} Scrap</button></div>`;
     }).join('');
 }
-function shopBuy(itemId) { if (buyWithScrap(itemId)) _renderShop(); }
+function shopBuy(itemId) {
+    if (buyWithScrap(itemId)) {
+        _renderShop();
+        if (typeof resetShopPreview === 'function') resetShopPreview();
+    }
+}
