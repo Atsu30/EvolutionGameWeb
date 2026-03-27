@@ -133,8 +133,27 @@ function goToMenuPage() {
 function startGame() {
     el('menu-page').classList.remove('active');
     if (game.st.isG) restartGame();
-    game.st.isP = false;
-    game.clock.getDelta();
+    // Countdown 3→2→1→GO
+    game.st.isP = true;
+    const cd = el('countdown');
+    const nums = ['3', '2', '1', 'GO'];
+    let i = 0;
+    cd.textContent = nums[0];
+    cd.classList.add('show');
+    const tick = setInterval(() => {
+        i++;
+        if (i < nums.length) {
+            cd.textContent = nums[i];
+            cd.classList.remove('show');
+            void cd.offsetWidth; // force reflow
+            cd.classList.add('show');
+        } else {
+            clearInterval(tick);
+            cd.classList.remove('show');
+            game.st.isP = false;
+            game.clock.getDelta();
+        }
+    }, 700);
 }
 
 function restartGame() {
