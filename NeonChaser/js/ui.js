@@ -225,8 +225,13 @@ function triggerWarpEffect() {
             }
         }
 
-        // Boost FOV for tunnel rush feel
-        cam.fov = 75 + accel * 40;
+        // FOV: ramp up before game start, ease back to 75 after
+        if (!gameStarted) {
+            cam.fov = 75 + accel * 40;
+        } else {
+            const returnT = (t - 0.6) / 0.4; // 0→1 over remaining 40%
+            cam.fov = 75 + (1 - returnT * returnT) * (0.216 * 40); // ease out from ~83.6 back to 75
+        }
         cam.updateProjectionMatrix();
 
         // Start game mid-warp
