@@ -150,12 +150,28 @@ function goToMenuPage() {
     _menuStack.forEach(id => el(id).classList.remove('active'));
     _menuStack = [];
     el('gameover-modal').classList.remove('active');
+    _showTitleScreen();
     el('menu-page').classList.add('active');
+}
+
+function _showGameScreen() {
+    if (typeof stopTitleBg === 'function') stopTitleBg();
+    el('game-canvas').style.display = 'block';
+    el('ui-layer').style.display = '';
+    el('speed-meter').style.display = '';
+}
+
+function _showTitleScreen() {
+    el('game-canvas').style.display = 'none';
+    el('ui-layer').style.display = 'none';
+    el('speed-meter').style.display = 'none';
+    if (typeof showTitleBg === 'function') showTitleBg();
 }
 
 function startGame() {
     el('menu-page').classList.remove('active');
     if (game.st.isG) restartGame();
+    _showGameScreen();
     // Countdown 3→2→1→GO
     game.st.isP = true;
     const cd = el('countdown');

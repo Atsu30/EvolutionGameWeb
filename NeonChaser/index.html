@@ -17,7 +17,8 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 </head>
 <body>
-    <canvas id="game-canvas"></canvas>
+    <canvas id="title-bg-canvas"></canvas>
+    <canvas id="game-canvas" style="display:none;"></canvas>
     <div id="speed-lines"></div>
     <div id="damage-flash"></div>
 
@@ -38,7 +39,7 @@
     <!-- Countdown -->
     <div id="countdown" class="countdown"></div>
 
-    <div id="ui-layer">
+    <div id="ui-layer" style="display:none;">
         <button class="menu-btn" onclick="goToMenuPage()">☰</button>
         <div class="hud-container">
             <div class="hud-box">
@@ -54,7 +55,7 @@
     </div>
 
     <!-- Speed Meter -->
-    <div id="speed-meter">
+    <div id="speed-meter" style="display:none;">
         <svg viewBox="0 0 120 120" class="meter-svg">
             <circle cx="60" cy="60" r="52" class="meter-bg"/>
             <circle cx="60" cy="60" r="52" class="meter-arc" id="meter-arc"
@@ -194,6 +195,9 @@
         window.onerror = (m, s, l, c, e) => _showErr(`[ERROR] ${m} (${s}:${l}:${c})`);
         window.addEventListener('unhandledrejection', e => _showErr(`[PROMISE] ${e.reason}`));
     </script>
+
+    <!-- Title Background -->
+    <script src="js/title-bg.js"></script>
 
     <!-- Game Scripts (order matters) -->
     <script src="js/state.js"></script>
