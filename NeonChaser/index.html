@@ -108,29 +108,17 @@
 
     <!-- Main Menu -->
     <div id="menu-page" class="page-overlay">
-        <div class="menu-page-inner">
-            <div class="menu-logo-small">NEON CHASER</div>
-            <div class="menu-miles-display">マイル: <strong id="menu-miles">0</strong></div>
-            <button class="menu-start-btn" onclick="startGame()">
-                <span class="menu-start-icon">▶</span>ゲームスタート
-            </button>
-            <hr class="menu-divider">
-            <div class="menu-grid">
-                <div class="menu-card" onclick="showRanking()">
-                    <div class="menu-card-icon">📊</div><div class="menu-card-label">ランキング</div>
-                </div>
-                <div class="menu-card" onclick="showAchievements()">
-                    <div class="menu-card-icon">🏆</div><div class="menu-card-label">実績</div>
-                </div>
-                <div class="menu-card" onclick="showGacha()">
-                    <div class="menu-card-icon">🎰</div><div class="menu-card-label">ガチャ</div>
-                </div>
-                <div class="menu-card" onclick="showCustomize()">
-                    <div class="menu-card-icon">🔧</div><div class="menu-card-label">カスタム</div>
-                </div>
-                <div class="menu-card" onclick="showShop()">
-                    <div class="menu-card-icon">🛒</div><div class="menu-card-label">ショップ</div>
-                </div>
+        <div class="menu-panel">
+            <div class="menu-panel-border"></div>
+            <div class="menu-title">NEON CHASER</div>
+            <div class="menu-miles-display">MILES: <strong id="menu-miles">0</strong></div>
+            <div class="menu-buttons">
+                <button class="menu-item menu-item-primary" onclick="startGame()">ゲームスタート</button>
+                <button class="menu-item" onclick="showRanking()">ランキング</button>
+                <button class="menu-item" onclick="showAchievements()">実績</button>
+                <button class="menu-item" onclick="showGacha()">ガチャ</button>
+                <button class="menu-item" onclick="showCustomize()">カスタム</button>
+                <button class="menu-item" onclick="showShop()">ショップ</button>
             </div>
         </div>
     </div>
