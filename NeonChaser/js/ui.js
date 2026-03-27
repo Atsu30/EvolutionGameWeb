@@ -111,20 +111,6 @@ function triggerGameOver() {
         }, 16);
         setTimeout(() => clearInterval(_milesUpdate), 1100);
     }, 400);
-    el('ai-feedback').style.display = 'block';
-    el('ai-loading').style.display = 'block';
-    el('ai-result').style.display = 'none';
-    fetchAIFeedback({
-        lv: st.lv, destroyed: st.stats.destroyedEnemies, damage: st.stats.damageTaken,
-        dash: st.stats.dashCount, jump: st.stats.jumpCount
-    }).then(res => {
-        if (el('gameover-modal').classList.contains('active')) {
-            el('ai-loading').style.display = 'none';
-            el('ai-result').style.display = 'block';
-            el('ai-title').innerText = `"${res.title}"`;
-            el('ai-desc').innerText = res.feedback;
-        }
-    });
     el('gameover-modal').classList.add('active');
 }
 
