@@ -84,12 +84,86 @@ function _tbAnimate() {
         _tbCtx.stroke();
     }
 
+    // Cityscape silhouette
+    _tbDrawCity(W, H);
+
     // Central glow
     const grad = _tbCtx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W * 0.5);
     grad.addColorStop(0, 'rgba(217, 70, 239, 0.04)');
     grad.addColorStop(1, 'transparent');
     _tbCtx.fillStyle = grad;
     _tbCtx.fillRect(0, 0, W, H);
+}
+
+// --- Cityscape ---
+const _tbBuildings = [];
+function _tbGenBuildings() {
+    _tbBuildings.length = 0;
+    const W = _tbCvs.width, H = _tbCvs.height;
+    const count = Math.floor(W / 25);
+    let x = 0;
+    for (let i = 0; i < count; i++) {
+        const w = 18 + Math.random() * 30;
+        const h = 40 + Math.random() * (H * 0.35);
+        const windows = Math.random() > 0.3;
+        _tbBuildings.push({ x, w, h, windows });
+        x += w + Math.random() * 4;
+    }
+}
+_tbGenBuildings();
+window.addEventListener('resize', _tbGenBuildings);
+
+function _tbDrawCity(W, H) {
+    const baseY = H;
+    const ctx = _tbCtx;
+
+    // Far layer (darker, shorter)
+    ctx.fillStyle = 'rgba(15, 10, 30, 0.9)';
+    for (const b of _tbBuildings) {
+        const h2 = b.h * 0.5;
+        ctx.fillRect(b.x - 5, baseY - h2 - 20, b.w + 3, h2 + 20);
+    }
+
+    // Main layer
+    for (const b of _tbBuildings) {
+        // Building body
+        ctx.fillStyle = 'rgba(10, 8, 20, 0.95)';
+        ctx.fillRect(b.x, baseY - b.h, b.w, b.h);
+
+        // Edge glow
+        ctx.strokeStyle = 'rgba(217, 70, 239, 0.12)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(b.x, baseY - b.h, b.w, b.h);
+
+        // Top accent line
+        ctx.strokeStyle = 'rgba(217, 70, 239, 0.3)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(b.x, baseY - b.h);
+        ctx.lineTo(b.x + b.w, baseY - b.h);
+        ctx.stroke();
+
+        // Windows
+        if (b.windows && b.w > 20) {
+            const cols = Math.floor(b.w / 8);
+            const rows = Math.floor(b.h / 12);
+            for (let r = 1; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (Math.random() > 0.4) {
+                        const wx = b.x + 4 + c * 8;
+                        const wy = baseY - b.h + 4 + r * 12;
+                        const lit = Math.random();
+                        if (lit > 0.5) {
+                            ctx.fillStyle = lit > 0.85 ? 'rgba(217, 70, 239, 0.25)' : 'rgba(34, 211, 238, 0.15)';
+                        } else {
+                            ctx.fillStyle = 'rgba(100, 116, 139, 0.08)';
+                        }
+                        ctx.fillRect(wx, wy, 4, 6);
+                    }
+                }
+            }
+        }
+    }
 }
 
 function stopTitleBg() {

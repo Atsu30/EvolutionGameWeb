@@ -3,6 +3,7 @@ const STAGES = [
     {
         name: 'ネオンシティ',
         dist: 0,
+        cityVisible: true,
         fogColor: 0x050510,
         fogDensity: 0.015,
         floorCol1: [0.0, 0.1, 0.3],
@@ -23,12 +24,13 @@ const STAGES = [
             break: [0x064e3b, 0x022c22], neonB: [0x10b981, 0x059669],
             zigzag: [0xd97706, 0x92400e], zigzagNeon: [0xfbbf24, 0xfbbf24],
         },
-        enemyPool: [{ type: 'drone', weight: 65 }, { type: 'shard', weight: 25 }, { type: 'sentinel', weight: 10 }],
+        enemyPool: [{ type: 'drone', weight: 80 }, { type: 'shard', weight: 15 }, { type: 'sentinel', weight: 5 }],
         zigzag: false,
         rocket: false,
     },
     {
         name: 'ディープオーシャン',
+        cityVisible: false,
         dist: 10,
         fogColor: 0x001a2c,
         fogDensity: 0.018,
@@ -50,12 +52,13 @@ const STAGES = [
             break: [0x064e3b, 0x022c22], neonB: [0x2dd4bf, 0x14b8a6],
             zigzag: [0x0d9488, 0x065f53], zigzagNeon: [0x22d3ee, 0x22d3ee],
         },
-        enemyPool: [{ type: 'drone', weight: 20 }, { type: 'shard', weight: 30 }, { type: 'jellyfish', weight: 25 }, { type: 'fish', weight: 25 }],
+        enemyPool: [{ type: 'drone', weight: 70 }, { type: 'shard', weight: 10 }, { type: 'jellyfish', weight: 10 }, { type: 'fish', weight: 10 }],
         zigzag: true,
         rocket: true,
     },
     {
         name: 'ヴォルケーノ',
+        cityVisible: false,
         dist: 25,
         fogColor: 0x1a0500,
         fogDensity: 0.020,
@@ -169,6 +172,7 @@ function triggerStageTransition(idx) {
         } else {
             if (typeof updateBgGeos === 'function') updateBgGeos(to.bgGeos);
             if (typeof updateEnemyColors === 'function') updateEnemyColors(to.enemyColors);
+            if (typeof setCityVisible === 'function') setCityVisible(!!to.cityVisible);
             _currentStage = idx;
             _stageTransitioning = false;
         }
@@ -214,6 +218,8 @@ function applyStage(idx) {
     if (typeof updateBgGeos === 'function') updateBgGeos(s.bgGeos);
     // Enemy colors
     if (typeof updateEnemyColors === 'function') updateEnemyColors(s.enemyColors);
+    // City buildings
+    if (typeof setCityVisible === 'function') setCityVisible(!!s.cityVisible);
 }
 
 function showStagePopup(name) {

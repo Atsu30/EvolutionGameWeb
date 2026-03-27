@@ -327,6 +327,36 @@ for (let i = 0; i < 40; i++) {
     scene.add(l, r); game.road.push({ L: l, R: r, z });
 }
 
+// --- City Buildings ---
+const matBldg = new THREE.MeshStandardMaterial({ color: 0x0a0a1a, emissive: 0x0a0a1a, emissiveIntensity: 0.1, roughness: 0.9, metalness: 0.3 });
+const matBldgEdge = new THREE.LineBasicMaterial({ color: 0x8b5cf6, transparent: true, opacity: 0.25 });
+const _cityBuildings = [];
+
+function _createCityBuildings() {
+    // Two rows of buildings on each side of the road
+    for (let side = -1; side <= 1; side += 2) {
+        for (let i = 0; i < 15; i++) {
+            const w = 3 + Math.random() * 5;
+            const h = 8 + Math.random() * 25;
+            const d = 3 + Math.random() * 5;
+            const geo = new THREE.BoxGeometry(w, h, d);
+            const mesh = new THREE.Mesh(geo, matBldg);
+            const edge = new THREE.LineSegments(new THREE.EdgesGeometry(geo), matBldgEdge);
+            mesh.add(edge);
+            const x = side * (CFG.laneW + 8 + Math.random() * 20);
+            const z = -i * 15 - Math.random() * 10;
+            mesh.position.set(x, h / 2, z);
+            scene.add(mesh);
+            _cityBuildings.push(mesh);
+        }
+    }
+}
+_createCityBuildings();
+
+function setCityVisible(visible) {
+    _cityBuildings.forEach(b => b.visible = visible);
+}
+
 // --- Background Geometry Pool ---
 const _bgGeoPool = {
     octa: new THREE.OctahedronGeometry(2, 0),
