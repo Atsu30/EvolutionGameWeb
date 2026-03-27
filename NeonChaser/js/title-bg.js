@@ -1,170 +1,138 @@
-// --- Title Background Animation ---
+// --- Title Background (Three.js 3D) ---
 const _tbCvs = document.getElementById('title-bg-canvas');
-const _tbCtx = _tbCvs.getContext('2d');
 let _tbRunning = true;
 
-function _tbResize() {
-    _tbCvs.width = window.innerWidth;
-    _tbCvs.height = window.innerHeight;
-}
-_tbResize();
-window.addEventListener('resize', _tbResize);
+// Renderer
+const _tbRdr = new THREE.WebGLRenderer({ canvas: _tbCvs, antialias: true });
+_tbRdr.setSize(window.innerWidth, window.innerHeight);
+_tbRdr.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+_tbRdr.setClearColor(0x050510, 1);
 
-// Floating geometric shapes
+// Scene & Camera
+const _tbScene = new THREE.Scene();
+_tbScene.fog = new THREE.FogExp2(0x050510, 0.012);
+const _tbCam = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
+_tbCam.position.set(0, 12, 40);
+_tbCam.lookAt(0, 5, 0);
+
+// Post-processing (Bloom)
+const _tbComposer = new THREE.EffectComposer(_tbRdr);
+_tbComposer.addPass(new THREE.RenderPass(_tbScene, _tbCam));
+_tbComposer.addPass(new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.8, 0.6, 0.15));
+
+// Lighting
+_tbScene.add(new THREE.AmbientLight(0xffffff, 0.2));
+const _tbHemi = new THREE.HemisphereLight(0x0f0520, 0xd946ef, 0.4);
+_tbScene.add(_tbHemi);
+
+// Resize
+window.addEventListener('resize', () => {
+    if (!_tbRunning) return;
+    _tbCam.aspect = window.innerWidth / window.innerHeight;
+    _tbCam.updateProjectionMatrix();
+    _tbRdr.setSize(window.innerWidth, window.innerHeight);
+    _tbComposer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// --- Floating 3D Shapes ---
+const _tbGeos = [
+    new THREE.OctahedronGeometry(1.5, 0),
+    new THREE.TorusGeometry(1.2, 0.3, 8, 16),
+    new THREE.IcosahedronGeometry(1.5, 0),
+    new THREE.TetrahedronGeometry(1.5, 0),
+    new THREE.DodecahedronGeometry(1.2, 0),
+];
+const _tbColors = [0xd946ef, 0x22d3ee, 0xa855f7, 0xd946ef, 0x22d3ee];
 const _tbShapes = [];
-const _tbShapeCount = 35;
 
-for (let i = 0; i < _tbShapeCount; i++) {
+for (let i = 0; i < 30; i++) {
+    const geoIdx = Math.floor(Math.random() * _tbGeos.length);
+    const color = _tbColors[geoIdx];
+    const mat = new THREE.MeshBasicMaterial({ color, wireframe: true, transparent: true, opacity: 0.2 + Math.random() * 0.25 });
+    const mesh = new THREE.Mesh(_tbGeos[geoIdx], mat);
+    const scale = 0.5 + Math.random() * 1.5;
+    mesh.scale.setScalar(scale);
+    mesh.position.set(
+        (Math.random() - 0.5) * 80,
+        Math.random() * 30 + 3,
+        (Math.random() - 0.5) * 100
+    );
+    _tbScene.add(mesh);
     _tbShapes.push({
-        x: Math.random() * _tbCvs.width,
-        y: Math.random() * _tbCvs.height,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.3,
-        size: 15 + Math.random() * 45,
-        rotation: Math.random() * Math.PI * 2,
-        rotSpeed: (Math.random() - 0.5) * 0.01,
-        sides: [3, 4, 5, 6, 8][Math.floor(Math.random() * 5)],
-        alpha: 0.08 + Math.random() * 0.15,
-        hue: Math.random() < 0.6 ? 290 : 190, // magenta or cyan
+        mesh,
+        rX: (Math.random() - 0.5) * 0.5,
+        rY: (Math.random() - 0.5) * 0.5,
+        rZ: (Math.random() - 0.5) * 0.3,
+        vx: (Math.random() - 0.5) * 0.02,
+        vy: (Math.random() - 0.5) * 0.015,
     });
 }
 
-function _tbDrawShape(ctx, x, y, size, sides, rotation) {
-    ctx.beginPath();
-    for (let i = 0; i <= sides; i++) {
-        const a = rotation + (i / sides) * Math.PI * 2;
-        const px = x + Math.cos(a) * size;
-        const py = y + Math.sin(a) * size;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-    }
-    ctx.closePath();
+// --- 3D City Silhouette ---
+const _tbBldgMat = new THREE.MeshStandardMaterial({ color: 0x08081a, emissive: 0x08081a, emissiveIntensity: 0.05, roughness: 0.9, metalness: 0.3 });
+const _tbBldgEdgeMat = new THREE.LineBasicMaterial({ color: 0xd946ef, transparent: true, opacity: 0.15 });
+const _tbBldgTopMat = new THREE.LineBasicMaterial({ color: 0xd946ef, transparent: true, opacity: 0.4 });
+
+for (let i = 0; i < 40; i++) {
+    const w = 2 + Math.random() * 4;
+    const h = 5 + Math.random() * 20;
+    const d = 2 + Math.random() * 4;
+    const geo = new THREE.BoxGeometry(w, h, d);
+    const mesh = new THREE.Mesh(geo, _tbBldgMat);
+    const edge = new THREE.LineSegments(new THREE.EdgesGeometry(geo), _tbBldgEdgeMat);
+    mesh.add(edge);
+    const x = (i - 20) * 3.5 + (Math.random() - 0.5) * 2;
+    mesh.position.set(x, h / 2, -20 + Math.random() * 10);
+    _tbScene.add(mesh);
+}
+// Far layer
+for (let i = 0; i < 30; i++) {
+    const w = 3 + Math.random() * 5;
+    const h = 3 + Math.random() * 12;
+    const d = 3 + Math.random() * 5;
+    const geo = new THREE.BoxGeometry(w, h, d);
+    const mesh = new THREE.Mesh(geo, _tbBldgMat);
+    const x = (i - 15) * 5 + (Math.random() - 0.5) * 3;
+    mesh.position.set(x, h / 2, -35 + Math.random() * 5);
+    _tbScene.add(mesh);
 }
 
+// --- Floor grid ---
+const _tbFloorMat = new THREE.MeshBasicMaterial({ color: 0xd946ef, wireframe: true, transparent: true, opacity: 0.04 });
+const _tbFloor = new THREE.Mesh(new THREE.PlaneGeometry(200, 100, 40, 20), _tbFloorMat);
+_tbFloor.rotation.x = -Math.PI / 2;
+_tbFloor.position.set(0, 0, -20);
+_tbScene.add(_tbFloor);
+
+// --- Animate ---
+let _tbTime = 0;
 function _tbAnimate() {
     if (!_tbRunning) return;
     requestAnimationFrame(_tbAnimate);
+    _tbTime += 0.016;
 
-    const W = _tbCvs.width, H = _tbCvs.height;
-    _tbCtx.fillStyle = '#050510';
-    _tbCtx.fillRect(0, 0, W, H);
-
-    // Subtle grid
-    _tbCtx.strokeStyle = 'rgba(217, 70, 239, 0.03)';
-    _tbCtx.lineWidth = 1;
-    const gridSize = 60;
-    for (let gx = 0; gx < W; gx += gridSize) {
-        _tbCtx.beginPath(); _tbCtx.moveTo(gx, 0); _tbCtx.lineTo(gx, H); _tbCtx.stroke();
-    }
-    for (let gy = 0; gy < H; gy += gridSize) {
-        _tbCtx.beginPath(); _tbCtx.moveTo(0, gy); _tbCtx.lineTo(W, gy); _tbCtx.stroke();
-    }
-
-    // Draw shapes
+    // Rotate shapes
     for (const s of _tbShapes) {
-        s.x += s.vx;
-        s.y += s.vy;
-        s.rotation += s.rotSpeed;
-
-        // Wrap around
-        if (s.x < -s.size) s.x = W + s.size;
-        if (s.x > W + s.size) s.x = -s.size;
-        if (s.y < -s.size) s.y = H + s.size;
-        if (s.y > H + s.size) s.y = -s.size;
-
-        _tbDrawShape(_tbCtx, s.x, s.y, s.size, s.sides, s.rotation);
-        _tbCtx.strokeStyle = `hsla(${s.hue}, 80%, 65%, ${s.alpha})`;
-        _tbCtx.lineWidth = 1.5;
-        _tbCtx.stroke();
-
-        // Glow layer
-        _tbDrawShape(_tbCtx, s.x, s.y, s.size, s.sides, s.rotation);
-        _tbCtx.strokeStyle = `hsla(${s.hue}, 80%, 65%, ${s.alpha * 0.3})`;
-        _tbCtx.lineWidth = 4;
-        _tbCtx.stroke();
+        s.mesh.rotation.x += s.rX * 0.016;
+        s.mesh.rotation.y += s.rY * 0.016;
+        s.mesh.rotation.z += s.rZ * 0.016;
+        s.mesh.position.x += s.vx;
+        s.mesh.position.y += s.vy;
+        // Wrap
+        if (s.mesh.position.x > 45) s.mesh.position.x = -45;
+        if (s.mesh.position.x < -45) s.mesh.position.x = 45;
+        if (s.mesh.position.y > 35) s.mesh.position.y = 3;
+        if (s.mesh.position.y < 2) s.mesh.position.y = 35;
     }
 
-    // Cityscape silhouette
-    _tbDrawCity(W, H);
+    // Slow camera sway
+    _tbCam.position.x = Math.sin(_tbTime * 0.15) * 3;
+    _tbCam.position.y = 12 + Math.sin(_tbTime * 0.1) * 1.5;
+    _tbCam.lookAt(0, 5, 0);
 
-    // Central glow
-    const grad = _tbCtx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W * 0.5);
-    grad.addColorStop(0, 'rgba(217, 70, 239, 0.04)');
-    grad.addColorStop(1, 'transparent');
-    _tbCtx.fillStyle = grad;
-    _tbCtx.fillRect(0, 0, W, H);
+    _tbComposer.render();
 }
-
-// --- Cityscape ---
-const _tbBuildings = [];
-function _tbGenBuildings() {
-    _tbBuildings.length = 0;
-    const W = _tbCvs.width, H = _tbCvs.height;
-    const count = Math.floor(W / 25);
-    let x = 0;
-    for (let i = 0; i < count; i++) {
-        const w = 18 + Math.random() * 30;
-        const h = 40 + Math.random() * (H * 0.35);
-        const windows = Math.random() > 0.3;
-        _tbBuildings.push({ x, w, h, windows });
-        x += w + Math.random() * 4;
-    }
-}
-_tbGenBuildings();
-window.addEventListener('resize', _tbGenBuildings);
-
-function _tbDrawCity(W, H) {
-    const baseY = H;
-    const ctx = _tbCtx;
-
-    // Far layer (darker, shorter)
-    ctx.fillStyle = 'rgba(15, 10, 30, 0.9)';
-    for (const b of _tbBuildings) {
-        const h2 = b.h * 0.5;
-        ctx.fillRect(b.x - 5, baseY - h2 - 20, b.w + 3, h2 + 20);
-    }
-
-    // Main layer
-    for (const b of _tbBuildings) {
-        // Building body
-        ctx.fillStyle = 'rgba(10, 8, 20, 0.95)';
-        ctx.fillRect(b.x, baseY - b.h, b.w, b.h);
-
-        // Edge glow
-        ctx.strokeStyle = 'rgba(217, 70, 239, 0.12)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(b.x, baseY - b.h, b.w, b.h);
-
-        // Top accent line
-        ctx.strokeStyle = 'rgba(217, 70, 239, 0.3)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(b.x, baseY - b.h);
-        ctx.lineTo(b.x + b.w, baseY - b.h);
-        ctx.stroke();
-
-        // Windows
-        if (b.windows && b.w > 20) {
-            const cols = Math.floor(b.w / 8);
-            const rows = Math.floor(b.h / 12);
-            for (let r = 1; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    if (Math.random() > 0.4) {
-                        const wx = b.x + 4 + c * 8;
-                        const wy = baseY - b.h + 4 + r * 12;
-                        const lit = Math.random();
-                        if (lit > 0.5) {
-                            ctx.fillStyle = lit > 0.85 ? 'rgba(217, 70, 239, 0.25)' : 'rgba(34, 211, 238, 0.15)';
-                        } else {
-                            ctx.fillStyle = 'rgba(100, 116, 139, 0.08)';
-                        }
-                        ctx.fillRect(wx, wy, 4, 6);
-                    }
-                }
-            }
-        }
-    }
-}
+_tbAnimate();
 
 function stopTitleBg() {
     _tbRunning = false;
@@ -178,5 +146,3 @@ function showTitleBg() {
         _tbAnimate();
     }
 }
-
-_tbAnimate();
