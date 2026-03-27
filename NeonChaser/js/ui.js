@@ -162,95 +162,73 @@ function startGame() {
 }
 
 function triggerWarpEffect() {
-    const overlay = el('warp-overlay');
-    overlay.innerHTML = '';
-    const cvs = document.createElement('canvas');
-    const W = window.innerWidth, H = window.innerHeight;
-    cvs.width = W; cvs.height = H;
-    overlay.appendChild(cvs);
-    overlay.classList.add('active');
-    const ctx = cvs.getContext('2d');
-    const cx = W / 2, cy = H / 2;
+    const COUNT = 250;
+    const warpLines = [];
+    const colors = [0xaaccff, 0x88bbff, 0xccddff, 0x60a5fa, 0xffffff];
 
-    // Stars
-    const STAR_COUNT = 300;
-    const stars = [];
-    for (let i = 0; i < STAR_COUNT; i++) {
-        stars.push({
-            angle: Math.random() * Math.PI * 2,
-            dist: Math.random() * 2,
-            speed: 0.5 + Math.random() * 1.5,
-            size: 0.5 + Math.random() * 1.5,
-            hue: 200 + Math.random() * 40,
+    for (let i = 0; i < COUNT; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 2 + Math.random() * 35;
+        const z = -30 - Math.random() * 220;
+        const pts = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -0.5)];
+        const geo = new THREE.BufferGeometry().setFromPoints(pts);
+        const mat = new THREE.LineBasicMaterial({
+            color: colors[floor(Math.random() * colors.length)],
+            transparent: true, opacity: 0,
+            blending: THREE.AdditiveBlending, depthWrite: false
         });
+        const line = new THREE.Line(geo, mat);
+        line.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius + 8, z);
+        scene.add(line);
+        warpLines.push({ line, speed: 80 + Math.random() * 180 });
     }
 
-    const DURATION = 2000;
+    const DURATION = 2200;
     const startT = performance.now();
     let gameStarted = false;
 
-    function drawFrame(now) {
+    function warpFrame(now) {
         const elapsed = now - startT;
         const t = Math.min(elapsed / DURATION, 1);
-
-        // Acceleration curve: slow start, then rapid
         const accel = t * t * t;
-        const streakLen = accel * 80;
 
-        ctx.fillStyle = `rgba(0,0,5,${0.3 + accel * 0.4})`;
-        ctx.fillRect(0, 0, W, H);
-
-        for (const s of stars) {
-            s.dist += s.speed * (0.5 + accel * 8) * 0.016;
-
-            const x = cx + Math.cos(s.angle) * s.dist * (W * 0.4);
-            const y = cy + Math.sin(s.angle) * s.dist * (H * 0.4);
-
-            if (x < -50 || x > W + 50 || y < -50 || y > H + 50) {
-                s.dist = Math.random() * 0.3;
-                s.angle = Math.random() * Math.PI * 2;
-                continue;
+        for (const s of warpLines) {
+            s.line.position.z += s.speed * (0.3 + accel * 5) * 0.016;
+            // Stretch tail with acceleration
+            const pos = s.line.geometry.attributes.position.array;
+            pos[5] = -(1 + accel * 25);
+            s.line.geometry.attributes.position.needsUpdate = true;
+            // Fade in then out
+            s.line.material.opacity = t < 0.15 ? t / 0.15 : t > 0.85 ? (1 - t) / 0.15 : 1;
+            // Recycle stars that pass camera
+            if (s.line.position.z > 25) {
+                const a = Math.random() * Math.PI * 2;
+                const r = 2 + Math.random() * 35;
+                s.line.position.set(Math.cos(a) * r, Math.sin(a) * r + 8, -200 - Math.random() * 50);
             }
-
-            // Trail
-            const tx = cx + Math.cos(s.angle) * Math.max(0, s.dist - streakLen * 0.01 * s.speed) * (W * 0.4);
-            const ty = cy + Math.sin(s.angle) * Math.max(0, s.dist - streakLen * 0.01 * s.speed) * (H * 0.4);
-
-            const alpha = Math.min(1, s.dist * 2) * (0.4 + accel * 0.6);
-            const grad = ctx.createLinearGradient(tx, ty, x, y);
-            grad.addColorStop(0, `hsla(${s.hue},80%,80%,0)`);
-            grad.addColorStop(1, `hsla(${s.hue},80%,90%,${alpha})`);
-
-            ctx.beginPath();
-            ctx.moveTo(tx, ty);
-            ctx.lineTo(x, y);
-            ctx.strokeStyle = grad;
-            ctx.lineWidth = s.size * (1 + accel * 2);
-            ctx.stroke();
         }
 
-        // White flash at the end
-        if (t > 0.8) {
-            const flash = (t - 0.8) / 0.2;
-            ctx.fillStyle = `rgba(200,220,255,${flash * 0.8})`;
-            ctx.fillRect(0, 0, W, H);
-        }
+        // Boost FOV for tunnel rush feel
+        cam.fov = 75 + accel * 40;
+        cam.updateProjectionMatrix();
 
         // Start game mid-warp
-        if (t > 0.5 && !gameStarted) {
+        if (t > 0.6 && !gameStarted) {
             gameStarted = true;
             game.st.isP = false;
             game.clock.getDelta();
         }
 
         if (t < 1) {
-            requestAnimationFrame(drawFrame);
+            requestAnimationFrame(warpFrame);
         } else {
-            overlay.classList.remove('active');
-            overlay.innerHTML = '';
+            // Cleanup
+            warpLines.forEach(s => { scene.remove(s.line); s.line.geometry.dispose(); s.line.material.dispose(); });
+            cam.fov = 75;
+            cam.updateProjectionMatrix();
         }
     }
-    requestAnimationFrame(drawFrame);
+    requestAnimationFrame(warpFrame);
 }
 
 function restartGame() {
