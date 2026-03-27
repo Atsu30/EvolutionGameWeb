@@ -98,8 +98,13 @@ function animate() {
     }
 
     playerMesh.position.set(st.pLx, st.pY, 0);
-    playerMesh.rotation.y += (atan(2 * st.crv * -30) + st.pBank * 0.35 - playerMesh.rotation.y) * 10 * dt;
-    playerMesh.rotation.z = st.pBank - st.crv * 20;
+    if (st._crashSpin) {
+        playerMesh.rotation.x += 4 * dt;
+        playerMesh.rotation.z += 6 * dt;
+    } else {
+        playerMesh.rotation.y += (atan(2 * st.crv * -30) + st.pBank * 0.35 - playerMesh.rotation.y) * 10 * dt;
+        playerMesh.rotation.z = st.pBank - st.crv * 20;
+    }
     playerBox.setFromObject(playerMesh);
 
     st.cB_Y += (8 + st.pY * 0.8 - st.cB_Y) * 10 * dt;

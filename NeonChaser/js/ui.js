@@ -98,27 +98,44 @@ function selectUpgrade(id) {
 
 function triggerGameOver() {
     const st = game.st;
-    if (st.isG) return;
-    st.isG = true;
-    const dist = st.dist || 0;
-    const milesEarned = calcMilesEarned(dist);
-    addMiles(milesEarned);
-    addScore(dist, st.lv);
-    el('res-lv').innerText = st.lv;
-    // Animate numbers with count-up effect (delayed to sync with modal appearance)
-    el('res-dist').innerText = '0.00 km';
-    el('res-miles').innerText = '+0';
+    if (st.isG || st._crashSlow) return;
+
+    // Phase 1: Slow-motion crash (2 seconds)
+    st._crashSlow = true;
+    st.hStop = 2.0; // extreme slow-mo via existing hStop system
+    shakeCamera(2.0, 3);
+    flashScreen('rgba(255,0,0,.6)');
+
+    // Fling the player bike
+    st._crashSpin = true;
+    st.pVY = 30;
+    st.bVX = (R() < 0.5 ? -1 : 1) * 40;
+
     setTimeout(() => {
-        animateNumber(el('res-dist'), 0, dist, 1200, ' km');
-        animateNumber(el('res-miles'), 0, milesEarned, 1000, '');
-        // Prefix '+' for miles after animation starts
-        const _origMiles = el('res-miles');
-        const _milesUpdate = setInterval(() => {
-            if (!_origMiles.innerText.startsWith('+')) _origMiles.innerText = '+' + _origMiles.innerText;
-        }, 16);
-        setTimeout(() => clearInterval(_milesUpdate), 1100);
-    }, 400);
-    el('gameover-modal').classList.add('active');
+        // Phase 2: Show game over screen
+        st._crashSlow = false;
+        st._crashSpin = false;
+        st.isG = true;
+        st.hStop = 0;
+
+        const dist = st.dist || 0;
+        const milesEarned = calcMilesEarned(dist);
+        addMiles(milesEarned);
+        addScore(dist, st.lv);
+        el('res-lv').innerText = st.lv;
+        el('res-dist').innerText = '0.00 km';
+        el('res-miles').innerText = '+0';
+        setTimeout(() => {
+            animateNumber(el('res-dist'), 0, dist, 1200, ' km');
+            animateNumber(el('res-miles'), 0, milesEarned, 1000, '');
+            const _origMiles = el('res-miles');
+            const _milesUpdate = setInterval(() => {
+                if (!_origMiles.innerText.startsWith('+')) _origMiles.innerText = '+' + _origMiles.innerText;
+            }, 16);
+            setTimeout(() => clearInterval(_milesUpdate), 1100);
+        }, 400);
+        el('gameover-modal').classList.add('active');
+    }, 2000);
 }
 
 function goToMenu() {
@@ -236,6 +253,7 @@ function restartGame() {
     Object.assign(st, {
         spd: 0, maxSpd: CFG.maxSpd, steer: CFG.steer, size: CFG.size, def: CFG.def, hp: CFG.hp, maxHp: CFG.hp,
         dTimer: 0, pY: 0, pVY: 0, bVX: 0, invT: 0, pBank: 0, hStop: 0, cShkT: 0, cShkI: 0, cB_X: 0, cB_Y: 8,
+        _crashSlow: false, _crashSpin: false,
         lv: 1, exp: 0, nExp: CFG.lvExp, crv: 0, tCrv: 0, cTmr: 0,
         sCrvSt: 'N', sCrvCd: CFG.sCrvBase + R() * CFG.sCrvRnd, sCrvTmr: 0, sCrvDir: 1, pLx: 0,
         isP: false, isG: false, spwnT: 0, rocketTmr: 20 + R() * 10,
@@ -245,6 +263,7 @@ function restartGame() {
     });
     el('warning-container').classList.remove('active');
     playerMesh.scale.setScalar(1.5); playerMesh.position.setScalar(0);
+    playerMesh.rotation.set(0, 0, 0);
     cam.rotation.z = 0; cam.fov = 75; cam.position.set(0, 8, 15);
     el('speed-lines').style.opacity = '0';
     game.pts.forEach(p => p.scale.z = 1);
