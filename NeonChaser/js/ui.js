@@ -32,7 +32,7 @@ function showUpgradeUI() {
     // Spawn burst particles
     const burst = el('levelup-burst');
     burst.innerHTML = '';
-    const colors = ['#60a5fa','#818cf8','#f472b6','#34d399','#fbbf24','#22d3ee'];
+    const colors = ['#d946ef','#e879f9','#f0abfc','#a855f7','#fbbf24','#22d3ee'];
     for (let i = 0; i < 24; i++) {
         const p = document.createElement('div');
         p.className = 'burst-particle';
