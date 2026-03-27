@@ -202,9 +202,17 @@ function animate() {
                     if (e.def === ENEMY_TYPES.drone) { e.mesh.rotation.x += 1.5 * dt; e.mesh.rotation.y += 2 * dt; }
                     else if (e.def === ENEMY_TYPES.sentinel) { e.mesh.rotation.z += 0.8 * dt; }
                     else if (e.def === ENEMY_TYPES.jellyfish) {
-                        e.mesh.rotation.z += 0.5 * dt;
-                        const tents = e.mesh.userData.tentacles;
-                        if (tents) tents.forEach((t, ti) => { t.rotation.x = Math.sin(clock.elapsedTime * 2 + ti) * 0.3; });
+                        // Floating bob
+                        e.mesh.position.y = Math.sin(clock.elapsedTime * 1.5) * 0.4 + 0.2;
+                        e.mesh.rotation.y += 0.3 * dt;
+                        // Leg sway
+                        const legs = e.mesh.userData.legs;
+                        if (legs) legs.forEach((lg, li) => {
+                            const phase = clock.elapsedTime * 2 + li * 0.7;
+                            lg.position.y = lg.userData._baseY + Math.sin(phase) * 0.15;
+                            lg.rotation.x = Math.sin(phase * 0.8) * 0.4;
+                            lg.rotation.z = Math.cos(phase * 0.6) * 0.3;
+                        });
                     }
                     else if (e.def === ENEMY_TYPES.fish) {
                         const tail = e.mesh.userData.tail;

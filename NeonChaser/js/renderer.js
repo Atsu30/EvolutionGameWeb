@@ -228,44 +228,59 @@ function createSentinelMesh(bodyMat, neonMat) {
 }
 
 // --- Jellyfish Enemy Mesh ---
-const geoJellyBell = new THREE.SphereGeometry(0.7, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.55);
-const geoTentacle = new THREE.CylinderGeometry(0.03, 0.02, 1.4, 4);
+const geoJellyHead = (() => { const g = new THREE.OctahedronGeometry(1.0, 0); g.scale(1.4, 0.4, 1.4); return g; })();
+const geoJellyLeg = (() => { const g = new THREE.OctahedronGeometry(0.2, 0); return g; })();
 
 function createJellyfishMesh(bodyMat, neonMat) {
     const grp = new THREE.Group();
-    const bell = new THREE.Mesh(geoJellyBell, bodyMat);
-    const bellEdge = new THREE.LineSegments(new THREE.EdgesGeometry(geoJellyBell), neonMat);
-    bell.position.y = 1.8; bellEdge.position.y = 1.8;
-    grp.add(bell, bellEdge);
-    const tentacles = [];
-    for (let i = 0; i < 8; i++) {
-        const a = (i / 8) * Math.PI * 2;
-        const t = new THREE.Mesh(geoTentacle, neonMat);
-        t.position.set(Math.cos(a) * 0.35, 0.8, Math.sin(a) * 0.35);
-        grp.add(t);
-        tentacles.push(t);
-    }
+    // Head: flat octahedron
+    const head = new THREE.Mesh(geoJellyHead, bodyMat);
+    const headEdge = new THREE.LineSegments(new THREE.EdgesGeometry(geoJellyHead), neonMat);
+    head.position.y = 2.0; headEdge.position.y = 2.0;
+    grp.add(head, headEdge);
+    // Legs: small diamond shapes hanging below
+    const legs = [];
+    const legPositions = [
+        [-0.6, 1.0, -0.6], [0, 1.0, -0.8], [0.6, 1.0, -0.6],
+        [-0.8, 0.7, 0], [0, 0.6, 0], [0.8, 0.7, 0],
+        [-0.6, 0.4, 0.6], [0, 0.3, 0.8], [0.6, 0.4, 0.6],
+        [-0.3, 0.0, -0.3], [0.3, 0.0, 0.3], [0, -0.1, 0],
+    ];
+    legPositions.forEach(pos => {
+        const leg = new THREE.Mesh(geoJellyLeg, neonMat);
+        const legEdge = new THREE.LineSegments(new THREE.EdgesGeometry(geoJellyLeg), neonMat);
+        const legGrp = new THREE.Group();
+        legGrp.add(leg, legEdge);
+        legGrp.position.set(pos[0], pos[1], pos[2]);
+        legGrp.userData._baseY = pos[1];
+        grp.add(legGrp);
+        legs.push(legGrp);
+    });
     grp.userData = {
-        tentacles,
-        changeMat: (b, n) => { bell.material = b; bellEdge.material = n; tentacles.forEach(t => t.material = n); }
+        head, legs,
+        changeMat: (b, n) => {
+            head.material = b; headEdge.material = n;
+            legs.forEach(lg => { lg.children[0].material = n; lg.children[1].material = n; });
+        }
     };
     return grp;
 }
 
 // --- Fish Enemy Mesh ---
-const geoFishBody = (() => { const g = new THREE.OctahedronGeometry(0.6, 0); g.scale(0.7, 0.5, 1.3); return g; })();
-const geoFishTail = (() => { const g = new THREE.ConeGeometry(0.4, 0.7, 4); g.rotateX(Math.PI / 2); return g; })();
+const geoFishBody = (() => { const g = new THREE.OctahedronGeometry(0.8, 0); g.scale(0.6, 0.6, 1.5); return g; })();
+const geoFishTail = (() => { const g = new THREE.OctahedronGeometry(0.5, 0); g.scale(0.8, 0.5, 0.3); return g; })();
 
 function createFishMesh(bodyMat, neonMat) {
     const grp = new THREE.Group();
     const body = new THREE.Mesh(geoFishBody, bodyMat);
     const bodyEdge = new THREE.LineSegments(new THREE.EdgesGeometry(geoFishBody), neonMat);
     body.position.y = 1; bodyEdge.position.y = 1;
+    // Tail: diamond shape on a pivot for swing animation
     const tail = new THREE.Mesh(geoFishTail, neonMat);
     const tailEdge = new THREE.LineSegments(new THREE.EdgesGeometry(geoFishTail), neonMat);
     const tailGrp = new THREE.Group();
     tailGrp.add(tail, tailEdge);
-    tailGrp.position.set(0, 1, 0.9);
+    tailGrp.position.set(0, 1, 1.2);
     grp.add(body, bodyEdge, tailGrp);
     grp.userData = {
         tail: tailGrp,
