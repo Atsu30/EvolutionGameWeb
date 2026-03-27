@@ -104,14 +104,18 @@ function setEquipped(category, id) {
 let _rainbowHue = 0;
 let _isRainbow = false;
 
+function _mkLineMat(color) {
+    return new THREE.LineBasicMaterial({ color, linewidth: 2, transparent: true, opacity: 1 });
+}
+
 function applyCustomization() {
     const eq = getEquipped();
     const col = getColorDef(eq.colorId);
     _isRainbow = !!col.animated;
-    const bodyMat = MkMat(col.body, col.emit, 0.6);
-    const neonMat = MkMat(col.neon, col.nEmit, 2.0);
-    playerMesh.userData.changeMat(bodyMat, neonMat);
-    playerMesh.userData._bodyMat = bodyMat;
+    // Player bike uses LineSegments → needs LineBasicMaterial for glow via Bloom
+    const neonMat = _mkLineMat(col.neon);
+    playerMesh.userData.changeMat(neonMat, neonMat);
+    playerMesh.userData._bodyMat = neonMat;
     playerMesh.userData._neonMat = neonMat;
 
     const tireDef = getTireDef(eq.tireId);
@@ -131,7 +135,6 @@ function applyCustomization() {
 function updateRainbowEffect(dt) {
     if (!_isRainbow) return;
     _rainbowHue = (_rainbowHue + dt * 0.3) % 1;
-    const bm = playerMesh.userData._bodyMat, nm = playerMesh.userData._neonMat;
-    if (bm) { bm.color.setHSL(_rainbowHue, 0.8, 0.5); bm.emissive.setHSL(_rainbowHue, 1, 0.3); }
-    if (nm) { nm.color.setHSL((_rainbowHue + 0.1) % 1, 1, 0.7); nm.emissive.setHSL((_rainbowHue + 0.1) % 1, 1, 0.5); }
+    const nm = playerMesh.userData._neonMat;
+    if (nm) nm.color.setHSL(_rainbowHue, 1, 0.7);
 }

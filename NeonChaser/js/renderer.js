@@ -77,7 +77,6 @@ scene.add(new THREE.Mesh(floorGeo, floorMat));
 const MkMat = (c, e, i, r = 0.3, m = 0.5) =>
     new THREE.MeshStandardMaterial({ color: c, emissive: e, emissiveIntensity: i, roughness: r, metalness: m });
 
-const matTire = MkMat(0x111111, 0, 0, 0.9, 0.1);
 const matPlayerBody = MkMat(0x38bdf8, 0x0284c7, 0.6);
 const matPlayerNeon = MkMat(0x00ffff, 0x00ffff, 2.0);
 const matEnemyBreak = MkMat(0x064e3b, 0x022c22, 0.5);
@@ -302,9 +301,8 @@ function _createPreviewBike() {
     if (_pvBike) _pvScene.remove(_pvBike);
     const eq = getEquipped();
     const col = getColorDef(eq.colorId);
-    const bodyMat = MkMat(col.body, col.emit, 0.6);
-    const neonMat = MkMat(col.neon, col.nEmit, 2.0);
-    _pvBike = createBike(bodyMat, neonMat);
+    const neonMat = _mkLineMat(col.neon);
+    _pvBike = createBike(neonMat, neonMat);
     _pvBike.scale.setScalar(1.5);
 
     // Apply tire customization
@@ -325,9 +323,8 @@ function _createPreviewBike() {
 function updatePreviewBike(colorId, tireId, bodyId) {
     if (!_pvBike || !_pvScene) return;
     const col = getColorDef(colorId);
-    const bodyMat = MkMat(col.body, col.emit, 0.6);
-    const neonMat = MkMat(col.neon, col.nEmit, 2.0);
-    _pvBike.userData.changeMat(bodyMat, neonMat);
+    const neonMat = _mkLineMat(col.neon);
+    _pvBike.userData.changeMat(neonMat, neonMat);
 
     const tireDef = getTireDef(tireId);
     const tGeo = tireDef.geo();
