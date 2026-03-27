@@ -156,10 +156,37 @@ function startGame() {
         } else {
             clearInterval(tick);
             cd.classList.remove('show');
-            game.st.isP = false;
-            game.clock.getDelta();
+            triggerWarpEffect();
         }
     }, 700);
+}
+
+function triggerWarpEffect() {
+    const overlay = el('warp-overlay');
+    overlay.innerHTML = '';
+    // Generate radial speed lines from center
+    const count = 60;
+    for (let i = 0; i < count; i++) {
+        const line = document.createElement('div');
+        line.className = 'warp-line';
+        const angle = (i / count) * 360 + (Math.random() - 0.5) * 8;
+        const dist = 5 + Math.random() * 15;
+        line.style.transform = `rotate(${angle}deg) translateY(-${dist}px)`;
+        line.style.animationDelay = (Math.random() * 0.2) + 's';
+        line.style.width = (1 + Math.random() * 2) + 'px';
+        overlay.appendChild(line);
+    }
+    overlay.classList.add('active');
+    // Start game partway through animation
+    setTimeout(() => {
+        game.st.isP = false;
+        game.clock.getDelta();
+    }, 400);
+    // Cleanup
+    setTimeout(() => {
+        overlay.classList.remove('active');
+        overlay.innerHTML = '';
+    }, 1300);
 }
 
 function restartGame() {
