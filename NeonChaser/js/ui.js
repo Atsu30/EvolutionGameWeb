@@ -155,8 +155,6 @@ function restartGame() {
     game.pts.forEach(p => p.scale.z = 1);
     game.ents.forEach(e => scene.remove(e.mesh)); game.ents.length = 0;
     el('gameover-modal').classList.remove('active');
-    el('menu-page').classList.remove('active');
-    el('title-page').classList.remove('active');
     game.clock.getDelta();
     if (typeof resetStage === 'function') resetStage();
     applyCustomization();
