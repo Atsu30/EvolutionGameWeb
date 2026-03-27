@@ -48,7 +48,7 @@ function spawnEntity() {
         addEntity('dash', mesh, lx);
     } else {
         const typeName = getEnemyType(), def = ENEMY_TYPES[typeName];
-        const meshFactory = { drone: createDroneMesh, shard: createShardMesh, sentinel: createSentinelMesh }[typeName];
+        const meshFactory = { drone: createDroneMesh, shard: createShardMesh, sentinel: createSentinelMesh, jellyfish: createJellyfishMesh, fish: createFishMesh }[typeName];
         const mesh = meshFactory(matEnemyUnbreak, matEnemyNeonU);
         const lx = R_Sign() * (CFG.laneW - def.w / 2);
         mesh.scale.set(def.w, def.w * 1.2, def.w * 1.5);

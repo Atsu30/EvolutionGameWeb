@@ -198,9 +198,18 @@ function animate() {
             } else if (e.type === 'enemy' || e.type === 'rocket') {
                 if (e.type === 'rocket') e.mesh.userData.orbs.rotation.z += 10 * dt;
                 else {
-                    // Geometric enemy rotation
+                    // Geometric enemy rotation / animation
                     if (e.def === ENEMY_TYPES.drone) { e.mesh.rotation.x += 1.5 * dt; e.mesh.rotation.y += 2 * dt; }
                     else if (e.def === ENEMY_TYPES.sentinel) { e.mesh.rotation.z += 0.8 * dt; }
+                    else if (e.def === ENEMY_TYPES.jellyfish) {
+                        e.mesh.rotation.z += 0.5 * dt;
+                        const tents = e.mesh.userData.tentacles;
+                        if (tents) tents.forEach((t, ti) => { t.rotation.x = Math.sin(clock.elapsedTime * 2 + ti) * 0.3; });
+                    }
+                    else if (e.def === ENEMY_TYPES.fish) {
+                        const tail = e.mesh.userData.tail;
+                        if (tail) tail.rotation.y = Math.sin(clock.elapsedTime * 8) * 0.6;
+                    }
                     else { e.mesh.rotation.y += 3 * dt; }
                 }
                 if (e.cTmr > 0) e.cTmr -= dt;

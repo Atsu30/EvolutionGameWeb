@@ -13,6 +13,8 @@ const ENEMY_TYPES = {
     drone: { hp: 1, atk: 0, w: 2.0, exp: 10, speed: 0.7 },
     shard: { hp: 5, atk: 15, w: 2.0, exp: 20, speed: 0.6 },
     sentinel: { hp: 15, atk: 40, w: 2.8, exp: 70, speed: 0.4 },
+    jellyfish: { hp: 15, atk: 40, w: 2.8, exp: 70, speed: 0.4 },
+    fish: { hp: 3, atk: 25, w: 2.0, exp: 35, speed: 1.2 },
 };
 
 const ROCKET_DEF = { hp: 4, atk: 30, w: 1.5, exp: 40 };

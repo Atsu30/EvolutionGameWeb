@@ -227,6 +227,53 @@ function createSentinelMesh(bodyMat, neonMat) {
     return grp;
 }
 
+// --- Jellyfish Enemy Mesh ---
+const geoJellyBell = new THREE.SphereGeometry(0.7, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.55);
+const geoTentacle = new THREE.CylinderGeometry(0.03, 0.02, 1.4, 4);
+
+function createJellyfishMesh(bodyMat, neonMat) {
+    const grp = new THREE.Group();
+    const bell = new THREE.Mesh(geoJellyBell, bodyMat);
+    const bellEdge = new THREE.LineSegments(new THREE.EdgesGeometry(geoJellyBell), neonMat);
+    bell.position.y = 1.8; bellEdge.position.y = 1.8;
+    grp.add(bell, bellEdge);
+    const tentacles = [];
+    for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * Math.PI * 2;
+        const t = new THREE.Mesh(geoTentacle, neonMat);
+        t.position.set(Math.cos(a) * 0.35, 0.8, Math.sin(a) * 0.35);
+        grp.add(t);
+        tentacles.push(t);
+    }
+    grp.userData = {
+        tentacles,
+        changeMat: (b, n) => { bell.material = b; bellEdge.material = n; tentacles.forEach(t => t.material = n); }
+    };
+    return grp;
+}
+
+// --- Fish Enemy Mesh ---
+const geoFishBody = (() => { const g = new THREE.OctahedronGeometry(0.6, 0); g.scale(0.7, 0.5, 1.3); return g; })();
+const geoFishTail = (() => { const g = new THREE.ConeGeometry(0.4, 0.7, 4); g.rotateX(Math.PI / 2); return g; })();
+
+function createFishMesh(bodyMat, neonMat) {
+    const grp = new THREE.Group();
+    const body = new THREE.Mesh(geoFishBody, bodyMat);
+    const bodyEdge = new THREE.LineSegments(new THREE.EdgesGeometry(geoFishBody), neonMat);
+    body.position.y = 1; bodyEdge.position.y = 1;
+    const tail = new THREE.Mesh(geoFishTail, neonMat);
+    const tailEdge = new THREE.LineSegments(new THREE.EdgesGeometry(geoFishTail), neonMat);
+    const tailGrp = new THREE.Group();
+    tailGrp.add(tail, tailEdge);
+    tailGrp.position.set(0, 1, 0.9);
+    grp.add(body, bodyEdge, tailGrp);
+    grp.userData = {
+        tail: tailGrp,
+        changeMat: (b, n) => { body.material = b; bodyEdge.material = n; tail.material = n; tailEdge.material = n; }
+    };
+    return grp;
+}
+
 // --- Trail Particle Pool ---
 const TRAIL_POOL_SIZE = 100;
 const _trailGeos = {
