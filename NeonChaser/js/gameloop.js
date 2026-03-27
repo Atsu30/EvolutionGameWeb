@@ -97,7 +97,10 @@ function animate() {
         if (st.pY === 0) { st.pVY = 0; shakeCamera(0.15, 0.5); }
     }
 
-    playerMesh.position.set(st.pLx, st.pY, 0);
+    if (st._crashSpin) {
+        st._crashZ = (st._crashZ || 0) + st.spd * dt * 0.8;
+    }
+    playerMesh.position.set(st.pLx, st.pY, st._crashSpin ? st._crashZ : 0);
     if (st._crashSpin) {
         playerMesh.rotation.x += 4 * dt;
         playerMesh.rotation.z += 6 * dt;

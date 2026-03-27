@@ -253,7 +253,7 @@ function restartGame() {
     Object.assign(st, {
         spd: 0, maxSpd: CFG.maxSpd, steer: CFG.steer, size: CFG.size, def: CFG.def, hp: CFG.hp, maxHp: CFG.hp,
         dTimer: 0, pY: 0, pVY: 0, bVX: 0, invT: 0, pBank: 0, hStop: 0, cShkT: 0, cShkI: 0, cB_X: 0, cB_Y: 8,
-        _crashSlow: false, _crashSpin: false,
+        _crashSlow: false, _crashSpin: false, _crashZ: 0,
         lv: 1, exp: 0, nExp: CFG.lvExp, crv: 0, tCrv: 0, cTmr: 0,
         sCrvSt: 'N', sCrvCd: CFG.sCrvBase + R() * CFG.sCrvRnd, sCrvTmr: 0, sCrvDir: 1, pLx: 0,
         isP: false, isG: false, spwnT: 0, rocketTmr: 20 + R() * 10,
