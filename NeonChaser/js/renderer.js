@@ -360,7 +360,7 @@ const _nearBuildings = [];
 
 function _createNearBuildings() {
     for (let side = -1; side <= 1; side += 2) {
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 6; i++) {
             const w = 4 + Math.random() * 6;
             const h = 15 + Math.random() * 35;
             const d = 4 + Math.random() * 6;
@@ -368,8 +368,8 @@ function _createNearBuildings() {
             const mesh = new THREE.Mesh(geo, matBldgNear);
             const edge = new THREE.LineSegments(new THREE.EdgesGeometry(geo), matBldgNearEdge);
             mesh.add(edge);
-            const x = side * (CFG.laneW + 3 + Math.random() * 5);
-            const z = -i * 22 - Math.random() * 10;
+            const x = side * (CFG.laneW + 8 + Math.random() * 5);
+            const z = -i * 35 - Math.random() * 10;
             mesh.position.set(x, h / 2, z);
             mesh.userData._h = h;
             mesh.userData._side = side;

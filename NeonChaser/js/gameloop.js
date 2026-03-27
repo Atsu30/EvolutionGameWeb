@@ -142,10 +142,9 @@ function animate() {
             b.position.z += st.spd * dt;
             if (b.position.z > 15) {
                 b.position.z -= 220;
-                b.position.x = b.userData._side * (CFG.laneW + 3 + R() * 5);
             }
             const cx = st.crv * b.position.z * b.position.z;
-            b.position.x = b.userData._side * (CFG.laneW + 3 + 2) + cx;
+            b.position.x = b.userData._side * (CFG.laneW + 10) + cx;
         }
     }
     game.pts.forEach(p => {
