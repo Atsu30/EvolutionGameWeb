@@ -1,5 +1,5 @@
 /* --- ベース設定 --- */
-body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #050510; font-family: 'Segoe UI', sans-serif; user-select: none; -webkit-user-select: none; }
+body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #050510; font-family: 'Rajdhani', 'Segoe UI', sans-serif; user-select: none; -webkit-user-select: none; }
 #game-canvas { width: 100%; height: 100%; display: block; }
 #title-bg-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; z-index: 0; }
 
@@ -54,6 +54,7 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 }
 .title-content { position: relative; z-index: 1; text-align: center; }
 .title-logo {
+    font-family: 'Orbitron', sans-serif;
     font-size: 72px; font-weight: 900; color: #fff; line-height: 0.9;
     letter-spacing: 10px; text-transform: uppercase;
     text-shadow: 0 0 30px #d946ef, 0 0 60px #a21caf, 0 0 100px #86198f, 0 4px 20px rgba(0,0,0,0.8);
@@ -108,6 +109,7 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 
 /* --- Game Over Screen --- */
 .gameover-title {
+    font-family: 'Orbitron', sans-serif;
     font-size: 56px; font-weight: 900; color: #ef4444; line-height: 1;
     letter-spacing: 12px; text-transform: uppercase; margin-bottom: 16px;
     text-shadow: 0 0 30px #ef4444, 0 0 60px #dc2626, 0 0 100px #991b1b, 0 4px 20px rgba(0,0,0,0.8);
@@ -176,31 +178,61 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 /* --- Main Menu Page --- */
 #menu-page { background: rgba(5,5,15,0.88); backdrop-filter: blur(14px); }
 
-/* Outer panel — Neon Chrome style */
+/*
+ * Corner-cut shape: top-left and bottom-right only
+ *   ╱‾‾‾‾‾‾‾‾‾‾┐
+ *  │            │
+ *  └────────────╲
+ */
+/* Panel container — no bg/clip here, layers draw the visuals */
 .menu-panel {
     position: relative;
     display: flex; flex-direction: column; align-items: center;
     width: 90%; max-width: 420px;
-    padding: 40px 32px 36px;
-    background: rgba(5,5,12,0.92);
-    clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
-}
-/* Magenta border using inset outline trick (drawn by pseudo) */
-.menu-panel-border {
-    position: absolute; inset: 0; pointer-events: none; z-index: 1;
-    clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
-    border: 2px solid #d946ef;
-    box-shadow: 0 0 18px rgba(217,70,239,0.25), inset 0 0 18px rgba(217,70,239,0.06);
+    padding: 44px 36px 40px;
 }
 
+/* --- Panel double-border via stacked fills --- */
+/* Layer 1: Outer border (magenta fill + glow) */
+.menu-panel-border {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: #d946ef;
+    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+    filter: drop-shadow(0 0 6px rgba(217,70,239,0.8))
+            drop-shadow(0 0 16px rgba(217,70,239,0.35))
+            drop-shadow(0 0 30px rgba(217,70,239,0.12));
+}
+/* Layer 2: Dark fill inside outer border → creates 2px outer line */
+.menu-panel-border::before {
+    content: ''; position: absolute; inset: 2px;
+    background: rgba(5,5,12,0.97);
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+/* Layer 3: Inner border line (subtle magenta fill) */
+.menu-panel-border::after {
+    content: ''; position: absolute; inset: 6px;
+    background: rgba(217,70,239,0.22);
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+}
+/* Layer 4: Dark fill inside inner border */
+.menu-panel::before {
+    content: ''; position: absolute; inset: 7px; z-index: 1;
+    background: rgba(5,5,12,0.97);
+    clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
+}
+
+/* Content floats above border layers */
+.menu-title, .menu-miles-display, .menu-buttons { position: relative; z-index: 2; }
+
 .menu-title {
-    font-size: 32px; font-weight: 900; color: #fff; letter-spacing: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 30px; font-weight: 900; color: #fff; letter-spacing: 6px;
     text-shadow: 0 0 20px rgba(217,70,239,0.5), 0 0 50px rgba(217,70,239,0.2);
     margin-bottom: 6px; text-align: center;
 }
 .menu-miles-display {
     font-size: 12px; font-weight: 700; color: #64748b; letter-spacing: 2px;
-    margin-bottom: 24px; text-transform: uppercase;
+    margin-bottom: 28px; text-transform: uppercase;
 }
 .menu-miles-display strong {
     color: #fbbf24; font-size: 14px; text-shadow: 0 0 8px rgba(251,191,36,0.3);
@@ -212,39 +244,56 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     gap: 14px; width: 100%;
 }
 
-/* Each menu button — Neon Chrome style */
+/* --- Menu button — border via stacked pseudo fills --- */
 .menu-item {
+    position: relative;
     display: block; width: 100%; max-width: 300px;
     padding: 14px 24px;
-    font-size: 16px; font-weight: 700; color: #c0c0c8; letter-spacing: 2px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px; font-weight: 600; color: #c0c0c8; letter-spacing: 2px;
     text-align: center; text-transform: uppercase;
-    background: rgba(10,10,20,0.85);
-    border: 1.5px solid rgba(217,70,239,0.45);
-    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+    background: transparent; border: none;
     cursor: pointer; pointer-events: auto;
+    transition: color 0.2s ease, text-shadow 0.2s ease, transform 0.1s ease;
+}
+/* Outer border shape */
+.menu-item::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background: rgba(217,70,239,0.5);
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    filter: drop-shadow(0 0 3px rgba(217,70,239,0.25));
     transition: all 0.2s ease;
 }
-.menu-item:hover {
-    color: #fff;
-    background: rgba(217,70,239,0.15);
-    border-color: rgba(217,70,239,0.7);
-    box-shadow: 0 0 12px rgba(217,70,239,0.25), inset 0 0 12px rgba(217,70,239,0.06);
-    text-shadow: 0 0 10px rgba(217,70,239,0.4);
+/* Dark fill inside → creates 1.5px border line */
+.menu-item::after {
+    content: ''; position: absolute; inset: 1.5px; z-index: -1;
+    background: rgba(10,10,20,0.93);
+    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+    transition: all 0.2s ease;
 }
+
+.menu-item:hover { color: #fff; text-shadow: 0 0 10px rgba(217,70,239,0.5); }
+.menu-item:hover::before {
+    background: rgba(217,70,239,0.75);
+    filter: drop-shadow(0 0 6px rgba(217,70,239,0.5)) drop-shadow(0 0 14px rgba(217,70,239,0.2));
+}
+.menu-item:hover::after { background: rgba(217,70,239,0.06); }
 .menu-item:active { transform: scale(0.97); }
 
-/* Primary (start) button — filled magenta like Neon Chrome active state */
-.menu-item-primary {
-    color: #fff;
-    background: linear-gradient(135deg, rgba(180,30,220,0.7) 0%, rgba(217,70,239,0.55) 50%, rgba(180,30,220,0.7) 100%);
-    border-color: #d946ef;
-    box-shadow: 0 0 20px rgba(217,70,239,0.35), inset 0 0 20px rgba(217,70,239,0.1);
-    text-shadow: 0 0 12px rgba(255,255,255,0.3);
-    font-size: 18px; letter-spacing: 3px;
+/* Primary (start) button — filled magenta */
+.menu-item-primary { color: #fff; font-size: 18px; letter-spacing: 3px; text-shadow: 0 0 12px rgba(255,255,255,0.3); }
+.menu-item-primary::before {
+    background: #d946ef;
+    filter: drop-shadow(0 0 8px rgba(217,70,239,0.6)) drop-shadow(0 0 20px rgba(217,70,239,0.25));
 }
-.menu-item-primary:hover {
-    background: linear-gradient(135deg, rgba(200,40,240,0.8) 0%, rgba(233,121,249,0.65) 50%, rgba(200,40,240,0.8) 100%);
-    box-shadow: 0 0 35px rgba(217,70,239,0.5), 0 0 70px rgba(217,70,239,0.15), inset 0 0 25px rgba(217,70,239,0.15);
+.menu-item-primary::after {
+    background: linear-gradient(135deg, rgba(155,29,204,0.7), rgba(217,70,239,0.5), rgba(155,29,204,0.7));
+}
+.menu-item-primary:hover::before {
+    filter: drop-shadow(0 0 10px rgba(217,70,239,0.8)) drop-shadow(0 0 25px rgba(217,70,239,0.35));
+}
+.menu-item-primary:hover::after {
+    background: linear-gradient(135deg, rgba(176,38,217,0.8), rgba(233,121,249,0.6), rgba(176,38,217,0.8));
 }
 
 /* --- モーダル --- */
@@ -255,7 +304,7 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     100% { opacity: 1; transform: scale(1); }
 }
 #levelup-modal.active { animation: none; }
-.modal-title { font-size: 42px; font-weight: 900; color: #fff; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 20px rgba(217,70,239,0.5), 0 0 40px rgba(217,70,239,0.2); flex-shrink: 0; }
+.modal-title { font-family: 'Orbitron', sans-serif; font-size: 36px; font-weight: 900; color: #fff; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 20px rgba(217,70,239,0.5), 0 0 40px rgba(217,70,239,0.2); flex-shrink: 0; }
 .modal-scroll { max-height: 50vh; overflow-y: auto; width: 100%; max-width: 420px; margin-bottom: 20px; }
 
 .upgrade-cards { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; padding: 0 20px; }
@@ -508,10 +557,10 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     .go-miles { font-size: 18px; }
     .title-sub { font-size: 11px; letter-spacing: 5px; }
     .title-tap { font-size: 13px; margin-top: 40px; }
-    .menu-panel { padding: 28px 20px 24px; }
-    .menu-title { font-size: 24px; letter-spacing: 5px; }
-    .menu-item { padding: 12px 20px; font-size: 14px; }
-    .menu-item-primary { font-size: 16px; }
+    .menu-panel { padding: 30px 20px 26px; }
+    .menu-title { font-size: 22px; letter-spacing: 4px; }
+    .menu-item { padding: 12px 18px; font-size: 13px; max-width: 260px; }
+    .menu-item-primary { font-size: 15px; }
     #speed-meter { width: 85px; height: 85px; bottom: 10px; right: 10px; }
     .meter-value { font-size: 16px; bottom: 18px; }
     .meter-label { bottom: 8px; }
