@@ -27,7 +27,7 @@ const UPGRADES = [
     { id: 'def', i: '🛡️', t: '装甲強化', d: '被ダメージ5%軽減。<br>最大50%まで累積' },
     { id: 'heal', i: '❤️', t: 'HP回復', d: 'HPを50%回復する。' },
     { id: 'bls', i: '🔫', t: 'ブラスター装着', d: 'ブラスター装着。<br>前方に自動射撃開始', cond: st => st.blasterCount === 0 },
-    { id: 'bpow', i: '⚡', t: 'ブラスター強化', d: 'ブラスターの攻撃力+1', cond: st => st.blasterCount > 0 },
+    { id: 'bpow', i: '⚡', t: '連射強化', d: 'ブラスターの発射速度アップ', cond: st => st.blasterCount > 0 },
     { id: 'bnum', i: '🔫', t: 'ブラスター増設', d: 'ブラスター+1門追加。<br>射撃範囲が横に広がる', cond: st => st.blasterCount > 0 && st.blasterCount < 3 },
 ];
 

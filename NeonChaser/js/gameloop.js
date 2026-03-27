@@ -117,7 +117,7 @@ function animate() {
     // --- Blaster ---
     if (st.blasterCount > 0) {
         st.blasterTimer += dt;
-        if (st.blasterTimer >= CFG.blasterInterval) {
+        if (st.blasterTimer >= st.blasterInterval) {
             st.blasterTimer = 0;
             for (let b = 0; b < st.blasterCount; b++) {
                 const spread = (b - (st.blasterCount - 1) / 2) * 2.0;

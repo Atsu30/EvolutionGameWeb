@@ -85,7 +85,7 @@ function selectUpgrade(id) {
     if (id === 'def') st.def = min(0.5, st.def + 0.05);
     if (id === 'bls') { st.blasterCount = 1; st.blasterDmg = 1; }
     if (id === 'heal') st.hp = min(st.maxHp, st.hp + st.maxHp * 0.5);
-    if (id === 'bpow') st.blasterDmg += 1;
+    if (id === 'bpow') st.blasterInterval = max(0.08, st.blasterInterval * 0.75);
     if (id === 'bnum') st.blasterCount = min(3, st.blasterCount + 1);
     const modal = el('levelup-modal');
     modal.classList.remove('active');
@@ -279,7 +279,7 @@ function restartGame() {
         sCrvSt: 'N', sCrvCd: CFG.sCrvBase + R() * CFG.sCrvRnd, sCrvTmr: 0, sCrvDir: 1, pLx: 0,
         isP: false, isG: false, spwnT: 0, rocketTmr: 20 + R() * 10,
         dist: 0, _achTimer: 0,
-        blasterCount: 0, blasterDmg: CFG.blasterDmg, blasterTimer: 0,
+        blasterCount: 0, blasterDmg: CFG.blasterDmg, blasterInterval: CFG.blasterInterval, blasterTimer: 0,
         stats: { destroyedEnemies: 0, damageTaken: 0, dashCount: 0, jumpCount: 0 }
     });
     el('warning-container').classList.remove('active');
