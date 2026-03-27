@@ -25,14 +25,14 @@ function animate() {
 
         st.rocketTmr -= dt;
         st.spwnT += dt;
-        const dist = st.dist || 0;
-        const spwnInt = max(0.1, CFG.spwnInt * (CFG.maxSpd / max(10, st.spd)) * spawnMul(dist));
+        const _sd = typeof getStageDef === 'function' ? getStageDef() : {};
+        const spwnInt = max(0.1, CFG.spwnInt * (CFG.maxSpd / max(10, st.spd)) * spawnMul());
         if (st.spwnT > spwnInt) {
-            if (dist >= 5 && st.rocketTmr <= 0) {
-                spawnRocketWarning(); st.rocketTmr = rocketInterval(dist); st.spwnT = -0.5;
-            } else if (dist >= 2 && R() < CFG.jmpRatio) {
+            if (_sd.rocket && st.rocketTmr <= 0) {
+                spawnRocketWarning(); st.rocketTmr = rocketInterval(); st.spwnT = -0.5;
+            } else if (R() < CFG.jmpRatio) {
                 spawnJumpEvent(); st.spwnT = -1.0;
-            } else if (dist >= 5 && R() < min(0.15, 0.05 + dist * 0.002)) {
+            } else if (_sd.zigzag && R() < 0.12) {
                 spawnZigzagEntity(); st.spwnT = 0;
             } else {
                 spawnEntity(); st.spwnT = 0;

@@ -17,6 +17,15 @@ const STAGES = [
         hemiGround: 0xec4899,
         enemyHpMul: 1,
         enemyAtkMul: 1,
+        bgGeos: ['octa', 'torus', 'icosa'],
+        enemyColors: {
+            unbreak: [0xbe123c, 0x9f1239], neonU: [0xff0055, 0xe11d48],
+            break: [0x064e3b, 0x022c22], neonB: [0x10b981, 0x059669],
+            zigzag: [0xd97706, 0x92400e], zigzagNeon: [0xfbbf24, 0xfbbf24],
+        },
+        enemyPool: [{ type: 'drone', weight: 60 }, { type: 'shard', weight: 40 }],
+        zigzag: false,
+        rocket: false,
     },
     {
         name: 'ディープオーシャン',
@@ -35,6 +44,15 @@ const STAGES = [
         hemiGround: 0x06b6d4,
         enemyHpMul: 2,
         enemyAtkMul: 1.5,
+        bgGeos: ['sphere', 'torusS', 'sphereS'],
+        enemyColors: {
+            unbreak: [0x0e7490, 0x155e75], neonU: [0x06b6d4, 0x0891b2],
+            break: [0x064e3b, 0x022c22], neonB: [0x2dd4bf, 0x14b8a6],
+            zigzag: [0x0d9488, 0x065f53], zigzagNeon: [0x22d3ee, 0x22d3ee],
+        },
+        enemyPool: [{ type: 'drone', weight: 30 }, { type: 'shard', weight: 40 }, { type: 'sentinel', weight: 30 }],
+        zigzag: true,
+        rocket: true,
     },
     {
         name: 'ヴォルケーノ',
@@ -53,6 +71,15 @@ const STAGES = [
         hemiGround: 0xdc2626,
         enemyHpMul: 3,
         enemyAtkMul: 2,
+        bgGeos: ['tetra', 'cone', 'dodeca'],
+        enemyColors: {
+            unbreak: [0x991b1b, 0x7f1d1d], neonU: [0xef4444, 0xdc2626],
+            break: [0x78350f, 0x451a03], neonB: [0xfbbf24, 0xd97706],
+            zigzag: [0xea580c, 0x9a3412], zigzagNeon: [0xfb923c, 0xfb923c],
+        },
+        enemyPool: [{ type: 'drone', weight: 20 }, { type: 'shard', weight: 35 }, { type: 'sentinel', weight: 45 }],
+        zigzag: true,
+        rocket: true,
     },
 ];
 
@@ -140,6 +167,8 @@ function triggerStageTransition(idx) {
         if (t < 1) {
             requestAnimationFrame(animateStep);
         } else {
+            if (typeof updateBgGeos === 'function') updateBgGeos(to.bgGeos);
+            if (typeof updateEnemyColors === 'function') updateEnemyColors(to.enemyColors);
             _currentStage = idx;
             _stageTransitioning = false;
         }
@@ -180,6 +209,11 @@ function applyStage(idx) {
         if (l.isAmbientLight) l.color.setHex(s.ambientColor);
         if (l.isHemisphereLight) { l.color.setHex(s.hemiSky); l.groundColor.setHex(s.hemiGround); }
     });
+
+    // Background geos
+    if (typeof updateBgGeos === 'function') updateBgGeos(s.bgGeos);
+    // Enemy colors
+    if (typeof updateEnemyColors === 'function') updateEnemyColors(s.enemyColors);
 }
 
 function showStagePopup(name) {

@@ -265,6 +265,19 @@ for (let i = 0; i < 40; i++) {
     scene.add(l, r); game.road.push({ L: l, R: r, z });
 }
 
+// --- Background Geometry Pool ---
+const _bgGeoPool = {
+    octa: new THREE.OctahedronGeometry(2, 0),
+    torus: new THREE.TorusGeometry(1.5, 0.3, 8, 16),
+    icosa: new THREE.IcosahedronGeometry(2, 0),
+    sphere: new THREE.SphereGeometry(1.5, 8, 8),
+    sphereS: new THREE.SphereGeometry(0.6, 6, 6),
+    torusS: new THREE.TorusGeometry(1.0, 0.1, 6, 12),
+    tetra: new THREE.TetrahedronGeometry(2, 0),
+    dodeca: new THREE.DodecahedronGeometry(1.5, 0),
+    cone: new THREE.ConeGeometry(1.2, 2.5, 6),
+};
+
 // --- Background Objects ---
 const pGeos = [new THREE.OctahedronGeometry(2, 0), new THREE.TorusGeometry(1.5, 0.3, 8, 16), new THREE.IcosahedronGeometry(2, 0)];
 const pMats = [0x38bdf8, 0xf43f5e, 0xa855f7].map(c => new THREE.MeshBasicMaterial({ color: c, wireframe: true, transparent: true, opacity: 0.4 }));
@@ -273,6 +286,23 @@ for (let i = 0; i < 50; i++) {
     p.position.set(R_Sign() * 60, R() * 40 + 5, R_Sign() * 150 - 50);
     p.userData = { rX: R_Sign(), rY: R_Sign(), rZ: R_Sign() };
     scene.add(p); game.pts.push(p);
+}
+
+function updateBgGeos(geoKeys) {
+    const geos = geoKeys.map(k => _bgGeoPool[k] || _bgGeoPool.octa);
+    game.pts.forEach((p, i) => {
+        p.geometry = geos[i % geos.length];
+    });
+}
+
+function updateEnemyColors(colors) {
+    if (!colors) return;
+    matEnemyUnbreak.color.setHex(colors.unbreak[0]); matEnemyUnbreak.emissive.setHex(colors.unbreak[1]);
+    matEnemyNeonU.color.setHex(colors.neonU[0]); matEnemyNeonU.emissive.setHex(colors.neonU[1]);
+    matEnemyBreak.color.setHex(colors.break[0]); matEnemyBreak.emissive.setHex(colors.break[1]);
+    matEnemyNeonB.color.setHex(colors.neonB[0]); matEnemyNeonB.emissive.setHex(colors.neonB[1]);
+    matZigzagBody.color.setHex(colors.zigzag[0]); matZigzagBody.emissive.setHex(colors.zigzag[1]);
+    matZigzagNeon.color.setHex(colors.zigzagNeon[0]); matZigzagNeon.emissive.setHex(colors.zigzagNeon[1]);
 }
 
 // --- Preview Renderer (Customize Screen) ---

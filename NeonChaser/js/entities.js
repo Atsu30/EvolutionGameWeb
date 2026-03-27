@@ -28,16 +28,16 @@ function spawnBullet(x, y, z, offsetX, dmg) {
     });
 }
 
-function getEnemyType(dist) {
-    const r = R();
-    if (dist < 3)       return r < 0.85 ? 'drone' : 'shard';
-    else if (dist < 8)  return r < 0.5 ? 'drone' : r < 0.9 ? 'shard' : 'sentinel';
-    else if (dist < 20) return r < 0.3 ? 'drone' : r < 0.75 ? 'shard' : 'sentinel';
-    else                return r < 0.15 ? 'drone' : r < 0.55 ? 'shard' : 'sentinel';
+function getEnemyType() {
+    const pool = typeof getStageDef === 'function' ? getStageDef().enemyPool : [{ type: 'drone', weight: 60 }, { type: 'shard', weight: 40 }];
+    const total = pool.reduce((s, e) => s + e.weight, 0);
+    let r = R() * total;
+    for (const e of pool) { r -= e.weight; if (r <= 0) return e.type; }
+    return pool[pool.length - 1].type;
 }
 
-function spawnMul(dist) { return dist < 10 ? 1.0 : dist < 20 ? 0.8 : 0.65; }
-function rocketInterval(dist) { return dist < 20 ? 20 + R() * 10 : dist < 50 ? 15 + R() * 5 : 10 + R() * 5; }
+function spawnMul() { return 1.0; }
+function rocketInterval() { return 15 + R() * 10; }
 
 function spawnEntity() {
     const st = game.st, dist = st.dist || 0;
@@ -47,7 +47,7 @@ function spawnEntity() {
         mesh.position.set(lx, 0, -200);
         addEntity('dash', mesh, lx);
     } else {
-        const typeName = getEnemyType(dist), def = ENEMY_TYPES[typeName];
+        const typeName = getEnemyType(), def = ENEMY_TYPES[typeName];
         const meshFactory = { drone: createDroneMesh, shard: createShardMesh, sentinel: createSentinelMesh }[typeName];
         const mesh = meshFactory(matEnemyUnbreak, matEnemyNeonU);
         const lx = R_Sign() * (CFG.laneW - def.w / 2);
