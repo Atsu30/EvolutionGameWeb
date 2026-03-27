@@ -275,6 +275,44 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-30px); }
 }
 
+/* --- Speed Meter --- */
+#speed-meter {
+    position: absolute; bottom: 15px; right: 15px;
+    width: 110px; height: 110px;
+    pointer-events: none; z-index: 10;
+}
+.meter-svg { width: 100%; height: 100%; }
+.meter-bg {
+    fill: none; stroke: rgba(100,116,139,0.15); stroke-width: 6;
+    stroke-dasharray: 245; stroke-dashoffset: -82;
+    transform: rotate(135deg); transform-origin: 50% 50%;
+}
+.meter-arc {
+    fill: none; stroke: #3b82f6; stroke-width: 6; stroke-linecap: round;
+    transform: rotate(135deg); transform-origin: 50% 50%;
+    transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
+    filter: drop-shadow(0 0 4px #3b82f6);
+}
+.meter-needle {
+    stroke: #fff; stroke-width: 2; stroke-linecap: round;
+    transform: rotate(-135deg); transform-origin: 60px 60px;
+    transition: transform 0.1s linear;
+    filter: drop-shadow(0 0 3px rgba(255,255,255,0.5));
+}
+.meter-center { fill: #60a5fa; filter: drop-shadow(0 0 4px #3b82f6); }
+.meter-value {
+    position: absolute; bottom: 22px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 20px; font-weight: 900; color: #60a5fa;
+    text-shadow: 0 0 8px #3b82f6;
+}
+.meter-label {
+    position: absolute; bottom: 10px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px; font-weight: 700; color: #475569;
+    letter-spacing: 1px;
+}
+
 /* --- Countdown --- */
 .countdown {
     position: fixed; top: 50%; left: 50%;
@@ -338,5 +376,8 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .menu-card { padding: 14px 8px; }
     .menu-card-icon { font-size: 26px; }
+    #speed-meter { width: 85px; height: 85px; bottom: 10px; right: 10px; }
+    .meter-value { font-size: 16px; bottom: 18px; }
+    .meter-label { bottom: 8px; }
     .stage-popup { font-size: 32px; letter-spacing: 3px; }
 }

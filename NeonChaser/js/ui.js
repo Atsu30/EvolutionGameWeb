@@ -2,18 +2,24 @@
 function updateUI() {
     const st = game.st;
     el('ui-lv').innerText = `Lv ${st.lv}`;
-    el('ui-spd').innerText = floor(st.spd);
+    // Speed meter
+    const spdVal = floor(st.spd);
+    el('ui-spd').innerText = spdVal;
+    const spdRatio = min(1, st.spd / st.maxSpd);
+    // Arc: 270deg sweep, dasharray=245 (3/4 of circumference ~326)
+    el('meter-arc').style.strokeDashoffset = 245 - spdRatio * 245;
+    // Needle: rotate from -135deg (0%) to +135deg (100%)
+    el('meter-needle').style.transform = `rotate(${-135 + spdRatio * 270}deg)`;
     el('ui-hp').innerText = ceil(st.hp);
     el('ui-dist').innerText = (st.dist || 0).toFixed(2) + ' km';
     el('exp-fill').style.width = `${min(100, st.exp / st.nExp * 100)}%`;
-    el('speed-fill').style.width = `${min(100, st.spd / st.maxSpd * 100)}%`;
     const hpRatio = max(0, min(100, st.hp / st.maxHp * 100));
     el('hp-fill').style.width = `${hpRatio}%`;
     el('ui-hp').style.color = hpRatio < 30 ? '#f87171' : '#86efac';
     el('hp-fill').style.background = hpRatio < 30 ? 'linear-gradient(90deg, #ef4444, #f87171)' : 'linear-gradient(90deg, #22c55e, #86efac)';
     const isD = st.dTimer > 0;
     el('ui-spd').style.color = isD ? '#22d3ee' : '#60a5fa';
-    el('speed-fill').style.background = isD ? 'linear-gradient(90deg, #06b6d4, #22d3ee)' : 'linear-gradient(90deg, #3b82f6, #60a5fa)';
+    el('meter-arc').style.stroke = isD ? '#22d3ee' : '#3b82f6';
 }
 
 function showUpgradeUI() {
