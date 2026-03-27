@@ -1,6 +1,11 @@
 // --- Menu System ---
 let _menuStack = [];
 
+function _updateMenuMiles() {
+    const m = el('menu-miles');
+    if (m) m.innerText = getWallet().miles.toLocaleString();
+}
+
 function _showModal(id) { _menuStack.push(id); el(id).classList.add('active'); }
 function _hideModal(id) { el(id).classList.remove('active'); _menuStack = _menuStack.filter(m => m !== id); }
 

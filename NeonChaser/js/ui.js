@@ -141,6 +141,7 @@ function triggerGameOver() {
 function goToMenu() {
     el('title-page').classList.remove('active');
     el('menu-page').classList.add('active');
+    _updateMenuMiles();
 }
 
 function goToMenuPage() {
@@ -152,6 +153,7 @@ function goToMenuPage() {
     el('gameover-modal').classList.remove('active');
     _showTitleScreen();
     el('menu-page').classList.add('active');
+    _updateMenuMiles();
 }
 
 function _showGameScreen() {
