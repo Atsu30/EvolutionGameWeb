@@ -353,8 +353,36 @@ function _createCityBuildings() {
 }
 _createCityBuildings();
 
+// Near buildings (scroll with road)
+const matBldgNear = new THREE.MeshStandardMaterial({ color: 0x08081a, emissive: 0x08081a, emissiveIntensity: 0.05, roughness: 0.9, metalness: 0.3 });
+const matBldgNearEdge = new THREE.LineBasicMaterial({ color: 0xd946ef, transparent: true, opacity: 0.2 });
+const _nearBuildings = [];
+
+function _createNearBuildings() {
+    for (let side = -1; side <= 1; side += 2) {
+        for (let i = 0; i < 10; i++) {
+            const w = 4 + Math.random() * 6;
+            const h = 15 + Math.random() * 35;
+            const d = 4 + Math.random() * 6;
+            const geo = new THREE.BoxGeometry(w, h, d);
+            const mesh = new THREE.Mesh(geo, matBldgNear);
+            const edge = new THREE.LineSegments(new THREE.EdgesGeometry(geo), matBldgNearEdge);
+            mesh.add(edge);
+            const x = side * (CFG.laneW + 3 + Math.random() * 5);
+            const z = -i * 22 - Math.random() * 10;
+            mesh.position.set(x, h / 2, z);
+            mesh.userData._h = h;
+            mesh.userData._side = side;
+            scene.add(mesh);
+            _nearBuildings.push(mesh);
+        }
+    }
+}
+_createNearBuildings();
+
 function setCityVisible(visible) {
     _cityBuildings.forEach(b => b.visible = visible);
+    _nearBuildings.forEach(b => b.visible = visible);
 }
 
 // --- Background Geometry Pool ---

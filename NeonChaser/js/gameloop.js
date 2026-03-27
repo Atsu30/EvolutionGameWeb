@@ -135,6 +135,19 @@ function animate() {
         p.L.position.set(-CFG.laneW - 1 + cx, 1.5, p.z); p.R.position.set(CFG.laneW + 1 + cx, 1.5, p.z);
         const a = Math.atan2(cx, abs(p.z)); p.L.rotation.y = a; p.R.rotation.y = a;
     });
+    // Near buildings scroll
+    if (typeof _nearBuildings !== 'undefined') {
+        for (const b of _nearBuildings) {
+            if (!b.visible) continue;
+            b.position.z += st.spd * dt;
+            if (b.position.z > 15) {
+                b.position.z -= 220;
+                b.position.x = b.userData._side * (CFG.laneW + 3 + R() * 5);
+            }
+            const cx = st.crv * b.position.z * b.position.z;
+            b.position.x = b.userData._side * (CFG.laneW + 3 + 2) + cx;
+        }
+    }
     game.pts.forEach(p => {
         p.rotation.x += p.userData.rX * dt; p.rotation.y += p.userData.rY * dt; p.rotation.z += p.userData.rZ * dt;
         p.position.z += (st.spd * 0.8 + 20) * dt;

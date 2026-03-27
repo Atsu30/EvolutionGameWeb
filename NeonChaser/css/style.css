@@ -106,6 +106,28 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     font-size: 11px; color: #334155; letter-spacing: 1px;
 }
 
+/* --- Game Over Title --- */
+.gameover-title {
+    font-size: 72px; font-weight: 900; color: #ef4444; line-height: 0.9;
+    letter-spacing: 10px; text-transform: uppercase; margin-bottom: 30px;
+    text-shadow: 0 0 30px #ef4444, 0 0 60px #dc2626, 0 0 100px #991b1b, 0 4px 20px rgba(0,0,0,0.8);
+    animation: go-glow 2s ease-in-out infinite alternate, title-flicker 3s linear infinite, go-glitch 4s infinite linear;
+}
+@keyframes go-glow {
+    0% { text-shadow: 0 0 30px #ef4444, 0 0 60px #dc2626, 0 4px 20px rgba(0,0,0,0.8); }
+    100% { text-shadow: 0 0 50px #f87171, 0 0 100px #ef4444, 0 0 150px #dc2626, 0 4px 20px rgba(0,0,0,0.8); }
+}
+@keyframes go-glitch {
+    0%, 82%, 85%, 92%, 95%, 100% {
+        transform: translate(0);
+        text-shadow: 0 0 30px #ef4444, 0 0 60px #dc2626, 0 0 100px #991b1b, 0 4px 20px rgba(0,0,0,0.8);
+    }
+    83% { transform: translate(-4px, -2px); text-shadow: -4px 0 #22d3ee, 4px 0 #ef4444, 0 0 30px #ef4444; }
+    84% { transform: translate(3px, 1px); text-shadow: 3px 0 #22d3ee, -3px 0 #ef4444, 0 0 30px #ef4444; }
+    93% { transform: translate(-2px, 2px); text-shadow: -3px 0 #fbbf24, 3px 0 #ef4444, 0 0 40px #ef4444; }
+    94% { transform: translate(2px, -1px); text-shadow: 2px 0 #fbbf24, -2px 0 #ef4444, 0 0 40px #ef4444; }
+}
+
 /* --- Main Menu Page --- */
 #menu-page { background: rgba(2,2,8,0.85); backdrop-filter: blur(12px); }
 .menu-page-inner {
@@ -397,6 +419,7 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     .item-grid { grid-template-columns: repeat(3, 1fr); }
     #preview-canvas { width: 200px; height: 140px; }
     .title-logo { font-size: 44px; letter-spacing: 5px; }
+    .gameover-title { font-size: 44px; letter-spacing: 5px; }
     .title-sub { font-size: 11px; letter-spacing: 5px; }
     .title-tap { font-size: 13px; margin-top: 40px; }
     .menu-logo-small { font-size: 18px; }
