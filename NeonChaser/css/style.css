@@ -480,15 +480,45 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 .color-swatch { width: 32px; height: 32px; border-radius: 50%; margin: 0 auto; box-shadow: 0 0 8px rgba(0,0,0,0.4); }
 
 /* --- Shop --- */
-.shop-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid rgba(217,70,239,0.1); gap: 12px; transition: background 0.15s ease; }
-.shop-row:hover { background: rgba(217, 70, 239, 0.06); }
-.shop-buy-btn { position: relative; padding: 6px 16px; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; color: #fff; background: transparent; border: none; cursor: pointer; transition: transform 0.2s; pointer-events: auto; clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px); }
-.shop-buy-btn::before { content: ''; position: absolute; inset: 0; z-index: -1; background: rgba(52,211,153,0.5); clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px); filter: drop-shadow(0 0 3px rgba(52,211,153,0.3)); transition: all 0.2s; }
-.shop-buy-btn::after { content: ''; position: absolute; inset: 1.5px; z-index: -1; background: rgba(52,211,153,0.15); clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px); transition: all 0.2s; }
-.shop-buy-btn:hover { transform: scale(1.05); }
-.shop-buy-btn:hover::before { background: rgba(52,211,153,0.7); filter: drop-shadow(0 0 6px rgba(52,211,153,0.4)); }
-.shop-buy-btn:active:not(.disabled) { transform: scale(0.95); }
-.shop-buy-btn.disabled { opacity: 0.3; cursor: default; transform: none; }
+.shop-scrap-bar {
+    font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 600;
+    color: #94a3b8; letter-spacing: 1px; margin-bottom: 12px; text-align: center;
+}
+.shop-scrap-bar strong {
+    font-family: 'Orbitron', sans-serif; font-size: 15px;
+    color: #fbbf24; text-shadow: 0 0 8px rgba(251,191,36,0.3);
+}
+.shop-item-price {
+    font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600;
+    color: #fbbf24; margin-top: 4px; letter-spacing: 0.5px;
+    text-shadow: 0 0 6px rgba(251,191,36,0.2);
+}
+.shop-scrap-icon { font-size: 10px; }
+.shop-card-buy-btn {
+    position: relative; margin-top: 6px;
+    padding: 4px 14px; font-family: 'Rajdhani', sans-serif;
+    font-size: 11px; font-weight: 700; color: #fff;
+    background: transparent; border: none; cursor: pointer;
+    pointer-events: auto; transition: transform 0.15s ease;
+    letter-spacing: 1px; text-transform: uppercase;
+}
+.shop-card-buy-btn::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background: rgba(52,211,153,0.5);
+    clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+    filter: drop-shadow(0 0 3px rgba(52,211,153,0.25));
+    transition: all 0.2s;
+}
+.shop-card-buy-btn::after {
+    content: ''; position: absolute; inset: 1px; z-index: -1;
+    background: rgba(52,211,153,0.12);
+    clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px);
+    transition: all 0.2s;
+}
+.shop-card-buy-btn:hover { transform: scale(1.08); }
+.shop-card-buy-btn:hover::before { background: rgba(52,211,153,0.7); filter: drop-shadow(0 0 6px rgba(52,211,153,0.4)); }
+.shop-card-buy-btn:active { transform: scale(0.93); }
+.shop-card-buy-btn.disabled { opacity: 0.3; cursor: default; transform: none; pointer-events: none; }
 
 /* --- Stage Popup --- */
 .stage-popup {
