@@ -21,7 +21,7 @@
 </head>
 <body>
     <canvas id="title-bg-canvas"></canvas>
-    <canvas id="game-canvas" style="display:none;"></canvas>
+    <canvas id="game-canvas" style="display:none; touch-action:none;"></canvas>
     <div id="speed-lines"></div>
     <div id="damage-flash"></div>
 
@@ -231,15 +231,27 @@
     <script>
     // Prevent iOS double-tap zoom & pinch zoom
     (function() {
+        // Block double-tap on all touchend events
         let lastTap = 0;
         document.addEventListener('touchend', function(e) {
             const now = Date.now();
             if (now - lastTap < 300) { e.preventDefault(); }
             lastTap = now;
         }, { passive: false });
+        // Block iOS gesture zoom
         document.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
         document.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
         document.addEventListener('gestureend', function(e) { e.preventDefault(); }, { passive: false });
+        // Block all touchstart default on game canvas (prevents iOS zoom entirely)
+        var gc = document.getElementById('game-canvas');
+        if (gc) {
+            gc.addEventListener('touchstart', function(e) { e.preventDefault(); }, { passive: false });
+            gc.addEventListener('touchend', function(e) { e.preventDefault(); }, { passive: false });
+        }
+        // Also block on the whole document touchstart for double-tap
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) { e.preventDefault(); } // block pinch
+        }, { passive: false });
     })();
     </script>
 </body>

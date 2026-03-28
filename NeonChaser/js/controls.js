@@ -8,6 +8,9 @@ function setupControls() {
         e.addEventListener('pointerdown', ev => { ev.preventDefault(); game.keys[k] = true; });
         e.addEventListener('pointerup', ev => { ev.preventDefault(); game.keys[k] = false; });
         e.addEventListener('pointercancel', () => game.keys[k] = false);
+        // Prevent iOS double-tap zoom on touch zones
+        e.addEventListener('touchstart', ev => { ev.preventDefault(); }, { passive: false });
+        e.addEventListener('touchend', ev => { ev.preventDefault(); }, { passive: false });
     };
     addTouch('t-left', 'l'); addTouch('t-right', 'r');
 }
