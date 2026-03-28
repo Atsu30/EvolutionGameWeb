@@ -33,8 +33,67 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 .warning-icon { font-size: 100px; font-weight: 900; color: #facc15; text-shadow: 0 0 30px #ca8a04, 5px 5px 0 #000; line-height: 0.8; }
 
 /* --- Achievement Popup Toast --- */
-.achieve-popup { position: fixed; top: 60px; right: -350px; background: rgba(5,5,15,0.9); border: 1px solid rgba(52,211,153,0.5); border-radius: 0; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); padding: 12px 20px; color: #a7f3d0; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 14px; z-index: 200; transition: right 0.4s ease; backdrop-filter: blur(10px); box-shadow: 0 0 12px rgba(52,211,153,0.3), 0 0 25px rgba(52,211,153,0.1); pointer-events: none; }
+.achieve-popup {
+    position: fixed; top: 60px; right: -400px;
+    display: flex; align-items: center; gap: 12px;
+    padding: 0; z-index: 200; pointer-events: none;
+    transition: right 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
 .achieve-popup.show { right: 10px; }
+
+/* Popup border layers (stacked fill, TL/BR corner cut) */
+.achieve-popup-border {
+    position: absolute; inset: 0; z-index: 0;
+    background: #34d399;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    filter: drop-shadow(0 0 6px rgba(52,211,153,0.6)) drop-shadow(0 0 15px rgba(52,211,153,0.25));
+}
+.achieve-popup-border::before {
+    content: ''; position: absolute; inset: 2px;
+    background: rgba(5,5,15,0.96);
+    clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+}
+.achieve-popup-border::after {
+    content: ''; position: absolute; inset: 5px;
+    background: rgba(52,211,153,0.18);
+    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+}
+.achieve-popup-bg {
+    position: absolute; inset: 6px; z-index: 1;
+    background: rgba(5,5,15,0.96);
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+.achieve-popup-content {
+    position: relative; z-index: 2;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 18px;
+}
+.achieve-popup-icon {
+    font-size: 28px; flex-shrink: 0;
+    filter: drop-shadow(0 0 6px rgba(52,211,153,0.5));
+    animation: achieve-icon-pulse 1.5s ease-in-out infinite alternate;
+}
+@keyframes achieve-icon-pulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(52,211,153,0.3)); }
+    100% { transform: scale(1.1); filter: drop-shadow(0 0 10px rgba(52,211,153,0.6)); }
+}
+.achieve-popup-text {
+    font-family: 'Rajdhani', sans-serif;
+}
+.achieve-popup-text strong {
+    display: block; font-size: 15px; font-weight: 700; color: #fff;
+    text-shadow: 0 0 8px rgba(52,211,153,0.4);
+}
+.achieve-popup-text small {
+    font-size: 12px; color: #64748b;
+}
+.achieve-popup-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 8px; font-weight: 700; color: #34d399;
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 2px;
+    text-shadow: 0 0 6px rgba(52,211,153,0.4);
+}
 
 /* --- Page Overlays (Title / Menu) --- */
 .page-overlay {

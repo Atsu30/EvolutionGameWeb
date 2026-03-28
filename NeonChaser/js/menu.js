@@ -127,7 +127,11 @@ function _processPopup() {
     if (!_popupQueue.length) { _popupActive = false; return; }
     _popupActive = true; const a = _popupQueue.shift();
     const p = el('achieve-popup');
-    p.innerHTML = `<span>${a.icon}</span> <strong>${a.name}</strong><br><small>${a.desc}</small>`;
+    p.innerHTML = `<div class="achieve-popup-border"></div><div class="achieve-popup-bg"></div>`
+        + `<div class="achieve-popup-content">`
+        + `<span class="achieve-popup-icon">${a.icon}</span>`
+        + `<div class="achieve-popup-text"><div class="achieve-popup-label">Achievement</div><strong>${a.name}</strong><small>${a.desc}</small></div>`
+        + `</div>`;
     p.classList.add('show');
     setTimeout(() => { p.classList.remove('show'); setTimeout(_processPopup, 400); }, 3000);
 }
