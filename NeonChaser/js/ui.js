@@ -1,5 +1,28 @@
 // --- UI: HUD, Modals, Game Over, Restart ---
 let _hpCritical = false;
+let _pendingLevelUps = 0;
+
+/** Check for level-up(s) and queue them. Call after adding EXP. */
+function checkLevelUp() {
+    const st = game.st;
+    while (st.exp >= st.nExp) {
+        st.lv++;
+        st.exp -= st.nExp;
+        st.nExp = floor(st.nExp * CFG.expMul);
+        _pendingLevelUps++;
+    }
+    if (_pendingLevelUps > 0 && !st.isP) {
+        _triggerNextLevelUp();
+    }
+}
+
+function _triggerNextLevelUp() {
+    if (_pendingLevelUps <= 0) return;
+    _pendingLevelUps--;
+    game.st.isP = true;
+    showUpgradeUI();
+    el('levelup-modal').classList.add('active');
+}
 function updateUI() {
     const st = game.st;
     el('ui-lv').innerText = `Lv ${st.lv}`;
@@ -131,7 +154,13 @@ function selectUpgrade(id) {
     const burstEl = el('levelup-burst');
     if (burstEl) burstEl.innerHTML = '';
     st.cB_X = 0; st.cB_Y = 8; cam.position.set(0, 8, 15);
-    game.clock.getDelta(); st.isP = false;
+    game.clock.getDelta();
+    // Check for queued level-ups
+    if (_pendingLevelUps > 0) {
+        setTimeout(() => _triggerNextLevelUp(), 300);
+    } else {
+        st.isP = false;
+    }
 }
 
 function triggerGameOver() {
@@ -311,6 +340,7 @@ function triggerWarpEffect() {
 }
 
 function restartGame() {
+    _pendingLevelUps = 0;
     const st = game.st;
     Object.assign(st, {
         spd: 0, maxSpd: CFG.maxSpd, steer: CFG.steer, size: CFG.size, def: CFG.def, hp: CFG.hp, maxHp: CFG.hp,

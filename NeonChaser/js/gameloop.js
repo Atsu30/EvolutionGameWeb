@@ -197,7 +197,7 @@ function animate() {
                             recordEnemyTypeKill(t.defName || t.type);
                             showXpPopup(t.mesh.position, _xp1, t.def.hp > 1 ? 4 : 1);
                             spawnDestroyEffect(t.mesh.position, t.def.hp > 1 ? 4 : 1, 0x00ffff);
-                            if (st.exp >= st.nExp) { st.isP = true; st.lv++; st.exp -= st.nExp; st.nExp = floor(st.nExp * CFG.expMul); showUpgradeUI(); el('levelup-modal').classList.add('active'); }
+                            checkLevelUp();
                         } else {
                             // Hit flash: enemy glows white briefly
                             bulletHitFlash(t);
