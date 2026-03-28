@@ -404,7 +404,9 @@ const pGeos = [new THREE.OctahedronGeometry(2, 0), new THREE.TorusGeometry(1.5, 
 const pMats = [0x38bdf8, 0xf43f5e, 0xa855f7].map(c => new THREE.MeshBasicMaterial({ color: c, wireframe: true, transparent: true, opacity: 0.4 }));
 for (let i = 0; i < 50; i++) {
     const p = new THREE.Mesh(pGeos[floor(R() * pGeos.length)], pMats[floor(R() * pMats.length)]);
-    p.position.set(R_Sign() * 60, R() * 40 + 5, R_Sign() * 150 - 50);
+    // Keep away from center (road area): minimum |X| = 25
+    const px = R_Sign() * (25 + R() * 45);
+    p.position.set(px, R() * 40 + 5, R_Sign() * 150 - 50);
     p.userData = { rX: R_Sign(), rY: R_Sign(), rZ: R_Sign() };
     scene.add(p); game.pts.push(p);
 }

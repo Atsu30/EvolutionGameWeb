@@ -162,7 +162,7 @@ function animate() {
     game.pts.forEach(p => {
         p.rotation.x += p.userData.rX * dt; p.rotation.y += p.userData.rY * dt; p.rotation.z += p.userData.rZ * dt;
         p.position.z += (st.spd * 0.8 + 20) * dt;
-        if (p.position.z > 20) p.position.set(R_Sign() * 60, R() * 40 + 5, R_Sign() * 150 - 50);
+        if (p.position.z > 20) p.position.set(R_Sign() * (25 + R() * 45), R() * 40 + 5, R_Sign() * 150 - 50);
     });
 
     // --- Entity Logic ---
