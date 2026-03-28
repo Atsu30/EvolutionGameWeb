@@ -309,6 +309,8 @@ function animate() {
                     const o = ents[j];
                     if (o.state === 'A' && (o.type === 'enemy' || o.type === 'rocket' || o.type === 'zigzag') && e.cTmr <= 0 && o.cTmr <= 0 && e.box.intersectsBox(o.box)) {
                         if (e.isWall && o.isWall) continue;
+                        // Drones pass through other enemies
+                        if (e.def === ENEMY_TYPES.drone || o.def === ENEMY_TYPES.drone) continue;
                         if (e.def.hp !== o.def.hp) {
                             const v = e.def.hp > o.def.hp ? o : e, a = e.def.hp > o.def.hp ? e : o;
                             if (!v.isWall) { v.state = 'K'; v.mesh.userData.changeMat(matEnemyKnock, matEnemyNeonK); v.v.set(sign(v.lX - a.lX || R_Sign()) * 20, 20 + R() * 20, a.zS - v.zS + 30); v.aV.set(R_Sign() * 5, R_Sign() * 5, R_Sign() * 5); }
