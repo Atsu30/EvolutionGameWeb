@@ -38,23 +38,27 @@ function metaBuy(id) {
 }
 
 // --- Bestiary (敵図鑑) ---
-let _bestiarySelected = null;
+let _bestiaryRenderers = [];
 
 function showBestiary() {
+    // Clean up previous renderers
+    _cleanupBestiaryRenderers();
+
     const cumul = getCumulStats();
     const discovered = cumul.enemyTypesKilled || {};
     const counts = cumul.enemyKillCounts || {};
-    const list = el('bestiary-list');
+    const grid = el('bestiary-grid');
 
-    list.innerHTML = BESTIARY.map(entry => {
+    grid.innerHTML = BESTIARY.map((entry, idx) => {
         const found = !!discovered[entry.id];
         const kills = counts[entry.id] || 0;
         const hpUnlock = kills >= entry.hpDebuff;
         const atkUnlock = kills >= entry.atkDebuff;
 
         if (!found) {
-            return `<div class="bestiary-entry locked">
-                <div class="bestiary-info">
+            return `<div class="bestiary-card locked">
+                <div class="bestiary-canvas" style="display:flex;align-items:center;justify-content:center;color:#475569;font-size:36px;">?</div>
+                <div class="bestiary-card-body">
                     <div class="bestiary-name">？？？</div>
                     <div class="bestiary-desc">未発見</div>
                 </div>
@@ -63,37 +67,82 @@ function showBestiary() {
 
         let badges = '';
         if (hpUnlock) badges += `<span class="bestiary-badge hp-debuff">HP半減</span>`;
-        else badges += `<span class="bestiary-badge" style="background:rgba(100,116,139,0.15);color:#475569;">HP半減: ${kills}/${entry.hpDebuff}</span>`;
+        else badges += `<span class="bestiary-badge pending">HP: ${kills}/${entry.hpDebuff}</span>`;
         if (atkUnlock) badges += `<span class="bestiary-badge atk-debuff">ATK半減</span>`;
-        else badges += `<span class="bestiary-badge" style="background:rgba(100,116,139,0.15);color:#475569;">ATK半減: ${kills}/${entry.atkDebuff}</span>`;
+        else badges += `<span class="bestiary-badge pending">ATK: ${kills}/${entry.atkDebuff}</span>`;
 
-        return `<div class="bestiary-entry" onclick="selectBestiaryEntry('${entry.id}')" style="cursor:pointer;">
-            <div class="bestiary-info">
-                <div class="bestiary-name">${entry.name}${badges}</div>
-                <div class="bestiary-desc">${entry.desc}</div>
-                <div class="bestiary-kills">撃破数: ${kills}</div>
+        return `<div class="bestiary-card">
+            <canvas class="bestiary-canvas" id="bp-canvas-${idx}" width="140" height="100"></canvas>
+            <div class="bestiary-card-body">
+                <div class="bestiary-name">${entry.name}</div>
+                <div class="bestiary-kills">× ${kills}</div>
+                <div class="bestiary-badges">${badges}</div>
             </div>
         </div>`;
     }).join('');
 
     _showModal('bestiary-modal');
-    if (typeof lucide !== 'undefined') lucide.createIcons();
 
-    // Show first discovered enemy in preview
-    const firstFound = BESTIARY.find(e => discovered[e.id]);
-    if (firstFound && typeof showBestiaryEnemy === 'function') {
-        showBestiaryEnemy(firstFound.id);
-        _bestiarySelected = firstFound.id;
-    }
+    // Init a mini Three.js renderer for each discovered enemy
+    requestAnimationFrame(() => {
+        BESTIARY.forEach((entry, idx) => {
+            if (!discovered[entry.id]) return;
+            const canvas = el('bp-canvas-' + idx);
+            if (!canvas) return;
+            _initBestiaryCard(canvas, entry.id);
+        });
+    });
 }
 
-function selectBestiaryEntry(id) {
-    if (_bestiarySelected === id) return;
-    _bestiarySelected = id;
-    if (typeof showBestiaryEnemy === 'function') showBestiaryEnemy(id);
-    // Highlight selected row
-    document.querySelectorAll('.bestiary-entry').forEach(e => e.classList.remove('selected'));
-    event.currentTarget.classList.add('selected');
+function _initBestiaryCard(canvas, enemyId) {
+    const rdr = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    rdr.setClearColor(0x080812, 1);
+    rdr.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    rdr.setSize(canvas.clientWidth, canvas.clientHeight);
+
+    const sc = new THREE.Scene();
+    const cam = new THREE.PerspectiveCamera(35, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+    cam.position.set(0, 1.5, 9);
+    cam.lookAt(0, 1.2, 0);
+
+    sc.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const dl = new THREE.DirectionalLight(0xffffff, 0.8);
+    dl.position.set(5, 8, 5); sc.add(dl);
+
+    const bMat = new THREE.MeshPhongMaterial({ color: 0xbe123c, emissive: 0x9f1239, emissiveIntensity: 0.3, transparent: true, opacity: 0.7 });
+    const nMat = new THREE.LineBasicMaterial({ color: 0xff0055 });
+
+    let mesh;
+    if (enemyId === 'boss') {
+        mesh = typeof _createBoss1Mesh === 'function' ? _createBoss1Mesh(bMat, nMat) : new THREE.Mesh(new THREE.BoxGeometry(1,1,1), bMat);
+        mesh.scale.setScalar(0.5);
+        mesh.position.y = 0;
+    } else {
+        const factories = { drone: createDroneMesh, shard: createShardMesh, sentinel: createSentinelMesh, jellyfish: createJellyfishMesh, fish: createFishMesh, rocket: createRocket, zigzag: createZigzagMesh };
+        const factory = factories[enemyId];
+        if (!factory) return;
+        mesh = factory(bMat, nMat);
+        mesh.scale.setScalar(1.5);
+        mesh.position.y = 0.8;
+    }
+    sc.add(mesh);
+
+    let running = true;
+    function anim() {
+        if (!running) return;
+        requestAnimationFrame(anim);
+        mesh.rotation.y += 0.015;
+        if (mesh.userData && mesh.userData.animate) mesh.userData.animate(0.016);
+        rdr.render(sc, cam);
+    }
+    anim();
+
+    _bestiaryRenderers.push({ rdr, running: true, stop: () => { running = false; rdr.dispose(); } });
+}
+
+function _cleanupBestiaryRenderers() {
+    _bestiaryRenderers.forEach(r => r.stop());
+    _bestiaryRenderers = [];
 }
 
 function _showModal(id) { _menuStack.push(id); el(id).classList.add('active'); }
@@ -102,7 +151,7 @@ function _hideModal(id) { el(id).classList.remove('active'); _menuStack = _menuS
 function showMenu() { game.st.isP = true; }
 function hideMenu() {
     if (_menuStack.includes('custom-modal') && typeof hidePreview === 'function') hidePreview();
-    if (_menuStack.includes('bestiary-modal') && typeof hideBestiaryPreview === 'function') hideBestiaryPreview();
+    if (_menuStack.includes('bestiary-modal')) _cleanupBestiaryRenderers();
     if (_gachaPulling) _gachaPulling = false;
     _menuStack.forEach(id => el(id).classList.remove('active')); _menuStack = [];
     // Return to menu page, not directly to game
@@ -111,7 +160,7 @@ function hideMenu() {
 function goBack() {
     const top = _menuStack[_menuStack.length - 1];
     if (top === 'custom-modal' && typeof hidePreview === 'function') hidePreview();
-    if (top === 'bestiary-modal' && typeof hideBestiaryPreview === 'function') hideBestiaryPreview();
+    if (top === 'bestiary-modal') _cleanupBestiaryRenderers();
     if (_menuStack.length > 1) { _hideModal(top); }
     else {
         _menuStack.forEach(id => el(id).classList.remove('active')); _menuStack = [];
