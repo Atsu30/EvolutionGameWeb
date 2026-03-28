@@ -27,13 +27,21 @@ function setCumulFlag(key) {
     if (!s[key]) { s[key] = true; _saveCumulStats(s); }
 }
 
-/** Record a killed enemy type */
+/** Record a killed enemy type (tracks both discovered flag and kill count) */
 function recordEnemyTypeKill(typeName) {
     const s = getCumulStats();
     s.totalKills = (s.totalKills || 0) + 1;
     if (!s.enemyTypesKilled) s.enemyTypesKilled = {};
     s.enemyTypesKilled[typeName] = true;
+    if (!s.enemyKillCounts) s.enemyKillCounts = {};
+    s.enemyKillCounts[typeName] = (s.enemyKillCounts[typeName] || 0) + 1;
     _saveCumulStats(s);
+}
+
+/** Get kill count for a specific enemy type */
+function getEnemyKillCount(typeName) {
+    const s = getCumulStats();
+    return (s.enemyKillCounts && s.enemyKillCounts[typeName]) || 0;
 }
 
 /** Update owned item count (called after gacha/shop acquire) */

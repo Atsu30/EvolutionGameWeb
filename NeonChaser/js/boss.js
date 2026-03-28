@@ -24,8 +24,9 @@ function initBossFight(stageIdx) {
     st.boss.stageIdx = stageIdx;
 
     const def = BOSS_DEFS[stageIdx];
-    st.boss.hp = def.hp;
-    st.boss.maxHp = def.hp;
+    const _bossHpMul = (typeof _bestiaryDebuffs !== 'undefined' && _bestiaryDebuffs['boss']) ? _bestiaryDebuffs['boss'].hpMul : 1;
+    st.boss.hp = ceil(def.hp * _bossHpMul);
+    st.boss.maxHp = ceil(def.hp * _bossHpMul);
     st.boss.introTimer = 2.5;
 
     // Show warning

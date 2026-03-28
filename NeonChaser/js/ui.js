@@ -448,6 +448,7 @@ function restartGame() {
     });
     // Apply meta-progression permanent upgrades
     if (typeof applyMetaUpgrades === 'function') applyMetaUpgrades();
+    if (typeof refreshBestiaryDebuffs === 'function') refreshBestiaryDebuffs();
     el('warning-container').classList.remove('active');
     playerMesh.scale.setScalar(1.5); playerMesh.position.setScalar(0);
     playerMesh.rotation.set(0, 0, 0);

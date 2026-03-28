@@ -1,4 +1,19 @@
 // --- Entity Management ---
+
+// Cache bestiary debuffs at game start for performance
+let _bestiaryDebuffs = {};
+function refreshBestiaryDebuffs() {
+    _bestiaryDebuffs = {};
+    if (typeof getCumulStats !== 'function' || typeof BESTIARY === 'undefined') return;
+    const counts = getCumulStats().enemyKillCounts || {};
+    for (const entry of BESTIARY) {
+        _bestiaryDebuffs[entry.id] = {
+            hpMul: (counts[entry.id] || 0) >= entry.hpDebuff ? 0.5 : 1,
+            atkMul: (counts[entry.id] || 0) >= entry.atkDebuff ? 0.5 : 1,
+        };
+    }
+}
+
 function addEntity(type, mesh, lx, zs = 0, def = null, isWall = false, defName = '') {
     scene.add(mesh);
     // Apply stage multiplier to enemy stats
@@ -6,6 +21,10 @@ function addEntity(type, mesh, lx, zs = 0, def = null, isWall = false, defName =
     if (def && (type === 'enemy' || type === 'rocket' || type === 'zigzag') && typeof getStageDef === 'function') {
         const s = getStageDef();
         if (def.hp < 999) curHp = ceil(def.hp * s.enemyHpMul);
+    }
+    // Apply bestiary HP debuff
+    if (defName && _bestiaryDebuffs[defName]) {
+        curHp = ceil(curHp * _bestiaryDebuffs[defName].hpMul);
     }
     game.ents.push({
         type, def, defName, mesh, lX: lx, box: new THREE.Box3(),

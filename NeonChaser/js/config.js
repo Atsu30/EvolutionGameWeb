@@ -82,6 +82,18 @@ const BOSS_DEFS = [
     },
 ];
 
+// --- Bestiary (enemy encyclopedia) ---
+const BESTIARY = [
+    { id: 'drone',    name: 'ドローン',         desc: '最も基本的な敵。無害だが邪魔。', isBoss: false, hpDebuff: 50, atkDebuff: 100 },
+    { id: 'shard',    name: 'シャード',         desc: '硬い結晶体。ぶつかると痛い。',   isBoss: false, hpDebuff: 50, atkDebuff: 100 },
+    { id: 'sentinel', name: 'センチネル',       desc: '重装甲の番兵。非常にタフ。',     isBoss: false, hpDebuff: 50, atkDebuff: 100 },
+    { id: 'jellyfish', name: 'ジェリーフィッシュ', desc: '浮遊するクラゲ型。上下に揺れる。', isBoss: false, hpDebuff: 50, atkDebuff: 100 },
+    { id: 'fish',     name: 'フィッシュ',       desc: '高速突進する魚型。素早い。',     isBoss: false, hpDebuff: 50, atkDebuff: 100 },
+    { id: 'rocket',   name: 'ロケット',         desc: '後方から飛来する追尾弾。',       isBoss: false, hpDebuff: 50, atkDebuff: 100 },
+    { id: 'zigzag',   name: 'ジグザグ',         desc: 'ジグザグに動く厄介な敵。',       isBoss: false, hpDebuff: 50, atkDebuff: 100 },
+    { id: 'boss',     name: 'ボス',             desc: 'ステージの最後に現れる強敵。',   isBoss: true,  hpDebuff: 5,  atkDebuff: 10 },
+];
+
 const BOSS_DASH_DMG = 20;
 const BOSS_PHASE_THRESHOLDS = [0.66, 0.33]; // phase changes at these HP ratios
 

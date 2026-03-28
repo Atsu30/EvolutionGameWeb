@@ -297,7 +297,8 @@ function animate() {
                 // Hit player check
                 if (playerBox.intersectsBox(e.box) && st.invT <= 0) {
                     const bDef = BOSS_DEFS[game.st.boss ? game.st.boss.stageIdx : 0];
-                    st.hp -= bDef.bulletDmg * (1 - st.def);
+                    const _bossAtkD = _bestiaryDebuffs['boss'] ? _bestiaryDebuffs['boss'].atkMul : 1;
+                    st.hp -= bDef.bulletDmg * _bossAtkD * (1 - st.def);
                     st.bVX = sign(st.pLx - e.mesh.position.x || 1) * 25;
                     st.invT = st._passive_longInv ? 0.6 : 0.3; st.hStop = 0.05;
                     flashScreen('rgba(255,50,50,.4)'); shakeCamera(0.2, 1.5);
@@ -379,7 +380,8 @@ function animate() {
                         flashScreen('rgba(255,200,0,.4)'); shakeCamera(0.3, 3);
                     } else if (st.invT <= 0) {
                         const def = BOSS_DEFS[game.st.boss.stageIdx];
-                        st.hp -= def.contactDmg * (1 - st.def);
+                        const _bossAtkD2 = _bestiaryDebuffs['boss'] ? _bestiaryDebuffs['boss'].atkMul : 1;
+                        st.hp -= def.contactDmg * _bossAtkD2 * (1 - st.def);
                         st.bVX = sign(st.pLx - e.lX || 1) * 50;
                         st.invT = 0.8; st.hStop = 0.15;
                         st.spd = max(0, st.spd - 30);
@@ -420,7 +422,8 @@ function animate() {
                     } else {
                         if (st.invT <= 0) {
                             const sMul = typeof getStageDef === 'function' ? getStageDef().enemyAtkMul : 1;
-                            const dmg = e.def.atk * sMul * (1 - st.def);
+                            const _atkDebuf = (e.defName && _bestiaryDebuffs[e.defName]) ? _bestiaryDebuffs[e.defName].atkMul : 1;
+                            const dmg = e.def.atk * sMul * _atkDebuf * (1 - st.def);
                             const dfX = st.pLx - e.lX, dx = abs(dfX) < 0.5 ? R_Sign() : dfX, pf = 35;
                             st.bVX = sign(dx) * pf; e.xS = -sign(dx) * pf * 0.5; e.cTmr = 0.5;
                             st.spd = max(0, st.spd - 20); st.hp -= dmg;

@@ -183,6 +183,7 @@
                 <button class="menu-item" onclick="showRanking()">ランキング</button>
                 <button class="menu-item" onclick="showAchievements()">実績</button>
                 <button class="menu-item" onclick="showGacha()">ガチャ</button>
+                <button class="menu-item" onclick="showBestiary()">敵図鑑</button>
                 <button class="menu-item" onclick="showCustomize()">カスタム</button>
                 <button class="menu-item" onclick="showShop()">ショップ</button>
             </div>
@@ -221,6 +222,13 @@
         </div>
         <button class="btn" id="gacha-pull-btn" onclick="doPull()">1回引く — 100マイル</button>
         <button class="btn btn-secondary" onclick="goBack()" style="margin-top:12px;">戻る</button>
+    </div>
+
+    <!-- Bestiary (敵図鑑) -->
+    <div id="bestiary-modal" class="modal-overlay">
+        <div class="modal-title">敵図鑑</div>
+        <div id="bestiary-list" class="modal-scroll" style="max-width:460px;"></div>
+        <button class="btn btn-secondary" onclick="goBack()" style="margin-top:16px;">戻る</button>
     </div>
 
     <!-- Meta Upgrades (強化ラボ) -->

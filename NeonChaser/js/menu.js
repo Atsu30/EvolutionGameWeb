@@ -37,6 +37,49 @@ function metaBuy(id) {
     if (purchaseMetaUpgrade(id)) _renderMetaGrid();
 }
 
+// --- Bestiary (敵図鑑) ---
+function showBestiary() {
+    const cumul = getCumulStats();
+    const discovered = cumul.enemyTypesKilled || {};
+    const counts = cumul.enemyKillCounts || {};
+    const list = el('bestiary-list');
+
+    list.innerHTML = BESTIARY.map(entry => {
+        const found = !!discovered[entry.id];
+        const kills = counts[entry.id] || 0;
+        const hpUnlock = kills >= entry.hpDebuff;
+        const atkUnlock = kills >= entry.atkDebuff;
+
+        if (!found) {
+            return `<div class="bestiary-entry locked">
+                <div class="bestiary-preview"><i data-lucide="help-circle"></i></div>
+                <div class="bestiary-info">
+                    <div class="bestiary-name">？？？</div>
+                    <div class="bestiary-desc">未発見</div>
+                </div>
+            </div>`;
+        }
+
+        let badges = '';
+        if (hpUnlock) badges += `<span class="bestiary-badge hp-debuff">HP半減</span>`;
+        else badges += `<span class="bestiary-badge" style="background:rgba(100,116,139,0.15);color:#475569;">HP半減: ${kills}/${entry.hpDebuff}</span>`;
+        if (atkUnlock) badges += `<span class="bestiary-badge atk-debuff">ATK半減</span>`;
+        else badges += `<span class="bestiary-badge" style="background:rgba(100,116,139,0.15);color:#475569;">ATK半減: ${kills}/${entry.atkDebuff}</span>`;
+
+        return `<div class="bestiary-entry">
+            <div class="bestiary-preview"><i data-lucide="${entry.isBoss ? 'skull' : 'bot'}"></i></div>
+            <div class="bestiary-info">
+                <div class="bestiary-name">${entry.name}${badges}</div>
+                <div class="bestiary-desc">${entry.desc}</div>
+                <div class="bestiary-kills">撃破数: ${kills}</div>
+            </div>
+        </div>`;
+    }).join('');
+
+    _showModal('bestiary-modal');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
 function _showModal(id) { _menuStack.push(id); el(id).classList.add('active'); }
 function _hideModal(id) { el(id).classList.remove('active'); _menuStack = _menuStack.filter(m => m !== id); }
 
