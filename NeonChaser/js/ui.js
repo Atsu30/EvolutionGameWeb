@@ -237,6 +237,27 @@ function _showTitleScreen() {
     if (typeof showTitleBg === 'function') showTitleBg();
 }
 
+const _TUTORIAL_KEY = 'nc-tutorial-done-v1';
+
+function _isTutorialDone() {
+    try { return localStorage.getItem(_TUTORIAL_KEY) === '1'; } catch { return true; }
+}
+function _markTutorialDone() {
+    try { localStorage.setItem(_TUTORIAL_KEY, '1'); } catch {}
+}
+
+function _showTutorial(onDone) {
+    const overlay = el('tutorial-overlay');
+    overlay.classList.add('active');
+    const dismiss = function() {
+        overlay.classList.remove('active');
+        overlay.removeEventListener('pointerdown', dismiss);
+        _markTutorialDone();
+        onDone();
+    };
+    overlay.addEventListener('pointerdown', dismiss);
+}
+
 function startGame() {
     el('menu-page').classList.remove('active');
     if (game.st.isG) restartGame();
@@ -259,7 +280,12 @@ function startGame() {
         } else {
             clearInterval(tick);
             cd.classList.remove('show');
-            triggerWarpEffect();
+            // Show tutorial on first play, then warp
+            if (!_isTutorialDone()) {
+                _showTutorial(() => triggerWarpEffect());
+            } else {
+                triggerWarpEffect();
+            }
         }
     }, 700);
 }
