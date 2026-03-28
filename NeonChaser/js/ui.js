@@ -31,29 +31,62 @@ function updateUI() {
 function showUpgradeUI() {
     const container = el('upgrades'); container.innerHTML = '';
     const modal = el('levelup-modal');
+    const st = game.st;
 
     // Block clicks during celebration
     modal.classList.add('no-interact');
 
-    // Spawn burst particles
+    // Show big level number in background
+    const lvBig = el('levelup-lv-big');
+    if (lvBig) lvBig.innerText = st.lv;
+
+    // Build light rays
+    const raysEl = el('levelup-rays');
+    if (raysEl) {
+        raysEl.innerHTML = '';
+        for (let i = 0; i < 18; i++) {
+            const ray = document.createElement('div');
+            ray.className = 'levelup-ray';
+            ray.style.transform = `rotate(${(i / 18) * 360}deg)`;
+            ray.style.opacity = (0.3 + Math.random() * 0.7).toString();
+            raysEl.appendChild(ray);
+        }
+    }
+
+    // Spawn burst particles — wave 1 (circles + sparks)
     const burst = el('levelup-burst');
     burst.innerHTML = '';
-    const colors = ['#d946ef','#e879f9','#f0abfc','#a855f7','#fbbf24','#22d3ee'];
-    for (let i = 0; i < 24; i++) {
+    const colors = ['#d946ef','#e879f9','#f0abfc','#a855f7','#fbbf24','#22d3ee','#fff'];
+    for (let i = 0; i < 40; i++) {
         const p = document.createElement('div');
-        p.className = 'burst-particle';
-        const angle = (i / 24) * Math.PI * 2;
-        const dist = 120 + Math.random() * 160;
+        p.className = i % 4 === 0 ? 'burst-particle burst-spark' : 'burst-particle';
+        const angle = (i / 40) * Math.PI * 2 + Math.random() * 0.3;
+        const dist = 100 + Math.random() * 200;
         p.style.setProperty('--bx', Math.cos(angle) * dist + 'px');
         p.style.setProperty('--by', Math.sin(angle) * dist + 'px');
         p.style.background = colors[i % colors.length];
-        p.style.animationDelay = (Math.random() * 0.3) + 's';
-        p.style.width = p.style.height = (4 + Math.random() * 6) + 'px';
+        p.style.animationDelay = (Math.random() * 0.4) + 's';
+        p.style.width = p.style.height = (3 + Math.random() * 7) + 'px';
         burst.appendChild(p);
     }
 
-    // Build cards (hidden initially) — filter by conditions
-    const st = game.st;
+    // Wave 2 particles (delayed)
+    setTimeout(() => {
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div');
+            p.className = 'burst-particle';
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 60 + Math.random() * 160;
+            p.style.setProperty('--bx', Math.cos(angle) * dist + 'px');
+            p.style.setProperty('--by', Math.sin(angle) * dist + 'px');
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDelay = (Math.random() * 0.2) + 's';
+            p.style.width = p.style.height = (2 + Math.random() * 5) + 'px';
+            burst.appendChild(p);
+        }
+    }, 600);
+
+    // Build cards
     const available = UPGRADES.filter(u => !u.cond || u.cond(st));
     const chosen = [...available].sort(() => 0.5 - R()).slice(0, 3);
     chosen.forEach(u => {
@@ -63,22 +96,17 @@ function showUpgradeUI() {
         container.appendChild(card);
     });
 
-    // Stagger-reveal cards after 1.2s, then enable clicks
+    // Stagger-reveal cards
     const cards = container.querySelectorAll('.card');
-    const staggerDelay = 200; // ms between each card
-    const startDelay = 1200;  // ms before first card appears
+    const staggerDelay = 250;
+    const startDelay = 1400;
 
     cards.forEach((card, i) => {
-        setTimeout(() => {
-            card.classList.add('card-reveal');
-        }, startDelay + i * staggerDelay);
+        setTimeout(() => card.classList.add('card-reveal'), startDelay + i * staggerDelay);
     });
 
-    // Enable clicks after all cards are revealed
-    const totalRevealTime = startDelay + cards.length * staggerDelay + 400;
-    setTimeout(() => {
-        modal.classList.remove('no-interact');
-    }, totalRevealTime);
+    const totalRevealTime = startDelay + cards.length * staggerDelay + 500;
+    setTimeout(() => modal.classList.remove('no-interact'), totalRevealTime);
 }
 
 function selectUpgrade(id) {
@@ -96,8 +124,12 @@ function selectUpgrade(id) {
     const modal = el('levelup-modal');
     modal.classList.remove('active');
     modal.classList.remove('no-interact');
-    // Reset card reveal classes so animations replay next time
+    // Reset animations so they replay next time
     modal.querySelectorAll('.card.card-reveal').forEach(c => c.classList.remove('card-reveal'));
+    const raysEl = el('levelup-rays');
+    if (raysEl) raysEl.innerHTML = '';
+    const burstEl = el('levelup-burst');
+    if (burstEl) burstEl.innerHTML = '';
     st.cB_X = 0; st.cB_Y = 8; cam.position.set(0, 8, 15);
     game.clock.getDelta(); st.isP = false;
 }
