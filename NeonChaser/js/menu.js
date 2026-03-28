@@ -52,15 +52,16 @@ function showAchievements() {
         const claimed = entry && entry.claimed;
         let rightCol;
         if (!done) {
-            rightCol = `<span class="achieve-check">🔒</span>`;
+            rightCol = `<span class="achieve-check"><i data-lucide="lock"></i></span>`;
         } else if (claimed) {
-            rightCol = `<span class="achieve-claimed">✅</span>`;
+            rightCol = `<span class="achieve-claimed"><i data-lucide="check-circle"></i></span>`;
         } else {
             rightCol = `<button class="claim-btn" onclick="achieveClaim('${a.id}')">受取 +${a.reward} マイル</button>`;
         }
-        return `<div class="achieve-row ${done ? (claimed ? 'unlocked claimed' : 'unlocked claimable') : 'locked'}"><span class="achieve-icon">${a.icon}</span><div class="achieve-info"><div class="achieve-name">${a.name}</div><div class="achieve-desc">${a.desc}</div></div>${rightCol}</div>`;
+        return `<div class="achieve-row ${done ? (claimed ? 'unlocked claimed' : 'unlocked claimable') : 'locked'}"><span class="achieve-icon"><i data-lucide="${a.icon}"></i></span><div class="achieve-info"><div class="achieve-name">${a.name}</div><div class="achieve-desc">${a.desc}</div></div>${rightCol}</div>`;
     }).join('');
     _showModal('achieve-modal');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function achieveClaim(id) {
@@ -129,9 +130,10 @@ function _processPopup() {
     const p = el('achieve-popup');
     p.innerHTML = `<div class="achieve-popup-border"></div><div class="achieve-popup-bg"></div>`
         + `<div class="achieve-popup-content">`
-        + `<span class="achieve-popup-icon">${a.icon}</span>`
+        + `<span class="achieve-popup-icon"><i data-lucide="${a.icon}"></i></span>`
         + `<div class="achieve-popup-text"><div class="achieve-popup-label">Achievement</div><strong>${a.name}</strong><small>${a.desc}</small></div>`
         + `</div>`;
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nameAttr: 'data-lucide', attrs: {} });
     p.classList.add('show');
     setTimeout(() => { p.classList.remove('show'); setTimeout(_processPopup, 400); }, 3000);
 }

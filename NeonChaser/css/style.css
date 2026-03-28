@@ -179,10 +179,13 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     padding: 12px 18px;
 }
 .achieve-popup-icon {
-    font-size: 28px; flex-shrink: 0;
-    filter: drop-shadow(0 0 6px rgba(52,211,153,0.5));
+    flex-shrink: 0; width: 32px; height: 32px;
+    color: #34d399;
+    filter: drop-shadow(0 0 6px rgba(52,211,153,0.6));
     animation: achieve-icon-pulse 1.5s ease-in-out infinite alternate;
+    display: flex; align-items: center; justify-content: center;
 }
+.achieve-popup-icon svg { width: 28px; height: 28px; }
 @keyframes achieve-icon-pulse {
     0% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(52,211,153,0.3)); }
     100% { transform: scale(1.1); filter: drop-shadow(0 0 10px rgba(52,211,153,0.6)); }
@@ -578,16 +581,27 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 .achieve-row:hover { background: rgba(217, 70, 239, 0.06); }
 .achieve-row.locked { opacity: 0.35; }
 .achieve-row.unlocked { background: rgba(52, 211, 153, 0.04); }
-.achieve-icon { font-size: 28px; flex-shrink: 0; }
+.achieve-icon {
+    flex-shrink: 0; width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    color: #d946ef;
+    filter: drop-shadow(0 0 4px rgba(217,70,239,0.5));
+}
+.achieve-icon svg { width: 22px; height: 22px; }
+.achieve-row.locked .achieve-icon { color: #475569; filter: none; }
+.achieve-row.unlocked .achieve-icon { color: #34d399; filter: drop-shadow(0 0 5px rgba(52,211,153,0.5)); }
+.achieve-row.claimed .achieve-icon { color: #64748b; filter: drop-shadow(0 0 3px rgba(100,116,139,0.3)); }
 .achieve-info { flex: 1; }
 .achieve-name { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: #fff; }
 .achieve-desc { font-size: 12px; color: #64748b; }
-.achieve-check { font-size: 18px; }
+.achieve-check { width: 20px; height: 20px; color: #475569; display: flex; align-items: center; }
+.achieve-check svg { width: 18px; height: 18px; }
 .achieve-row.claimable { background: rgba(250, 204, 21, 0.06); border-left: 2px solid rgba(250,204,21,0.5); }
 .claim-btn { padding: 6px 14px; font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700; color: #000; background: linear-gradient(135deg, #facc15, #fbbf24); border: none; border-radius: 0; clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px); cursor: pointer; pointer-events: auto; letter-spacing: 1px; text-transform: uppercase; animation: claim-pulse 1.5s ease-in-out infinite; flex-shrink: 0; white-space: nowrap; }
 .claim-btn:hover { transform: scale(1.08); }
 .claim-btn:active { transform: scale(0.93); }
-.achieve-claimed { font-size: 18px; flex-shrink: 0; }
+.achieve-claimed { width: 20px; height: 20px; color: #34d399; flex-shrink: 0; display: flex; align-items: center; filter: drop-shadow(0 0 4px rgba(52,211,153,0.4)); }
+.achieve-claimed svg { width: 18px; height: 18px; }
 @keyframes claim-pulse { 0%, 100% { box-shadow: 0 0 6px rgba(250, 204, 21, 0.4); } 50% { box-shadow: 0 0 15px rgba(250, 204, 21, 0.7), 0 0 25px rgba(250, 204, 21, 0.25); } }
 
 /* --- Claim Effect --- */
