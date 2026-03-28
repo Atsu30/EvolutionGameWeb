@@ -246,16 +246,44 @@ function _markTutorialDone() {
     try { localStorage.setItem(_TUTORIAL_KEY, '1'); } catch {}
 }
 
+function _isTouchDevice() {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+}
+
 function _showTutorial(onDone) {
     const overlay = el('tutorial-overlay');
+    const isTouch = _isTouchDevice();
+
+    // Toggle mobile/PC content
+    const mobileEl = overlay.querySelector('.tutorial-mobile');
+    const pcEl = overlay.querySelector('.tutorial-pc');
+    const hintEl = el('tutorial-hint');
+    if (isTouch) {
+        if (mobileEl) mobileEl.classList.remove('hidden');
+        if (pcEl) pcEl.classList.remove('active');
+        if (hintEl) hintEl.textContent = 'タップしてスタート';
+    } else {
+        if (mobileEl) mobileEl.classList.add('hidden');
+        if (pcEl) pcEl.classList.add('active');
+        if (hintEl) hintEl.textContent = 'クリックまたはキーを押してスタート';
+    }
+
     overlay.classList.add('active');
+
     const dismiss = function() {
         overlay.classList.remove('active');
         overlay.removeEventListener('pointerdown', dismiss);
+        window.removeEventListener('keydown', dismissKey);
         _markTutorialDone();
         onDone();
     };
+    const dismissKey = function(e) {
+        if (e.key === 'a' || e.key === 'd' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+            dismiss();
+        }
+    };
     overlay.addEventListener('pointerdown', dismiss);
+    if (!isTouch) window.addEventListener('keydown', dismissKey);
 }
 
 function startGame() {

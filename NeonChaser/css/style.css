@@ -822,6 +822,43 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     text-shadow: 0 0 10px rgba(217,70,239,0.4);
 }
 
+/* PC version (hidden by default, shown via JS) */
+.tutorial-pc {
+    display: none;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    flex-direction: row; align-items: center; justify-content: center; gap: 60px;
+}
+.tutorial-pc.active { display: flex; }
+.tutorial-mobile.hidden { display: none; }
+
+.tutorial-keys {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.tutorial-key-group {
+    display: flex; gap: 10px;
+}
+.tutorial-key {
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700;
+    color: #fff;
+    background: rgba(10,10,25,0.8);
+    border: 1.5px solid rgba(217,70,239,0.5);
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    text-shadow: 0 0 8px rgba(217,70,239,0.4);
+    animation: tut-key-pulse 1.5s ease-in-out infinite alternate;
+}
+@keyframes tut-key-pulse {
+    0%   { border-color: rgba(217,70,239,0.3); box-shadow: none; }
+    100% { border-color: rgba(217,70,239,0.7); box-shadow: 0 0 12px rgba(217,70,239,0.3); }
+}
+.tutorial-key-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px; font-weight: 700; color: #fff;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(217,70,239,0.4);
+}
+
 .tutorial-tap-hint {
     position: absolute; bottom: 15%; left: 50%;
     transform: translateX(-50%);

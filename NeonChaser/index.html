@@ -79,7 +79,8 @@
     <!-- Tutorial Overlay (first play only) -->
     <div id="tutorial-overlay" class="tutorial-overlay">
         <div class="tutorial-content">
-            <div class="tutorial-arrows">
+            <!-- Mobile version -->
+            <div class="tutorial-arrows tutorial-mobile">
                 <div class="tutorial-side tutorial-left">
                     <div class="tutorial-arrow">◀</div>
                     <div class="tutorial-label">タップで左移動</div>
@@ -89,7 +90,24 @@
                     <div class="tutorial-label">タップで右移動</div>
                 </div>
             </div>
-            <div class="tutorial-tap-hint">タップしてスタート</div>
+            <!-- PC version -->
+            <div class="tutorial-pc">
+                <div class="tutorial-keys">
+                    <div class="tutorial-key-group">
+                        <div class="tutorial-key">A</div>
+                        <div class="tutorial-key">◀</div>
+                    </div>
+                    <div class="tutorial-key-label">左移動</div>
+                </div>
+                <div class="tutorial-keys">
+                    <div class="tutorial-key-group">
+                        <div class="tutorial-key">D</div>
+                        <div class="tutorial-key">▶</div>
+                    </div>
+                    <div class="tutorial-key-label">右移動</div>
+                </div>
+            </div>
+            <div class="tutorial-tap-hint" id="tutorial-hint">タップしてスタート</div>
         </div>
     </div>
 
