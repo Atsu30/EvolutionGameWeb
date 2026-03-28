@@ -49,7 +49,7 @@ function _spawnBossEntity(stageIdx) {
     else mesh = _createBoss3Mesh(matBody, matNeon);
 
     // Scale up bosses for visual impact
-    const bossScales = [3.5, 4.5, 5.5];
+    const bossScales = [3.5, 6.0, 7.0];
     mesh.scale.setScalar(bossScales[stageIdx] || 3.5);
     mesh.position.set(0, 5, -200);
     scene.add(mesh);

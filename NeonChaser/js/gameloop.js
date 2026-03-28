@@ -293,7 +293,19 @@ function animate() {
                 // Wave: oscillate x
                 if (e._wave) e.mesh.position.x += Math.sin(e._age * 6) * 15 * dt;
                 e.lX = e.mesh.position.x;
-                e.box.setFromObject(e.mesh);
+                e.box.setFromCenterAndSize(e.mesh.position, new THREE.Vector3(1.2, 1.2, 1.2));
+                // Hit player check
+                if (playerBox.intersectsBox(e.box) && st.invT <= 0) {
+                    const bDef = BOSS_DEFS[game.st.boss ? game.st.boss.stageIdx : 0];
+                    st.hp -= bDef.bulletDmg * (1 - st.def);
+                    st.bVX = sign(st.pLx - e.mesh.position.x || 1) * 25;
+                    st.invT = st._passive_longInv ? 0.6 : 0.3; st.hStop = 0.05;
+                    flashScreen('rgba(255,50,50,.4)'); shakeCamera(0.2, 1.5);
+                    st.stats.damageTaken++;
+                    scene.remove(e.mesh); ents.splice(i, 1);
+                    _checkDeath();
+                    continue;
+                }
                 if (e.mesh.position.z > 15 || e._age > 8) { scene.remove(e.mesh); ents.splice(i, 1); }
                 continue;
             }
