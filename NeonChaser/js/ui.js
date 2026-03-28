@@ -240,7 +240,7 @@ function _showTitleScreen() {
 const _TUTORIAL_KEY = 'nc-tutorial-done-v1';
 
 function _isTutorialDone() {
-    try { return localStorage.getItem(_TUTORIAL_KEY) === '1'; } catch { return true; }
+    try { return localStorage.getItem(_TUTORIAL_KEY) === '1'; } catch { return false; }
 }
 function _markTutorialDone() {
     try { localStorage.setItem(_TUTORIAL_KEY, '1'); } catch {}
