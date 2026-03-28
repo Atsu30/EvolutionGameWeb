@@ -269,20 +269,24 @@ function createJellyfishMesh(bodyMat, neonMat) {
 
 // --- Fish Enemy Mesh ---
 const geoFishBody = (() => { const g = new THREE.OctahedronGeometry(0.8, 0); g.scale(0.6, 0.6, 1.5); return g; })();
-const geoFishTail = (() => { const g = new THREE.OctahedronGeometry(0.5, 0); g.scale(0.8, 0.5, 0.3); return g; })();
+const geoFishTail = (() => { const g = new THREE.OctahedronGeometry(0.8, 0); g.scale(1.2, 0.8, 0.3); return g; })();
 
 function createFishMesh(bodyMat, neonMat) {
     const grp = new THREE.Group();
+    const inner = new THREE.Group();
     const body = new THREE.Mesh(geoFishBody, bodyMat);
     const bodyEdge = new THREE.LineSegments(new THREE.EdgesGeometry(geoFishBody), neonMat);
     body.position.y = 1; bodyEdge.position.y = 1;
-    // Tail: diamond shape on a pivot for swing animation
+    // Tail: larger diamond shape on a pivot for swing animation
     const tail = new THREE.Mesh(geoFishTail, neonMat);
     const tailEdge = new THREE.LineSegments(new THREE.EdgesGeometry(geoFishTail), neonMat);
     const tailGrp = new THREE.Group();
     tailGrp.add(tail, tailEdge);
-    tailGrp.position.set(0, 1, 1.2);
-    grp.add(body, bodyEdge, tailGrp);
+    tailGrp.position.set(0, 1, 1.5);
+    inner.add(body, bodyEdge, tailGrp);
+    // Rotate so fish faces forward (negative Z = away from player)
+    inner.rotation.y = PI;
+    grp.add(inner);
     grp.userData = {
         tail: tailGrp,
         changeMat: (b, n) => { body.material = b; bodyEdge.material = n; tail.material = n; tailEdge.material = n; }
