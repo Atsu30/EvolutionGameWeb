@@ -4,6 +4,37 @@ let _menuStack = [];
 function _updateMenuMiles() {
     const m = el('menu-miles');
     if (m) m.innerText = getWallet().miles.toLocaleString();
+    const c = el('menu-cores');
+    if (c && typeof getCores === 'function') c.innerText = getCores().toLocaleString();
+}
+
+function showMetaUpgrades() {
+    _renderMetaGrid();
+    _showModal('meta-modal');
+}
+
+function _renderMetaGrid() {
+    const cores = getCores();
+    el('meta-cores').innerText = cores.toLocaleString();
+    const levels = getMetaLevels();
+    const grid = el('meta-grid');
+    grid.innerHTML = META_UPGRADES.map(u => {
+        const lv = levels[u.id] || 0;
+        const isMaxed = lv >= u.maxLv;
+        const cost = isMaxed ? '-' : u.costs[lv];
+        const canBuy = !isMaxed && cores >= cost;
+        return `<div class="meta-card ${isMaxed ? 'maxed' : ''}" ${canBuy ? `onclick="metaBuy('${u.id}')"` : ''}>
+            <div class="meta-card-icon"><i data-lucide="${u.icon}"></i></div>
+            <div class="meta-card-name">${u.name}</div>
+            <div class="meta-card-lv">Lv ${lv} / ${u.maxLv}</div>
+            ${isMaxed ? '<div class="meta-card-cost" style="color:#64748b;">MAX</div>' : `<div class="meta-card-cost">${cost} Core</div>`}
+        </div>`;
+    }).join('');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function metaBuy(id) {
+    if (purchaseMetaUpgrade(id)) _renderMetaGrid();
 }
 
 function _showModal(id) { _menuStack.push(id); el(id).classList.add('active'); }

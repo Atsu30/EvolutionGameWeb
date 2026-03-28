@@ -60,6 +60,16 @@
         </div>
     </div>
 
+    <!-- Boss HUD -->
+    <div id="boss-hud" style="display:none;">
+        <div class="boss-name" id="boss-name"></div>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" id="boss-hp-fill"></div></div>
+    </div>
+    <!-- Boss Warning -->
+    <div id="boss-warning" class="boss-warning"></div>
+    <!-- Boss Victory -->
+    <div id="boss-victory" class="boss-victory"></div>
+
     <!-- Speed Meter -->
     <div id="speed-meter" style="display:none;">
         <svg viewBox="0 0 120 120" class="meter-svg">
@@ -140,6 +150,7 @@
         <div class="go-divider"></div>
         <div class="go-dist"><span id="res-dist">0.00 km</span></div>
         <div class="go-miles">獲得マイル: <span id="res-miles">+0</span></div>
+        <div class="go-cores" id="go-cores-row" style="display:none;">獲得コア: <span id="res-cores" style="color:#22d3ee;">0</span></div>
         <div class="go-level">Lv <span id="res-lv">1</span></div>
         <div class="go-divider"></div>
         <div class="go-buttons">
@@ -154,9 +165,13 @@
         <div class="menu-panel">
             <div class="menu-panel-border"></div>
             <div class="menu-title">NEON CHASER</div>
-            <div class="menu-miles-display">MILES: <strong id="menu-miles">0</strong></div>
+            <div class="menu-res-display">
+                <span>MILES: <strong id="menu-miles">0</strong></span>
+                <span>CORES: <strong id="menu-cores" style="color:#22d3ee;">0</strong></span>
+            </div>
             <div class="menu-buttons">
                 <button class="menu-item menu-item-primary" onclick="startGame()">ゲームスタート</button>
+                <button class="menu-item" onclick="showMetaUpgrades()">強化ラボ</button>
                 <button class="menu-item" onclick="showRanking()">ランキング</button>
                 <button class="menu-item" onclick="showAchievements()">実績</button>
                 <button class="menu-item" onclick="showGacha()">ガチャ</button>
@@ -198,6 +213,14 @@
         </div>
         <button class="btn" id="gacha-pull-btn" onclick="doPull()">1回引く — 100マイル</button>
         <button class="btn btn-secondary" onclick="goBack()" style="margin-top:12px;">戻る</button>
+    </div>
+
+    <!-- Meta Upgrades (強化ラボ) -->
+    <div id="meta-modal" class="modal-overlay">
+        <div class="modal-title">強化ラボ</div>
+        <div class="meta-cores-display">CORES: <strong id="meta-cores">0</strong></div>
+        <div id="meta-grid" class="meta-grid"></div>
+        <button class="btn btn-secondary" onclick="goBack()" style="margin-top:16px;">戻る</button>
     </div>
 
     <!-- Customize -->
@@ -256,8 +279,10 @@
     <script src="js/achievements.js"></script>
     <script src="js/customization.js"></script>
     <script src="js/gacha.js"></script>
+    <script src="js/meta.js"></script>
     <script src="js/stage.js"></script>
     <script src="js/entities.js"></script>
+    <script src="js/boss.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/menu.js"></script>
     <script src="js/gacha-ui.js"></script>

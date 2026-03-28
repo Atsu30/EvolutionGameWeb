@@ -8,8 +8,12 @@ function animate() {
     let dt = rDt;
     if (st.hStop > 0) { st.hStop -= rDt; dt = rDt * 0.05; }
 
-    // --- Curve & Spawn Events ---
-    if (st.sCrvSt === 'N') {
+    // --- Boss Update ---
+    if (st.boss && st.boss.active) updateBoss(dt);
+
+    // --- Curve & Spawn Events (suppressed during boss) ---
+    if (st.boss && st.boss.active) { st.tCrv = 0; st.crv = 0; }
+    else if (st.sCrvSt === 'N') {
         st.sCrvCd -= dt;
         if (st.sCrvCd <= 0) {
             st.sCrvSt = 'W'; st.sCrvTmr = CFG.sCrvWarn;
@@ -189,8 +193,14 @@ function animate() {
                 for (let j = ents.length - 1; j >= 0; j--) {
                     const t = ents[j];
                     if (j === i || t.state !== 'A') continue;
-                    if (t.type !== 'enemy' && t.type !== 'rocket' && t.type !== 'zigzag') continue;
+                    if (t.type !== 'enemy' && t.type !== 'rocket' && t.type !== 'zigzag' && t.type !== 'boss') continue;
                     if (e.box.intersectsBox(t.box)) {
+                        // Boss takes damage via damageBoss
+                        if (t.type === 'boss') {
+                            if (typeof damageBoss === 'function') damageBoss(st.blasterDmg, 'bullet');
+                            spawnDestroyEffect(e.mesh.position, 1, 0x00ffff);
+                            bulletHit = true; break;
+                        }
                         t.curHp -= st.blasterDmg;
                         if (t.curHp <= 0) {
                             t.state = 'K'; t.mesh.userData.changeMat(matEnemyKnock, matEnemyNeonK);
@@ -218,6 +228,25 @@ function animate() {
                 if (bulletHit) { scene.remove(e.mesh); ents.splice(i, 1); }
                 continue;
             }
+
+            // Boss bullets move toward player
+            if (e.type === 'bossBullet') {
+                e._age = (e._age || 0) + dt;
+                e.mesh.position.x += e.v.x * dt;
+                e.mesh.position.y += e.v.y * dt;
+                e.mesh.position.z += e.v.z * dt;
+                // Homing: gently track player x
+                if (e._homing) e.v.x += (st.pLx - e.mesh.position.x) * 2 * dt;
+                // Wave: oscillate x
+                if (e._wave) e.mesh.position.x += Math.sin(e._age * 6) * 15 * dt;
+                e.lX = e.mesh.position.x;
+                e.box.setFromObject(e.mesh);
+                if (e.mesh.position.z > 15 || e._age > 8) { scene.remove(e.mesh); ents.splice(i, 1); }
+                continue;
+            }
+
+            // Boss entity: skip normal movement (handled by updateBoss)
+            if (e.type === 'boss') { continue; }
 
             e.mesh.position.z += (st.spd - e.zS) * dt;
             if (e.xS !== 0) { e.lX += e.xS * dt; e.xS *= pow(0.01, dt); if (abs(e.lX) > CFG.laneW) { e.lX = sign(e.lX) * CFG.laneW; e.xS *= -0.5; } }
@@ -276,6 +305,36 @@ function animate() {
                 if (e.type === 'dash') { e.state = 'B'; st.dTimer = CFG.dashDur; flashScreen('rgba(0,255,255,.4)'); shakeCamera(0.2, 0.8); st.stats.dashCount++; }
                 else if (e.type === 'heal') { e.state = 'B'; st.hp = min(st.maxHp, st.hp + CFG.healAmt); flashScreen('rgba(52,211,153,.4)'); }
                 else if (e.type === 'jmp') { if (st.pY < 0.5) { st.pVY = CFG.jmpPow * (isDash ? 1.2 : 1); flashScreen('rgba(16,185,129,.3)'); st.stats.jumpCount++; } }
+                else if (e.type === 'boss') {
+                    // Dash into boss = damage
+                    if (isDash) {
+                        if (typeof damageBoss === 'function') damageBoss(BOSS_DASH_DMG, 'dash');
+                        st.bVX = sign(st.pLx - e.lX || 1) * 40;
+                        st.invT = 0.5; st.hStop = 0.1;
+                        flashScreen('rgba(255,200,0,.4)'); shakeCamera(0.3, 3);
+                    } else if (st.invT <= 0) {
+                        const def = BOSS_DEFS[game.st.boss.stageIdx];
+                        st.hp -= def.contactDmg * (1 - st.def);
+                        st.bVX = sign(st.pLx - e.lX || 1) * 50;
+                        st.invT = 0.8; st.hStop = 0.15;
+                        st.spd = max(0, st.spd - 30);
+                        flashScreen('rgba(255,0,0,.5)'); shakeCamera(0.4, 3);
+                        st.stats.damageTaken++;
+                        if (st.hp <= 0 && !st.isG) triggerGameOver();
+                    }
+                }
+                else if (e.type === 'bossBullet') {
+                    if (st.invT <= 0) {
+                        const def = BOSS_DEFS[game.st.boss ? game.st.boss.stageIdx : 0];
+                        st.hp -= def.bulletDmg * (1 - st.def);
+                        st.bVX = sign(st.pLx - e.mesh.position.x || 1) * 25;
+                        st.invT = 0.3; st.hStop = 0.05;
+                        flashScreen('rgba(255,50,50,.4)'); shakeCamera(0.2, 1.5);
+                        st.stats.damageTaken++;
+                        e.state = 'B'; // remove bullet
+                        if (st.hp <= 0 && !st.isG) triggerGameOver();
+                    }
+                }
                 else if (e.type === 'enemy' || e.type === 'rocket' || e.type === 'zigzag') {
                     if (isDash || e.curHp <= 1) {
                         e.state = 'K'; e.mesh.userData.changeMat(matEnemyKnock, matEnemyNeonK);

@@ -2,7 +2,7 @@
 const STAGES = [
     {
         name: 'ネオンシティ',
-        dist: 0,
+        dist: 0, bossDist: 9,
         cityVisible: true,
         fogColor: 0x050510,
         fogDensity: 0.015,
@@ -31,7 +31,7 @@ const STAGES = [
     {
         name: 'ディープオーシャン',
         cityVisible: false,
-        dist: 10,
+        dist: 10, bossDist: 23,
         fogColor: 0x001a2c,
         fogDensity: 0.018,
         floorCol1: [0.0, 0.15, 0.2],
@@ -59,7 +59,7 @@ const STAGES = [
     {
         name: 'ヴォルケーノ',
         cityVisible: false,
-        dist: 25,
+        dist: 25, bossDist: 45,
         fogColor: 0x1a0500,
         fogDensity: 0.020,
         floorCol1: [0.3, 0.05, 0.0],
@@ -100,6 +100,15 @@ function resetStage() {
 
 function checkStageTransition(dist) {
     if (_stageTransitioning) return;
+    const st = game.st;
+    // Check boss trigger before stage transition
+    if (typeof initBossFight === 'function' && st.boss && !st.boss.active) {
+        const s = STAGES[_currentStage];
+        if (s.bossDist && dist >= s.bossDist && !(st.bossesDefeated && st.bossesDefeated[_currentStage])) {
+            initBossFight(_currentStage);
+            return;
+        }
+    }
     for (let i = STAGES.length - 1; i > _currentStage; i--) {
         if (dist >= STAGES[i].dist) {
             _stageTransitioning = true;

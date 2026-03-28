@@ -41,6 +41,17 @@ function updateUI() {
     const hpRow = document.querySelector('.hud-hp-row');
     if (hpRow) hpRow.classList.toggle('hp-critical', isCritical);
     _hpCritical = isCritical;
+    // Boss HP bar
+    const bossHud = el('boss-hud');
+    if (bossHud) {
+        if (st.boss && st.boss.active && st.boss.hp > 0) {
+            bossHud.style.display = '';
+            el('boss-name').innerText = BOSS_DEFS[st.boss.stageIdx].name;
+            el('boss-hp-fill').style.width = `${max(0, st.boss.hp / st.boss.maxHp * 100)}%`;
+        } else {
+            bossHud.style.display = 'none';
+        }
+    }
     // Distance
     el('ui-dist').innerText = (st.dist || 0).toFixed(2) + ' km';
     // EXP
@@ -201,8 +212,32 @@ function triggerGameOver() {
             }, 16);
             setTimeout(() => clearInterval(_milesUpdate), 1100);
         }, 400);
+        // Cores display
+        const coresRow = el('go-cores-row');
+        const coresEarned = st.coresEarned || 0;
+        if (coresRow) {
+            if (coresEarned > 0) { coresRow.style.display = ''; el('res-cores').innerText = '+' + coresEarned; }
+            else { coresRow.style.display = 'none'; }
+        }
         el('gameover-modal').classList.add('active');
     }, 2000);
+}
+
+// --- Boss Warning / Victory UI ---
+function showBossWarning(name) {
+    const w = el('boss-warning');
+    if (!w) return;
+    w.innerHTML = `<div class="boss-warning-text">WARNING</div><div class="boss-warning-name">${name}</div>`;
+    w.classList.add('active');
+    setTimeout(() => w.classList.remove('active'), 2000);
+}
+
+function showBossVictory(cores, name) {
+    const v = el('boss-victory');
+    if (!v) return;
+    v.innerHTML = `<div class="boss-victory-text">BOSS DEFEATED</div><div class="boss-victory-cores">+${cores} CORE</div>`;
+    v.classList.add('active');
+    setTimeout(() => v.classList.remove('active'), 3000);
 }
 
 function goToMenu() {
@@ -405,8 +440,13 @@ function restartGame() {
         isP: false, isG: false, spwnT: 0, rocketTmr: 20 + R() * 10,
         dist: 0, _achTimer: 0,
         blasterCount: 0, blasterDmg: CFG.blasterDmg, blasterInterval: CFG.blasterInterval, blasterTimer: 0,
-        stats: { destroyedEnemies: 0, damageTaken: 0, dashCount: 0, jumpCount: 0 }
+        stats: { destroyedEnemies: 0, damageTaken: 0, dashCount: 0, jumpCount: 0 },
+        boss: _defaultBossState ? _defaultBossState() : { active: false },
+        bossesDefeated: [false, false, false],
+        coresEarned: 0
     });
+    // Apply meta-progression permanent upgrades
+    if (typeof applyMetaUpgrades === 'function') applyMetaUpgrades();
     el('warning-container').classList.remove('active');
     playerMesh.scale.setScalar(1.5); playerMesh.position.setScalar(0);
     playerMesh.rotation.set(0, 0, 0);

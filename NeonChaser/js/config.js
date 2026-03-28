@@ -46,6 +46,43 @@ const RARITY_WEIGHTS = [
 const SCRAP_DUPE = { C: 5, R: 15, E: 50, L: 200 };
 const SCRAP_PRICE = { C: 50, R: 150, E: 500, L: 1500 };
 
+// --- Boss Definitions ---
+const BOSS_DEFS = [
+    {
+        name: 'ネオンヒドラ', hp: 120, coreReward: 1,
+        colors: { body: 0xbe123c, emit: 0x9f1239, neon: 0xff0055 },
+        bulletSpd: 70, bulletDmg: 15, contactDmg: 25,
+        phases: [
+            { pattern: 'straight', interval: 1.5 },
+            { pattern: 'spread3', interval: 2.0 },
+            { pattern: 'burst', interval: 2.0 },
+        ],
+    },
+    {
+        name: 'アビサルリヴァイアサン', hp: 250, coreReward: 2,
+        colors: { body: 0x0e7490, emit: 0x155e75, neon: 0x06b6d4 },
+        bulletSpd: 85, bulletDmg: 20, contactDmg: 35,
+        phases: [
+            { pattern: 'wave5', interval: 2.5 },
+            { pattern: 'homing', interval: 2.0 },
+            { pattern: 'rain', interval: 1.5 },
+        ],
+    },
+    {
+        name: 'インフェルノセンチネル', hp: 400, coreReward: 3,
+        colors: { body: 0x991b1b, emit: 0x7f1d1d, neon: 0xef4444 },
+        bulletSpd: 100, bulletDmg: 25, contactDmg: 45,
+        phases: [
+            { pattern: 'ring', interval: 2.0 },
+            { pattern: 'sweep', interval: 3.0 },
+            { pattern: 'chaos', interval: 1.0 },
+        ],
+    },
+];
+
+const BOSS_DASH_DMG = 20;
+const BOSS_PHASE_THRESHOLDS = [0.66, 0.33]; // phase changes at these HP ratios
+
 // --- Achievements ---
 const ACHIEVEMENTS = [
     // ===== Distance =====
