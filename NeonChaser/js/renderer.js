@@ -195,7 +195,8 @@ function createDroneMesh(bodyMat, neonMat) {
     body.position.y = 1; edge.position.y = 1;
     grp.add(body, edge);
     grp.userData = {
-        changeMat: (b, n) => { body.material = b; edge.material = n; }
+        changeMat: (b, n) => { body.material = b; edge.material = n; },
+        innerParts: [body, edge]
     };
     return grp;
 }

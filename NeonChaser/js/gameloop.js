@@ -232,7 +232,12 @@ function animate() {
                 if (e.type === 'rocket') e.mesh.userData.orbs.rotation.z += 10 * dt;
                 else {
                     // Geometric enemy rotation / animation
-                    if (e.def === ENEMY_TYPES.drone) { e.mesh.rotation.x += 1.5 * dt; e.mesh.rotation.y += 2 * dt; }
+                    if (e.def === ENEMY_TYPES.drone) {
+                        // Rotate inner parts in-place (not the group, which would swing them below floor)
+                        const parts = e.mesh.userData.innerParts;
+                        if (parts) parts.forEach(p => { p.rotation.x += 1.5 * dt; p.rotation.y += 2 * dt; });
+                        else { e.mesh.rotation.y += 2 * dt; }
+                    }
                     else if (e.def === ENEMY_TYPES.sentinel) { e.mesh.rotation.z += 0.8 * dt; }
                     else if (e.def === ENEMY_TYPES.jellyfish) {
                         // Floating bob (clamped above floor)
