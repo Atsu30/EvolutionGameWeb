@@ -102,8 +102,8 @@ function _initBestiaryCard(canvas, enemyId) {
 
     const sc = new THREE.Scene();
     const cam = new THREE.PerspectiveCamera(35, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
-    cam.position.set(0, 0.8, 9);
-    cam.lookAt(0, 0.8, 0);
+    cam.position.set(0, 0, 9);
+    cam.lookAt(0, 0, 0);
 
     sc.add(new THREE.AmbientLight(0xffffff, 0.6));
     const dl = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -116,18 +116,20 @@ function _initBestiaryCard(canvas, enemyId) {
     if (enemyId === 'boss') {
         mesh = typeof _createBoss1Mesh === 'function' ? _createBoss1Mesh(bMat, nMat) : new THREE.Mesh(new THREE.BoxGeometry(1,1,1), bMat);
         mesh.scale.setScalar(0.5);
-        mesh.position.y = -0.5;
     } else {
         const factories = { drone: createDroneMesh, shard: createShardMesh, sentinel: createSentinelMesh, jellyfish: createJellyfishMesh, fish: createFishMesh, rocket: createRocket, zigzag: createZigzagMesh };
         const factory = factories[enemyId];
         if (!factory) return;
         mesh = factory(bMat, nMat);
         const scaleMap = { jellyfish: 1.0, sentinel: 1.2, zigzag: 1.3 };
-        const yMap = { jellyfish: -0.3, sentinel: 0, zigzag: 0, drone: 0, shard: 0, fish: 0, rocket: 0 };
         mesh.scale.setScalar(scaleMap[enemyId] || 1.5);
-        mesh.position.y = yMap[enemyId] !== undefined ? yMap[enemyId] : 0;
     }
+    // Auto-center: compute bounding box and offset so center is at origin
     sc.add(mesh);
+    const box = new THREE.Box3().setFromObject(mesh);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    mesh.position.sub(center);
 
     let running = true;
     function anim() {
