@@ -297,7 +297,8 @@ function animate() {
                 // Hit player check
                 if (playerBox.intersectsBox(e.box) && st.invT <= 0) {
                     const bDef = BOSS_DEFS[game.st.boss ? game.st.boss.stageIdx : 0];
-                    const _bossAtkD = _bestiaryDebuffs['boss'] ? _bestiaryDebuffs['boss'].atkMul : 1;
+                    const _bk1 = 'boss' + (game.st.boss ? game.st.boss.stageIdx : 0);
+                    const _bossAtkD = _bestiaryDebuffs[_bk1] ? _bestiaryDebuffs[_bk1].atkMul : 1;
                     st.hp -= bDef.bulletDmg * _bossAtkD * (1 - st.def);
                     st.bVX = sign(st.pLx - e.mesh.position.x || 1) * 25;
                     st.invT = st._passive_longInv ? 0.6 : 0.3; st.hStop = 0.05;
@@ -380,7 +381,8 @@ function animate() {
                         flashScreen('rgba(255,200,0,.4)'); shakeCamera(0.3, 3);
                     } else if (st.invT <= 0) {
                         const def = BOSS_DEFS[game.st.boss.stageIdx];
-                        const _bossAtkD2 = _bestiaryDebuffs['boss'] ? _bestiaryDebuffs['boss'].atkMul : 1;
+                        const _bk2 = 'boss' + (game.st.boss ? game.st.boss.stageIdx : 0);
+                        const _bossAtkD2 = _bestiaryDebuffs[_bk2] ? _bestiaryDebuffs[_bk2].atkMul : 1;
                         st.hp -= def.contactDmg * _bossAtkD2 * (1 - st.def);
                         st.bVX = sign(st.pLx - e.lX || 1) * 50;
                         st.invT = 0.8; st.hStop = 0.15;

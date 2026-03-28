@@ -24,7 +24,8 @@ function initBossFight(stageIdx) {
     st.boss.stageIdx = stageIdx;
 
     const def = BOSS_DEFS[stageIdx];
-    const _bossHpMul = (typeof _bestiaryDebuffs !== 'undefined' && _bestiaryDebuffs['boss']) ? _bestiaryDebuffs['boss'].hpMul : 1;
+    const _bk = 'boss' + stageIdx;
+    const _bossHpMul = (typeof _bestiaryDebuffs !== 'undefined' && _bestiaryDebuffs[_bk]) ? _bestiaryDebuffs[_bk].hpMul : 1;
     st.boss.hp = ceil(def.hp * _bossHpMul);
     st.boss.maxHp = ceil(def.hp * _bossHpMul);
     st.boss.introTimer = 2.5;
@@ -467,6 +468,7 @@ function _onBossDefeated() {
     if (!game.st.bossesDefeated) game.st.bossesDefeated = [];
     game.st.bossesDefeated[stageIdx] = true;
     addCumulStat('bossesKilled');
+    recordEnemyTypeKill('boss' + stageIdx);
 
     // Pause game and show victory modal with passive selection
     game.st.isP = true;

@@ -91,7 +91,9 @@ const BESTIARY = [
     { id: 'fish',     name: 'フィッシュ',       desc: '高速突進する魚型。素早い。',     isBoss: false, hpDebuff: 50, atkDebuff: 100 },
     { id: 'rocket',   name: 'ロケット',         desc: '後方から飛来する追尾弾。',       isBoss: false, hpDebuff: 50, atkDebuff: 100 },
     { id: 'zigzag',   name: 'ジグザグ',         desc: 'ジグザグに動く厄介な敵。',       isBoss: false, hpDebuff: 50, atkDebuff: 100 },
-    { id: 'boss',     name: 'ボス',             desc: 'ステージの最後に現れる強敵。',   isBoss: true,  hpDebuff: 5,  atkDebuff: 10 },
+    { id: 'boss0',    name: 'ネオンヒドラ',       desc: 'ネオンシティのボス。触手で攻撃。', isBoss: true, bossIdx: 0, hpDebuff: 5, atkDebuff: 10 },
+    { id: 'boss1',    name: 'アビサルリヴァイアサン', desc: 'ディープオーシャンのボス。追尾弾を放つ。', isBoss: true, bossIdx: 1, hpDebuff: 5, atkDebuff: 10 },
+    { id: 'boss2',    name: 'インフェルノセンチネル', desc: 'ヴォルケーノのボス。全方位攻撃。', isBoss: true, bossIdx: 2, hpDebuff: 5, atkDebuff: 10 },
 ];
 
 const BOSS_DASH_DMG = 20;

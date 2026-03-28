@@ -113,9 +113,12 @@ function _initBestiaryCard(canvas, enemyId) {
     const nMat = new THREE.LineBasicMaterial({ color: 0xff0055 });
 
     let mesh;
-    if (enemyId === 'boss') {
-        mesh = typeof _createBoss1Mesh === 'function' ? _createBoss1Mesh(bMat, nMat) : new THREE.Mesh(new THREE.BoxGeometry(1,1,1), bMat);
-        mesh.scale.setScalar(0.5);
+    if (enemyId.startsWith('boss')) {
+        const bossFactories = [_createBoss1Mesh, _createBoss2Mesh, _createBoss3Mesh];
+        const bIdx = parseInt(enemyId.replace('boss', '')) || 0;
+        const factory = bossFactories[bIdx];
+        mesh = (factory ? factory(bMat, nMat) : new THREE.Mesh(new THREE.BoxGeometry(1,1,1), bMat));
+        mesh.scale.setScalar(bIdx === 0 ? 0.5 : 0.35);
     } else {
         const factories = { drone: createDroneMesh, shard: createShardMesh, sentinel: createSentinelMesh, jellyfish: createJellyfishMesh, fish: createFishMesh, rocket: createRocket, zigzag: createZigzagMesh };
         const factory = factories[enemyId];
