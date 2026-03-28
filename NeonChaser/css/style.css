@@ -289,45 +289,56 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 }
 
 /* --- Bestiary --- */
-.bestiary-entry {
-    position: relative; display: flex; align-items: center; gap: 12px;
-    padding: 12px 16px; border-bottom: 1px solid rgba(217,70,239,0.1);
-    transition: background 0.15s;
+.bestiary-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px; max-width: 500px; width: 100%;
+    max-height: 60vh; overflow-y: auto; padding: 4px;
 }
-.bestiary-entry:hover { background: rgba(217,70,239,0.04); }
-.bestiary-entry.selected { background: rgba(217,70,239,0.08); border-left: 2px solid #d946ef; }
-.bestiary-entry.locked { opacity: 0.3; }
-.bestiary-preview {
-    width: 60px; height: 60px; flex-shrink: 0;
-    border: 1px solid rgba(217,70,239,0.2);
-    clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
-    background: rgba(5,5,15,0.8);
-    display: flex; align-items: center; justify-content: center;
-    color: #d946ef; font-size: 28px;
+.bestiary-card {
+    position: relative; text-align: center; padding: 0;
 }
-.bestiary-preview canvas { width: 100%; height: 100%; }
-.bestiary-info { flex: 1; }
+/* Outer border — on top of content, pointer-events none so clicks pass through */
+.bestiary-card::before {
+    content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: rgba(217,70,239,0.3);
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    filter: drop-shadow(0 0 3px rgba(217,70,239,0.2));
+}
+/* Dark inner — also on top */
+.bestiary-card::after {
+    content: ''; position: absolute; inset: 1.5px; z-index: 2; pointer-events: none;
+    background: rgba(8,8,18,0.95);
+    clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+}
+.bestiary-card.locked { opacity: 0.3; }
+.bestiary-card.locked::before { background: rgba(100,116,139,0.2); filter: none; }
+.bestiary-canvas {
+    position: relative; z-index: 3;
+    width: 100%; height: 100px; display: block;
+    background: transparent;
+    margin: 1.5px; width: calc(100% - 3px);
+    clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+}
+.bestiary-card-body { padding: 8px 10px; position: relative; z-index: 3; }
 .bestiary-name {
-    font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: #fff;
+    font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; color: #fff;
     margin-bottom: 2px;
 }
-.bestiary-desc { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+.bestiary-desc { font-size: 10px; color: #64748b; margin-bottom: 4px; line-height: 1.3; }
 .bestiary-kills {
-    font-family: 'Orbitron', sans-serif; font-size: 11px; color: #d946ef;
+    font-family: 'Orbitron', sans-serif; font-size: 10px; color: #d946ef;
     text-shadow: 0 0 4px rgba(217,70,239,0.3);
+    margin-bottom: 4px;
 }
+.bestiary-badges { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
 .bestiary-badge {
-    font-family: 'Rajdhani', sans-serif; font-size: 9px; font-weight: 700;
-    padding: 2px 6px; letter-spacing: 1px; text-transform: uppercase;
-    clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px);
-    margin-left: 6px;
+    font-family: 'Rajdhani', sans-serif; font-size: 8px; font-weight: 700;
+    padding: 1px 5px; letter-spacing: 0.5px; text-transform: uppercase;
+    clip-path: polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px);
 }
-.bestiary-badge.hp-debuff {
-    background: rgba(34,197,94,0.2); color: #34d399;
-}
-.bestiary-badge.atk-debuff {
-    background: rgba(96,165,250,0.2); color: #60a5fa;
-}
+.bestiary-badge.hp-debuff { background: rgba(34,197,94,0.2); color: #34d399; }
+.bestiary-badge.atk-debuff { background: rgba(96,165,250,0.2); color: #60a5fa; }
+.bestiary-badge.pending { background: rgba(100,116,139,0.15); color: #475569; }
 
 /* --- Menu Button --- */
 .menu-btn { position: absolute; top: 10px; right: 10px; background: rgba(5,5,15,0.7); border: 1px solid rgba(217,70,239,0.35); color: white; font-size: 22px; width: 38px; height: 38px; border-radius: 0; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px); cursor: pointer; pointer-events: auto; z-index: 11; transition: all 0.2s; backdrop-filter: blur(4px); }
