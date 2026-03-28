@@ -122,8 +122,10 @@ function _initBestiaryCard(canvas, enemyId) {
         const factory = factories[enemyId];
         if (!factory) return;
         mesh = factory(bMat, nMat);
-        mesh.scale.setScalar(1.5);
-        mesh.position.y = 0.8;
+        const scaleMap = { jellyfish: 1.0, sentinel: 1.2, zigzag: 1.3 };
+        const yMap = { jellyfish: 0.2, sentinel: 0.6, zigzag: 0.6 };
+        mesh.scale.setScalar(scaleMap[enemyId] || 1.5);
+        mesh.position.y = yMap[enemyId] !== undefined ? yMap[enemyId] : 0.8;
     }
     sc.add(mesh);
 
