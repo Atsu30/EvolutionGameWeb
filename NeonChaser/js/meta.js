@@ -16,8 +16,8 @@ const META_UPGRADES = [
     { id: 'meta-spd',   name: 'エンジン強化',   desc: '初期最高速度 +5',  icon: 'gauge',       maxLv: 5, costs: [1,2,3,4,5],  stat: 'maxSpd',       perLv: 5 },
     { id: 'meta-steer', name: 'グリップ強化',   desc: 'ステアリング +3',  icon: 'disc',        maxLv: 5, costs: [1,1,2,2,3],  stat: 'steer',        perLv: 3 },
     { id: 'meta-def',   name: '装甲強化',       desc: '被ダメ -3%',       icon: 'shield',      maxLv: 5, costs: [2,2,3,3,4],  stat: 'def',          perLv: 0.03 },
-    { id: 'meta-bls',   name: 'ブラスター起動', desc: '開始時ブラスター', icon: 'crosshair',   maxLv: 1, costs: [5],           stat: 'blasterCount', set: 1 },
-    { id: 'meta-size',  name: '車体拡張',       desc: '初期サイズ +0.1',  icon: 'maximize',    maxLv: 3, costs: [2,3,4],       stat: 'size',         perLv: 0.1 },
+    { id: 'meta-bls',   name: 'ブラスター起動', desc: '開始時ブラスター', icon: 'crosshair',   maxLv: 1, costs: [3],           stat: 'blasterCount', set: 1 },
+    { id: 'meta-size',  name: '車体拡張',       desc: '初期サイズ +0.1',  icon: 'maximize',    maxLv: 3, costs: [1,1,1],       stat: 'size',         perLv: 0.1 },
 ];
 
 function getMetaLevels() { return storageLoad(_META_KEY, {}); }
