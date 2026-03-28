@@ -68,60 +68,97 @@ function _spawnBossEntity(stageIdx) {
 
 // --- Boss Mesh Factories ---
 function _createBoss1Mesh(bodyMat, neonMat) {
-    // Neon Hydra: central core + 5 writhing tentacles
+    // Neon Hydra: thick trunk at bottom, branching upward tentacles
     const grp = new THREE.Group();
 
-    // Core body
-    const coreGeo = new THREE.IcosahedronGeometry(1.8, 1);
-    const core = new THREE.Mesh(coreGeo, bodyMat);
-    const coreEdge = new THREE.LineSegments(new THREE.EdgesGeometry(coreGeo), neonMat);
-    grp.add(core, coreEdge);
+    // Trunk (thick base column)
+    const trunkGeo = new THREE.CylinderGeometry(0.4, 0.9, 3.0, 8);
+    const trunk = new THREE.Mesh(trunkGeo, bodyMat);
+    const trunkEdge = new THREE.LineSegments(new THREE.EdgesGeometry(trunkGeo), neonMat);
+    trunk.position.y = -1.5;
+    trunkEdge.position.y = -1.5;
+    grp.add(trunk, trunkEdge);
 
-    // Eye ring on core
-    const eyeGeo = new THREE.TorusGeometry(1.2, 0.08, 8, 16);
-    const eye = new THREE.Mesh(eyeGeo, neonMat);
-    const eyeEdge = new THREE.LineSegments(new THREE.EdgesGeometry(eyeGeo), neonMat);
-    eye.rotation.x = PI / 2;
-    eyeEdge.rotation.x = PI / 2;
-    grp.add(eye, eyeEdge);
+    // Mid-body bulge
+    const bulgeGeo = new THREE.SphereGeometry(0.7, 8, 6);
+    const bulge = new THREE.Mesh(bulgeGeo, bodyMat);
+    const bulgeEdge = new THREE.LineSegments(new THREE.EdgesGeometry(bulgeGeo), neonMat);
+    grp.add(bulge, bulgeEdge);
 
-    // Tentacles — each is a chain of segments
-    const tentacles = [];
-    const TENT_COUNT = 5;
-    const SEG_COUNT = 6;
-    for (let t = 0; t < TENT_COUNT; t++) {
+    // Upward branching tentacles
+    const allSegs = [];
+    const branches = [
+        // [angleX, angleZ, length multiplier] — spread outward and upward
+        { ax: -0.3, az: 0,    len: 1.0 },
+        { ax: -0.2, az: 0.5,  len: 0.9 },
+        { ax: -0.2, az: -0.5, len: 0.9 },
+        { ax: -0.4, az: 0.3,  len: 1.1 },
+        { ax: -0.4, az: -0.3, len: 1.1 },
+        { ax: -0.1, az: 0.8,  len: 0.7 },
+        { ax: -0.1, az: -0.8, len: 0.7 },
+    ];
+    const SEG_COUNT = 7;
+
+    branches.forEach((br, bIdx) => {
         const tentGrp = new THREE.Group();
-        const baseAngle = (t / TENT_COUNT) * PI * 2;
-        tentGrp.position.set(Math.cos(baseAngle) * 1.5, -0.5, Math.sin(baseAngle) * 1.5);
+        tentGrp.position.y = 0.3;
+        tentGrp.rotation.x = br.ax;
+        tentGrp.rotation.z = br.az;
         const segs = [];
+
         for (let s = 0; s < SEG_COUNT; s++) {
-            const radius = 0.25 - s * 0.03;
-            const segGeo = new THREE.CylinderGeometry(Math.max(0.05, radius), Math.max(0.05, radius - 0.03), 1.0, 6);
+            const t = s / SEG_COUNT;
+            const topR = Math.max(0.03, 0.3 * (1 - t * 0.9));
+            const botR = Math.max(0.04, 0.3 * (1 - (t - 0.14) * 0.9));
+            const segH = 0.7 * br.len;
+            const segGeo = new THREE.CylinderGeometry(topR, botR, segH, 6);
             const seg = new THREE.Mesh(segGeo, bodyMat);
             const segEdge = new THREE.LineSegments(new THREE.EdgesGeometry(segGeo), neonMat);
-            seg.position.y = -s * 0.85;
-            segEdge.position.y = -s * 0.85;
+            seg.position.y = s * segH * 0.9;
+            segEdge.position.y = s * segH * 0.9;
             tentGrp.add(seg, segEdge);
-            segs.push({ mesh: seg, edge: segEdge, idx: s, tentIdx: t });
+            segs.push({ mesh: seg, edge: segEdge, idx: s, bIdx });
         }
-        tentacles.push(segs);
+
+        // Sub-branches at segment 3-4 for larger tentacles
+        if (br.len >= 0.9 && bIdx < 5) {
+            const subGrp = new THREE.Group();
+            subGrp.position.y = 3 * 0.7 * br.len * 0.9;
+            subGrp.rotation.z = (bIdx % 2 === 0 ? 0.6 : -0.6);
+            for (let s = 0; s < 4; s++) {
+                const t2 = s / 4;
+                const r2 = Math.max(0.02, 0.15 * (1 - t2));
+                const sg = new THREE.CylinderGeometry(r2, r2 + 0.02, 0.5, 5);
+                const sm = new THREE.Mesh(sg, bodyMat);
+                const se = new THREE.LineSegments(new THREE.EdgesGeometry(sg), neonMat);
+                sm.position.y = s * 0.45;
+                se.position.y = s * 0.45;
+                subGrp.add(sm, se);
+                segs.push({ mesh: sm, edge: se, idx: s + SEG_COUNT, bIdx });
+            }
+            tentGrp.add(subGrp);
+        }
+
+        allSegs.push(segs);
         grp.add(tentGrp);
-    }
+    });
 
     grp.userData = {
         changeMat: (b, n) => { grp.traverse(c => { if (c.isMesh) c.material = b; if (c.isLineSegments) c.material = n; }); },
-        tentacles,
+        allSegs,
         animate: (dt) => {
             const t = performance.now() * 0.001;
-            // Core slow rotation
-            core.rotation.y += 0.3 * dt;
-            coreEdge.rotation.y = core.rotation.y;
-            // Tentacle writhing
-            for (const segs of tentacles) {
+            // Slow body sway
+            trunk.rotation.z = Math.sin(t * 0.4) * 0.08;
+            trunkEdge.rotation.z = trunk.rotation.z;
+            // Tentacle writhing — larger amplitude, varied speeds
+            for (const segs of allSegs) {
                 for (const s of segs) {
-                    const phase = t * 2.5 + s.tentIdx * 1.3 + s.idx * 0.8;
-                    s.mesh.rotation.x = Math.sin(phase) * 0.4;
-                    s.mesh.rotation.z = Math.cos(phase * 0.7) * 0.3;
+                    const depth = s.idx * 0.6;
+                    const phase = t * 1.8 + s.bIdx * 1.5 + depth;
+                    const amp = 0.15 + s.idx * 0.08;  // tips sway more
+                    s.mesh.rotation.x = Math.sin(phase) * amp;
+                    s.mesh.rotation.z = Math.cos(phase * 0.6 + s.bIdx) * amp * 0.8;
                     s.edge.rotation.copy(s.mesh.rotation);
                 }
             }
