@@ -12,8 +12,7 @@ function spendCores(amount) {
 }
 
 const META_UPGRADES = [
-    { id: 'meta-hp',    name: 'HP強化',         desc: '初期HP +10',       icon: 'heart',       maxLv: 5, costs: [1,2,3,4,5],  stat: 'hp',           perLv: 10 },
-    { id: 'meta-maxhp', name: '最大HP強化',     desc: '最大HP +10',       icon: 'heart-pulse', maxLv: 5, costs: [1,2,3,4,5],  stat: 'maxHp',        perLv: 10 },
+    { id: 'meta-hp',    name: 'HP強化',         desc: 'HP/最大HP +10',    icon: 'heart',       maxLv: 5, costs: [1,2,3,4,5],  stat: 'hp',           perLv: 10, alsoBump: 'maxHp' },
     { id: 'meta-spd',   name: 'エンジン強化',   desc: '初期最高速度 +5',  icon: 'gauge',       maxLv: 5, costs: [1,2,3,4,5],  stat: 'maxSpd',       perLv: 5 },
     { id: 'meta-steer', name: 'グリップ強化',   desc: 'ステアリング +3',  icon: 'disc',        maxLv: 5, costs: [1,1,2,2,3],  stat: 'steer',        perLv: 3 },
     { id: 'meta-def',   name: '装甲強化',       desc: '被ダメ -3%',       icon: 'shield',      maxLv: 5, costs: [2,2,3,3,4],  stat: 'def',          perLv: 0.03 },
@@ -47,8 +46,9 @@ function applyMetaUpgrades() {
             st[u.stat] = u.set;
         } else {
             st[u.stat] = (st[u.stat] || 0) + u.perLv * lv;
+            if (u.alsoBump) st[u.alsoBump] = (st[u.alsoBump] || 0) + u.perLv * lv;
         }
     }
-    // Sync hp with maxHp if boosted
+    // Sync hp with maxHp
     if (levels['meta-hp']) st.hp = st.maxHp;
 }
