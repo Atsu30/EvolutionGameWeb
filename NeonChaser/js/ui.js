@@ -6,17 +6,22 @@ function updateUI() {
     const spdVal = floor(st.spd);
     el('ui-spd').innerText = spdVal;
     const spdRatio = min(1, st.spd / st.maxSpd);
-    // Arc: 270deg sweep, dasharray=245 (3/4 of circumference ~326)
     el('meter-arc').style.strokeDashoffset = 245 - spdRatio * 245;
-    // Needle: rotate from -135deg (0%) to +135deg (100%)
     el('meter-needle').style.transform = `rotate(${-135 + spdRatio * 270}deg)`;
+    // HP
     el('ui-hp').innerText = ceil(st.hp);
-    el('ui-dist').innerText = (st.dist || 0).toFixed(2) + ' km';
-    el('exp-fill').style.width = `${min(100, st.exp / st.nExp * 100)}%`;
     const hpRatio = max(0, min(100, st.hp / st.maxHp * 100));
     el('hp-fill').style.width = `${hpRatio}%`;
-    el('ui-hp').style.color = hpRatio < 30 ? '#f87171' : '#86efac';
-    el('hp-fill').style.background = hpRatio < 30 ? 'linear-gradient(90deg, #ef4444, #f87171)' : 'linear-gradient(90deg, #22c55e, #86efac)';
+    const hpLow = hpRatio < 30;
+    el('ui-hp').style.color = hpLow ? '#f87171' : '#86efac';
+    el('ui-hp').style.textShadow = hpLow ? '0 0 8px rgba(239,68,68,0.6)' : '0 0 6px rgba(34,197,94,0.4)';
+    el('hp-fill').style.background = hpLow ? 'linear-gradient(90deg, #ef4444, #f87171)' : 'linear-gradient(90deg, #22c55e, #86efac)';
+    el('hp-fill').style.boxShadow = hpLow ? '0 0 8px rgba(239,68,68,0.5)' : '0 0 6px rgba(34,197,94,0.4)';
+    // Distance
+    el('ui-dist').innerText = (st.dist || 0).toFixed(2) + ' km';
+    // EXP
+    el('exp-fill').style.width = `${min(100, st.exp / st.nExp * 100)}%`;
+    // Speed meter color
     const isD = st.dTimer > 0;
     el('ui-spd').style.color = isD ? '#22d3ee' : '#60a5fa';
     el('meter-arc').style.stroke = isD ? '#22d3ee' : '#3b82f6';

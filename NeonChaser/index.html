@@ -44,17 +44,18 @@
 
     <div id="ui-layer" style="display:none;">
         <button class="menu-btn" onclick="goToMenuPage()">☰</button>
-        <div class="hud-container">
-            <div class="hud-box">
-                <div class="hud-header"><div class="hud-title">レベル</div><div class="level-text" id="ui-lv">Lv 1</div></div>
-                <div class="bar-bg"><div class="bar-fill" id="exp-fill" style="background: linear-gradient(90deg, #10b981, #34d399); box-shadow: 0 0 5px #34d399;"></div></div>
+        <div class="dist-display" id="ui-dist">0.00 km</div>
+        <div class="hud-bottom-left">
+            <div class="hud-hp-row">
+                <span class="hud-hp-label">HP</span>
+                <div class="hud-hp-bar"><div class="hud-hp-fill" id="hp-fill"></div></div>
+                <span class="hud-hp-val" id="ui-hp">100</span>
             </div>
-            <div class="hud-box">
-                <div class="hud-header"><div class="hud-title">装甲</div><div class="level-text" id="ui-hp" style="color:#86efac; text-shadow:0 0 5px #22c55e;">100</div></div>
-                <div class="bar-bg"><div class="bar-fill" id="hp-fill"></div></div>
+            <div class="hud-exp-row">
+                <span class="hud-lv" id="ui-lv">Lv 1</span>
+                <div class="hud-exp-bar"><div class="hud-exp-fill" id="exp-fill"></div></div>
             </div>
         </div>
-        <div class="dist-display" id="ui-dist">0.00 km</div>
     </div>
 
     <!-- Speed Meter -->

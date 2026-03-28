@@ -4,18 +4,60 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 #title-bg-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; z-index: 0; }
 
 /* --- UI レイヤー --- */
-#ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; flex-direction: column; padding: 10px; box-sizing: border-box; z-index: 10; }
-.hud-container { display: flex; justify-content: center; width: 100%; gap: 8px; }
-.hud-box { background: rgba(5, 5, 15, 0.6); border: 1px solid rgba(217,70,239,0.25); border-radius: 0; padding: 6px 10px; width: 120px; backdrop-filter: blur(6px); box-shadow: 0 0 8px rgba(217,70,239,0.1), 0 2px 5px rgba(0,0,0,0.5); pointer-events: auto; clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px); }
-.hud-header { display: flex; justify-content: space-between; align-items: baseline; }
-.hud-title { font-family: 'Rajdhani', sans-serif; font-size: 9px; font-weight: 600; color: rgba(217,70,239,0.6); text-transform: uppercase; letter-spacing: 1px; margin: 0; }
-.level-text { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700; color: #fff; margin: 0; text-shadow: 0 0 6px rgba(217,70,239,0.3); }
+#ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; padding: 10px; box-sizing: border-box; z-index: 10; }
 
-.bar-bg { width: 100%; height: 4px; background: rgba(10,10,25,0.8); border-radius: 0; overflow: hidden; border: 1px solid rgba(217,70,239,0.15); margin-top: 5px; }
-.bar-fill { height: 100%; transition: width 0.1s linear; }
-
-/* --- Distance Display --- */
+/* --- Distance Display (top center) --- */
 .dist-display { text-align: center; font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; color: #facc15; text-shadow: 0 0 10px #ca8a04, 0 0 20px rgba(202,138,4,0.3); margin-top: 4px; pointer-events: none; }
+
+/* --- Bottom-left HUD: HP bar + EXP bar --- */
+.hud-bottom-left {
+    position: absolute; bottom: 16px; left: 16px;
+    display: flex; flex-direction: column; gap: 6px;
+    width: 200px; pointer-events: none;
+}
+
+/* HP row */
+.hud-hp-row { display: flex; align-items: center; gap: 8px; }
+.hud-hp-label {
+    font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700;
+    color: rgba(134,239,172,0.7); letter-spacing: 1px; text-transform: uppercase;
+    flex-shrink: 0; width: 20px;
+}
+.hud-hp-bar {
+    flex: 1; height: 6px;
+    background: rgba(10,10,25,0.7); border: 1px solid rgba(134,239,172,0.2);
+    overflow: hidden;
+}
+.hud-hp-fill {
+    height: 100%; width: 100%;
+    background: linear-gradient(90deg, #22c55e, #86efac);
+    box-shadow: 0 0 6px rgba(34,197,94,0.4);
+    transition: width 0.15s linear;
+}
+.hud-hp-val {
+    font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700;
+    color: #86efac; text-shadow: 0 0 6px rgba(34,197,94,0.4);
+    min-width: 32px; text-align: right; flex-shrink: 0;
+}
+
+/* EXP row */
+.hud-exp-row { display: flex; align-items: center; gap: 8px; }
+.hud-lv {
+    font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: 900;
+    color: #fff; text-shadow: 0 0 8px rgba(217,70,239,0.5);
+    flex-shrink: 0; min-width: 52px;
+}
+.hud-exp-bar {
+    flex: 1; height: 3px;
+    background: rgba(10,10,25,0.7); border: 1px solid rgba(217,70,239,0.15);
+    overflow: hidden;
+}
+.hud-exp-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #d946ef, #e879f9);
+    box-shadow: 0 0 4px rgba(217,70,239,0.4);
+    transition: width 0.1s linear;
+}
 
 /* --- Menu Button --- */
 .menu-btn { position: absolute; top: 10px; right: 10px; background: rgba(5,5,15,0.7); border: 1px solid rgba(217,70,239,0.35); color: white; font-size: 22px; width: 38px; height: 38px; border-radius: 0; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px); cursor: pointer; pointer-events: auto; z-index: 11; transition: all 0.2s; backdrop-filter: blur(4px); }
@@ -703,9 +745,10 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 
 /* --- モバイル対応 --- */
 @media (max-width: 768px) {
-    .hud-box { width: 30%; padding: 4px 8px; min-width: 80px; }
-    .level-text { font-size: 13px; } .hud-title { font-size: 8px; }
     .dist-display { font-size: 16px; }
+    .hud-bottom-left { width: 160px; bottom: 12px; left: 10px; }
+    .hud-hp-val { font-size: 12px; }
+    .hud-lv { font-size: 13px; min-width: 44px; }
     .warning-text { font-size: 24px; } .warning-icon { font-size: 70px; }
     .upgrade-cards { flex-direction: column; gap: 15px; }
     .card { width: 100%; max-width: 320px; padding: 20px; flex-direction: row; text-align: left; }
