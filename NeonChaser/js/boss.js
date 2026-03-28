@@ -350,14 +350,22 @@ function damageBoss(amount, source) {
 
 // --- Boss Passive Rewards (3-pick) ---
 const BOSS_PASSIVES = [
-    { id: 'bp-maxspd', i: '⚡', t: 'オーバードライブ', d: '最高速度+30', apply: st => { st.maxSpd += 30; } },
-    { id: 'bp-hp', i: '❤️', t: 'リジェネコア', d: 'HP全回復 & 最大HP+30', apply: st => { st.maxHp += 30; st.hp = st.maxHp; } },
-    { id: 'bp-def', i: '🛡️', t: 'ナノアーマー', d: '被ダメ-15%', apply: st => { st.def = min(0.8, st.def + 0.15); } },
-    { id: 'bp-blaster', i: '🔫', t: 'ラピッドファイア', d: '連射速度2倍', apply: st => { st.blasterInterval = max(0.04, st.blasterInterval * 0.5); } },
-    { id: 'bp-bnum', i: '🔫', t: 'マルチショット', d: 'ブラスター+1門', apply: st => { st.blasterCount = min(5, st.blasterCount + 1); } },
-    { id: 'bp-size', i: '💎', t: 'エクスパンダー', d: '車体巨大化+当たり判定拡大', apply: st => { st.size += 0.5; playerMesh.scale.setScalar(1.5 * st.size); } },
-    { id: 'bp-steer', i: '🛞', t: 'ハイパーグリップ', d: 'ステアリング+20', apply: st => { st.steer += 20; } },
-    { id: 'bp-dash', i: '💨', t: 'ダッシュエクステンド', d: 'ダッシュ持続2倍', apply: st => { /* stored, checked in gameloop */ st._dashMul = (st._dashMul || 1) * 2; } },
+    { id: 'bp-vampire', i: '🩸', t: 'ヴァンパイア', d: '敵を倒すたびHP+1回復',
+      apply: st => { st._passive_vampire = true; } },
+    { id: 'bp-second', i: '💫', t: 'セカンドチャンス', d: 'HP0で一度だけ50%復活',
+      apply: st => { st._passive_secondChance = true; } },
+    { id: 'bp-pierce', i: '🔱', t: 'ピアシングショット', d: 'ブラスター弾が敵を貫通',
+      apply: st => { st._passive_pierce = true; } },
+    { id: 'bp-chain', i: '⚡', t: 'チェインライトニング', d: '敵撃破時に周囲へ連鎖ダメージ',
+      apply: st => { st._passive_chain = true; } },
+    { id: 'bp-overclock', i: '🧠', t: 'オーバークロック', d: 'レベルアップの選択肢が4つに',
+      apply: st => { st._passive_overclock = true; } },
+    { id: 'bp-explode', i: '💥', t: 'エクスプロージョン', d: '敵撃破時に爆発AoEダメージ',
+      apply: st => { st._passive_explode = true; } },
+    { id: 'bp-timeDist', i: '⏳', t: 'タイムディストーション', d: '被弾時の無敵時間が2倍に',
+      apply: st => { st._passive_longInv = true; } },
+    { id: 'bp-dashExt', i: '💨', t: 'ダッシュブースト', d: 'ダッシュ持続時間1.5倍',
+      apply: st => { st._passive_dashExt = true; } },
 ];
 
 function _onBossDefeated() {

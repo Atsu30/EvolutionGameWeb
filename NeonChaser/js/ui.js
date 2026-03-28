@@ -122,7 +122,8 @@ function showUpgradeUI() {
 
     // Build cards
     const available = UPGRADES.filter(u => !u.cond || u.cond(st));
-    const chosen = [...available].sort(() => 0.5 - R()).slice(0, 3);
+    const pickCount = st._passive_overclock ? 4 : 3;
+    const chosen = [...available].sort(() => 0.5 - R()).slice(0, pickCount);
     chosen.forEach(u => {
         const card = document.createElement('div'); card.className = 'card';
         card.onclick = () => selectUpgrade(u.id);
@@ -151,8 +152,10 @@ function selectUpgrade(id) {
     if (id === 'grp') st.steer += 12;
     if (id === 'siz') { st.size += 0.3; playerMesh.scale.setScalar(1.5 * st.size); }
     if (id === 'def') st.def = min(0.5, st.def + 0.05);
+    if (id === 'maxhp') { st.maxHp += 10; st.hp = min(st.maxHp, st.hp + 10); }
     if (id === 'bls') { st.blasterCount = 1; st.blasterDmg = 1; }
     if (id === 'heal') st.hp = min(st.maxHp, st.hp + st.maxHp * 0.5);
+    if (id === 'jmp') st._jmpPow = (st._jmpPow || CFG.jmpPow) + 10;
     if (id === 'bpow') st.blasterInterval = max(0.08, st.blasterInterval * 0.75);
     if (id === 'bnum') st.blasterCount = min(3, st.blasterCount + 1);
     const modal = el('levelup-modal');

@@ -1,3 +1,53 @@
+// --- Passive helpers ---
+function _applyKillPassives(e) {
+    const st = game.st;
+    // Vampire: heal on kill
+    if (st._passive_vampire) st.hp = min(st.maxHp, st.hp + 1);
+    // Chain Lightning: damage nearby enemies
+    if (st._passive_chain) {
+        const pos = e.mesh.position;
+        for (const o of game.ents) {
+            if (o === e || o.state !== 'A') continue;
+            if (o.type !== 'enemy' && o.type !== 'rocket' && o.type !== 'zigzag') continue;
+            const dx = o.mesh.position.x - pos.x, dz = o.mesh.position.z - pos.z;
+            if (dx * dx + dz * dz < 100) { // radius ~10 units
+                o.curHp -= 3;
+                if (o.curHp <= 0) { o.state = 'K'; o.mesh.userData.changeMat(matEnemyKnock, matEnemyNeonK); o.v.set(R_Sign()*10, 20, -30); o.aV.set(R_Sign()*5,R_Sign()*5,R_Sign()*5); st.stats.destroyedEnemies++; recordEnemyTypeKill(o.defName||o.type); }
+                spawnDestroyEffect(o.mesh.position, 1, 0x60a5fa);
+            }
+        }
+    }
+    // Explosion: AoE on kill
+    if (st._passive_explode) {
+        const pos = e.mesh.position;
+        spawnDestroyEffect(pos, 8, 0xfbbf24);
+        for (const o of game.ents) {
+            if (o === e || o.state !== 'A') continue;
+            if (o.type !== 'enemy' && o.type !== 'rocket' && o.type !== 'zigzag') continue;
+            const dx = o.mesh.position.x - pos.x, dz = o.mesh.position.z - pos.z;
+            if (dx * dx + dz * dz < 200) { // radius ~14 units
+                o.curHp -= 5;
+                if (o.curHp <= 0) { o.state = 'K'; o.mesh.userData.changeMat(matEnemyKnock, matEnemyNeonK); o.v.set(R_Sign()*15, 25+R()*20, -40); o.aV.set(R_Sign()*8,R_Sign()*8,R_Sign()*8); st.stats.destroyedEnemies++; recordEnemyTypeKill(o.defName||o.type); }
+            }
+        }
+    }
+}
+
+function _checkDeath() {
+    const st = game.st;
+    if (st.hp <= 0 && !st.isG) {
+        if (st._passive_secondChance) {
+            st._passive_secondChance = false;
+            st.hp = st.maxHp * 0.5;
+            st.invT = 2.0;
+            flashScreen('rgba(255,255,0,.5)');
+            shakeCamera(0.5, 3);
+            return;
+        }
+        triggerGameOver();
+    }
+}
+
 // --- Main Game Loop ---
 function animate() {
     requestAnimationFrame(animate);
@@ -105,7 +155,7 @@ function animate() {
 
     if (abs(st.pLx) > CFG.laneW) {
         st.pLx = sign(st.pLx) * CFG.laneW; st.bVX = 0; st.pBank *= 0.5;
-        if (!isDash) { st.spd = max(0, st.spd - CFG.wallDecel * dt); st.hp -= CFG.guardDmg * dt; shakeCamera(0.1, 1); if (st.hp <= 0) triggerGameOver(); }
+        if (!isDash) { st.spd = max(0, st.spd - CFG.wallDecel * dt); st.hp -= CFG.guardDmg * dt; shakeCamera(0.1, 1); if (st.hp <= 0) _checkDeath(); }
         else shakeCamera(0.1, 0.3);
     }
     if (st.pY > 0 || st.pVY !== 0) {
@@ -212,7 +262,10 @@ function animate() {
                             recordEnemyTypeKill(t.defName || t.type);
                             showXpPopup(t.mesh.position, _xp1, t.def.hp > 1 ? 4 : 1);
                             spawnDestroyEffect(t.mesh.position, t.def.hp > 1 ? 4 : 1, 0x00ffff);
+                            _applyKillPassives(t);
                             checkLevelUp();
+                            // Pierce: don't consume bullet
+                            if (st._passive_pierce) { continue; }
                         } else {
                             // Hit flash: enemy glows white briefly
                             bulletHitFlash(t);
@@ -302,9 +355,9 @@ function animate() {
 
             // Player VS Entity
             if (playerBox.intersectsBox(e.box)) {
-                if (e.type === 'dash') { e.state = 'B'; st.dTimer = CFG.dashDur; flashScreen('rgba(0,255,255,.4)'); shakeCamera(0.2, 0.8); st.stats.dashCount++; }
+                if (e.type === 'dash') { e.state = 'B'; st.dTimer = CFG.dashDur * (st._passive_dashExt ? 1.5 : 1); flashScreen('rgba(0,255,255,.4)'); shakeCamera(0.2, 0.8); st.stats.dashCount++; }
                 else if (e.type === 'heal') { e.state = 'B'; st.hp = min(st.maxHp, st.hp + CFG.healAmt); flashScreen('rgba(52,211,153,.4)'); }
-                else if (e.type === 'jmp') { if (st.pY < 0.5) { st.pVY = CFG.jmpPow * (isDash ? 1.2 : 1); flashScreen('rgba(16,185,129,.3)'); st.stats.jumpCount++; } }
+                else if (e.type === 'jmp') { if (st.pY < 0.5) { st.pVY = (st._jmpPow || CFG.jmpPow) * (isDash ? 1.2 : 1); flashScreen('rgba(16,185,129,.3)'); st.stats.jumpCount++; } }
                 else if (e.type === 'boss') {
                     // Dash into boss = damage
                     if (isDash) {
@@ -320,7 +373,7 @@ function animate() {
                         st.spd = max(0, st.spd - 30);
                         flashScreen('rgba(255,0,0,.5)'); shakeCamera(0.4, 3);
                         st.stats.damageTaken++;
-                        if (st.hp <= 0 && !st.isG) triggerGameOver();
+                        _checkDeath();
                     }
                 }
                 else if (e.type === 'bossBullet') {
@@ -328,11 +381,11 @@ function animate() {
                         const def = BOSS_DEFS[game.st.boss ? game.st.boss.stageIdx : 0];
                         st.hp -= def.bulletDmg * (1 - st.def);
                         st.bVX = sign(st.pLx - e.mesh.position.x || 1) * 25;
-                        st.invT = 0.3; st.hStop = 0.05;
+                        st.invT = st._passive_longInv ? 0.6 : 0.3; st.hStop = 0.05;
                         flashScreen('rgba(255,50,50,.4)'); shakeCamera(0.2, 1.5);
                         st.stats.damageTaken++;
                         e.state = 'B'; // remove bullet
-                        if (st.hp <= 0 && !st.isG) triggerGameOver();
+                        _checkDeath();
                     }
                 }
                 else if (e.type === 'enemy' || e.type === 'rocket' || e.type === 'zigzag') {
@@ -350,7 +403,8 @@ function animate() {
                         recordEnemyTypeKill(e.defName || e.type);
                         showXpPopup(e.mesh.position, _xp2, e.def.hp > 1 ? 4 : 1);
                         spawnDestroyEffect(e.mesh.position, e.def.hp > 1 ? 4 : 1, e.type === 'zigzag' ? 0xfbbf24 : 0x00ffff);
-                        if (st.exp >= st.nExp) { st.isP = true; st.lv++; st.exp -= st.nExp; st.nExp = floor(st.nExp * CFG.expMul); showUpgradeUI(); el('levelup-modal').classList.add('active'); }
+                        _applyKillPassives(e);
+                        checkLevelUp();
                     } else {
                         if (st.invT <= 0) {
                             const sMul = typeof getStageDef === 'function' ? getStageDef().enemyAtkMul : 1;
@@ -358,9 +412,10 @@ function animate() {
                             const dfX = st.pLx - e.lX, dx = abs(dfX) < 0.5 ? R_Sign() : dfX, pf = 35;
                             st.bVX = sign(dx) * pf; e.xS = -sign(dx) * pf * 0.5; e.cTmr = 0.5;
                             st.spd = max(0, st.spd - 20); st.hp -= dmg;
+                            st.invT = st._passive_longInv ? 1.0 : 0.5;
                             st.invT = 0.5; st.hStop = 0.1; shakeCamera(0.3, 2.5); flashScreen('rgba(255,0,0,.5)');
                             st.stats.damageTaken++;
-                            if (st.hp <= 0 && !st.isG) triggerGameOver();
+                            _checkDeath();
                         }
                     }
                 } continue;
