@@ -136,7 +136,10 @@
     <!-- Achievements -->
     <div id="achieve-modal" class="modal-overlay">
         <div class="modal-title">実績</div>
-        <div style="color:#64748b; margin-bottom:16px; font-size:14px;">解放済み: <span id="achieve-progress" style="color:#34d399; font-weight:bold;">0 / 8</span></div>
+        <div class="achieve-status-bar">
+            <span>解放済み: <strong id="achieve-progress">0 / 8</strong></span>
+            <span>マイル: <strong id="achieve-miles" class="achieve-miles-val">0</strong></span>
+        </div>
         <div id="achieve-list" class="modal-scroll"></div>
         <button class="btn btn-secondary" onclick="goBack()">戻る</button>
     </div>

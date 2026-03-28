@@ -44,6 +44,8 @@ function showAchievements() {
     const progress = getAchievementProgress();
     const unlocked = ACHIEVEMENTS.filter(a => progress[a.id]).length;
     el('achieve-progress').innerText = `${unlocked} / ${ACHIEVEMENTS.length}`;
+    const am = el('achieve-miles');
+    if (am) am.innerText = getWallet().miles.toLocaleString();
     el('achieve-list').innerHTML = ACHIEVEMENTS.map(a => {
         const entry = progress[a.id];
         const done = !!entry;
@@ -112,6 +114,9 @@ function achieveClaim(id) {
             check.className = 'achieve-claimed claim-check-enter';
             check.innerText = '✅';
             btn.replaceWith(check);
+            // Update miles display
+            const am = el('achieve-miles');
+            if (am) am.innerText = getWallet().miles.toLocaleString();
         }
     }, 300);
 }
