@@ -38,6 +38,8 @@ function metaBuy(id) {
 }
 
 // --- Bestiary (敵図鑑) ---
+let _bestiarySelected = null;
+
 function showBestiary() {
     const cumul = getCumulStats();
     const discovered = cumul.enemyTypesKilled || {};
@@ -52,7 +54,6 @@ function showBestiary() {
 
         if (!found) {
             return `<div class="bestiary-entry locked">
-                <div class="bestiary-preview"><i data-lucide="help-circle"></i></div>
                 <div class="bestiary-info">
                     <div class="bestiary-name">？？？</div>
                     <div class="bestiary-desc">未発見</div>
@@ -66,8 +67,7 @@ function showBestiary() {
         if (atkUnlock) badges += `<span class="bestiary-badge atk-debuff">ATK半減</span>`;
         else badges += `<span class="bestiary-badge" style="background:rgba(100,116,139,0.15);color:#475569;">ATK半減: ${kills}/${entry.atkDebuff}</span>`;
 
-        return `<div class="bestiary-entry">
-            <div class="bestiary-preview"><i data-lucide="${entry.isBoss ? 'skull' : 'bot'}"></i></div>
+        return `<div class="bestiary-entry" onclick="selectBestiaryEntry('${entry.id}')" style="cursor:pointer;">
             <div class="bestiary-info">
                 <div class="bestiary-name">${entry.name}${badges}</div>
                 <div class="bestiary-desc">${entry.desc}</div>
@@ -78,6 +78,22 @@ function showBestiary() {
 
     _showModal('bestiary-modal');
     if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    // Show first discovered enemy in preview
+    const firstFound = BESTIARY.find(e => discovered[e.id]);
+    if (firstFound && typeof showBestiaryEnemy === 'function') {
+        showBestiaryEnemy(firstFound.id);
+        _bestiarySelected = firstFound.id;
+    }
+}
+
+function selectBestiaryEntry(id) {
+    if (_bestiarySelected === id) return;
+    _bestiarySelected = id;
+    if (typeof showBestiaryEnemy === 'function') showBestiaryEnemy(id);
+    // Highlight selected row
+    document.querySelectorAll('.bestiary-entry').forEach(e => e.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
 }
 
 function _showModal(id) { _menuStack.push(id); el(id).classList.add('active'); }
@@ -86,6 +102,7 @@ function _hideModal(id) { el(id).classList.remove('active'); _menuStack = _menuS
 function showMenu() { game.st.isP = true; }
 function hideMenu() {
     if (_menuStack.includes('custom-modal') && typeof hidePreview === 'function') hidePreview();
+    if (_menuStack.includes('bestiary-modal') && typeof hideBestiaryPreview === 'function') hideBestiaryPreview();
     if (_gachaPulling) _gachaPulling = false;
     _menuStack.forEach(id => el(id).classList.remove('active')); _menuStack = [];
     // Return to menu page, not directly to game
@@ -94,6 +111,7 @@ function hideMenu() {
 function goBack() {
     const top = _menuStack[_menuStack.length - 1];
     if (top === 'custom-modal' && typeof hidePreview === 'function') hidePreview();
+    if (top === 'bestiary-modal' && typeof hideBestiaryPreview === 'function') hideBestiaryPreview();
     if (_menuStack.length > 1) { _hideModal(top); }
     else {
         _menuStack.forEach(id => el(id).classList.remove('active')); _menuStack = [];

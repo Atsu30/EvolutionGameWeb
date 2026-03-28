@@ -599,3 +599,78 @@ function hidePreview() {
     _pvTrailParticles = [];
     _pvTrailDef = null;
 }
+
+// --- Bestiary Enemy Preview ---
+let _bpRdr = null, _bpScene = null, _bpCam = null, _bpMesh = null, _bpRunning = false, _bpRafId = null;
+
+const _enemyMeshFactories = {
+    drone: createDroneMesh,
+    shard: createShardMesh,
+    sentinel: createSentinelMesh,
+    jellyfish: createJellyfishMesh,
+    fish: createFishMesh,
+    rocket: createRocket,
+    zigzag: createZigzagMesh,
+};
+
+function _initBestiaryPreview() {
+    const c = el('bestiary-preview-canvas');
+    if (!c) return;
+    if (_bpRdr) { _bpRdr.dispose(); _bpRdr = null; }
+    _bpRdr = new THREE.WebGLRenderer({ canvas: c, antialias: true, alpha: false });
+    _bpRdr.setClearColor(0x0a0a14, 1);
+    _bpRdr.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    _bpRdr.setSize(c.clientWidth, c.clientHeight);
+    _bpScene = new THREE.Scene();
+    _bpCam = new THREE.PerspectiveCamera(45, c.clientWidth / c.clientHeight, 0.1, 100);
+    _bpCam.position.set(0, 3, 8);
+    _bpCam.lookAt(0, 1, 0);
+    _bpScene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const dl = new THREE.DirectionalLight(0xffffff, 0.8);
+    dl.position.set(5, 10, 5);
+    _bpScene.add(dl);
+}
+
+function showBestiaryEnemy(enemyId) {
+    if (!_bpRdr) _initBestiaryPreview();
+    // Remove old mesh
+    if (_bpMesh) { _bpScene.remove(_bpMesh); _bpMesh = null; }
+
+    const bMat = new THREE.MeshPhongMaterial({ color: 0xbe123c, emissive: 0x9f1239, emissiveIntensity: 0.3, wireframe: false, transparent: true, opacity: 0.7 });
+    const nMat = new THREE.LineBasicMaterial({ color: 0xff0055 });
+
+    if (enemyId === 'boss') {
+        _bpMesh = _createBoss1Mesh(bMat, nMat);
+        _bpMesh.scale.setScalar(0.8);
+        _bpMesh.position.y = 1;
+    } else {
+        const factory = _enemyMeshFactories[enemyId];
+        if (!factory) return;
+        _bpMesh = factory(bMat, nMat);
+        _bpMesh.scale.setScalar(2.5);
+        _bpMesh.position.y = 1;
+    }
+    _bpScene.add(_bpMesh);
+
+    if (!_bpRunning) {
+        _bpRunning = true;
+        _animateBestiaryPreview();
+    }
+}
+
+function _animateBestiaryPreview() {
+    if (!_bpRunning) return;
+    _bpRafId = requestAnimationFrame(_animateBestiaryPreview);
+    if (_bpMesh) {
+        _bpMesh.rotation.y += 0.015;
+        if (_bpMesh.userData && _bpMesh.userData.animate) _bpMesh.userData.animate(0.016);
+    }
+    _bpRdr.render(_bpScene, _bpCam);
+}
+
+function hideBestiaryPreview() {
+    _bpRunning = false;
+    if (_bpRafId) { cancelAnimationFrame(_bpRafId); _bpRafId = null; }
+    if (_bpMesh && _bpScene) { _bpScene.remove(_bpMesh); _bpMesh = null; }
+    if (_bpRdr) { _bpRdr.dispose(); _bpRdr = null; }
+}
