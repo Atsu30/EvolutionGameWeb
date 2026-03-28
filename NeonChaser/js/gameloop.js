@@ -75,6 +75,18 @@ function animate() {
     if (st.invT > 0) {
         st.invT -= dt;
         playerMesh.children.forEach(c => { if (c.material) { c.material.opacity = floor(st.invT * 15) % 2 ? 0.3 : 1.0; c.material.transparent = true; } });
+    } else if (_hpCritical) {
+        // Glitch effect when HP critical
+        const gt = performance.now() * 0.001;
+        const glitchOn = Math.sin(gt * 25) > 0.7 || Math.sin(gt * 7.3) > 0.85;
+        playerMesh.children.forEach(c => {
+            if (c.material) {
+                c.material.transparent = true;
+                c.material.opacity = glitchOn ? 0.3 + R() * 0.3 : 1.0;
+            }
+        });
+        // Position jitter
+        playerMesh.position.x = st.pLx + (glitchOn ? (R() - 0.5) * 0.4 : 0);
     } else { playerMesh.children.forEach(c => { if (c.material) { c.material.opacity = 1.0; c.material.transparent = false; } }); }
 
     cam.fov += ((isDash ? 110 : 75) - cam.fov) * 5 * dt;

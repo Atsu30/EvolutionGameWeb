@@ -1,4 +1,5 @@
 // --- UI: HUD, Modals, Game Over, Restart ---
+let _hpCritical = false;
 function updateUI() {
     const st = game.st;
     el('ui-lv').innerText = `Lv ${st.lv}`;
@@ -12,11 +13,11 @@ function updateUI() {
     el('ui-hp').innerText = ceil(st.hp);
     const hpRatio = max(0, min(100, st.hp / st.maxHp * 100));
     el('hp-fill').style.width = `${hpRatio}%`;
-    const hpLow = hpRatio < 30;
-    el('ui-hp').style.color = hpLow ? '#f87171' : '#86efac';
-    el('ui-hp').style.textShadow = hpLow ? '0 0 8px rgba(239,68,68,0.6)' : '0 0 6px rgba(34,197,94,0.4)';
-    el('hp-fill').style.background = hpLow ? 'linear-gradient(90deg, #ef4444, #f87171)' : 'linear-gradient(90deg, #22c55e, #86efac)';
-    el('hp-fill').style.boxShadow = hpLow ? '0 0 8px rgba(239,68,68,0.5)' : '0 0 6px rgba(34,197,94,0.4)';
+    // HP critical class toggle (20%)
+    const isCritical = hpRatio < 20 && hpRatio > 0;
+    const hpRow = document.querySelector('.hud-hp-row');
+    if (hpRow) hpRow.classList.toggle('hp-critical', isCritical);
+    _hpCritical = isCritical;
     // Distance
     el('ui-dist').innerText = (st.dist || 0).toFixed(2) + ' km';
     // EXP
