@@ -48,7 +48,10 @@ function _spawnBossEntity(stageIdx) {
     else if (stageIdx === 1) mesh = _createBoss2Mesh(matBody, matNeon);
     else mesh = _createBoss3Mesh(matBody, matNeon);
 
-    mesh.position.set(0, 3, -200);
+    // Scale up bosses for visual impact
+    const bossScales = [3.5, 4.5, 5.5];
+    mesh.scale.setScalar(bossScales[stageIdx] || 3.5);
+    mesh.position.set(0, 5, -200);
     scene.add(mesh);
 
     const ent = {
@@ -158,8 +161,8 @@ function updateBoss(dt) {
     if (boss.introTimer > 0) {
         boss.introTimer -= dt;
         const t = 1 - Math.max(0, boss.introTimer / 2.5);
-        ent.mesh.position.z = -200 + t * 130; // -200 → -70
-        ent.mesh.position.y = 3;
+        ent.mesh.position.z = -200 + t * 120; // -200 → -80
+        ent.mesh.position.y = 6;
         if (ent.mesh.userData.animate) ent.mesh.userData.animate(dt);
         return;
     }
@@ -189,16 +192,17 @@ function updateBoss(dt) {
     const swayX = Math.sin(boss.swayT * 0.5) * 8;
     ent.mesh.position.x = swayX;
     ent.lX = swayX;
-    ent.mesh.position.z = -70;
-    ent.mesh.position.y = 3;
+    ent.mesh.position.z = -80;
+    ent.mesh.position.y = 6;
 
     // Animate mesh
     if (ent.mesh.userData.animate) ent.mesh.userData.animate(dt);
 
     // Update bounding box
+    const sc = ent.mesh.scale.x;
     ent.box.setFromCenterAndSize(
         ent.mesh.position,
-        new THREE.Vector3(6, 6, 6)
+        new THREE.Vector3(4 * sc, 4 * sc, 4 * sc)
     );
 
     // Attack patterns
@@ -344,6 +348,18 @@ function damageBoss(amount, source) {
     }
 }
 
+// --- Boss Passive Rewards (3-pick) ---
+const BOSS_PASSIVES = [
+    { id: 'bp-maxspd', i: '⚡', t: 'オーバードライブ', d: '最高速度+30', apply: st => { st.maxSpd += 30; } },
+    { id: 'bp-hp', i: '❤️', t: 'リジェネコア', d: 'HP全回復 & 最大HP+30', apply: st => { st.maxHp += 30; st.hp = st.maxHp; } },
+    { id: 'bp-def', i: '🛡️', t: 'ナノアーマー', d: '被ダメ-15%', apply: st => { st.def = min(0.8, st.def + 0.15); } },
+    { id: 'bp-blaster', i: '🔫', t: 'ラピッドファイア', d: '連射速度2倍', apply: st => { st.blasterInterval = max(0.04, st.blasterInterval * 0.5); } },
+    { id: 'bp-bnum', i: '🔫', t: 'マルチショット', d: 'ブラスター+1門', apply: st => { st.blasterCount = min(5, st.blasterCount + 1); } },
+    { id: 'bp-size', i: '💎', t: 'エクスパンダー', d: '車体巨大化+当たり判定拡大', apply: st => { st.size += 0.5; playerMesh.scale.setScalar(1.5 * st.size); } },
+    { id: 'bp-steer', i: '🛞', t: 'ハイパーグリップ', d: 'ステアリング+20', apply: st => { st.steer += 20; } },
+    { id: 'bp-dash', i: '💨', t: 'ダッシュエクステンド', d: 'ダッシュ持続2倍', apply: st => { /* stored, checked in gameloop */ st._dashMul = (st._dashMul || 1) * 2; } },
+];
+
 function _onBossDefeated() {
     const boss = game.st.boss;
     const stageIdx = boss.stageIdx;
@@ -361,23 +377,67 @@ function _onBossDefeated() {
     game.st.coresEarned = (game.st.coresEarned || 0) + def.coreReward;
     if (!game.st.bossesDefeated) game.st.bossesDefeated = [];
     game.st.bossesDefeated[stageIdx] = true;
-
-    // Track cumulative stat
     addCumulStat('bossesKilled');
 
-    // Show victory
-    showBossVictory(def.coreReward, def.name);
-
-    // Reset boss state & resume
+    // Pause game and show victory modal with passive selection
+    game.st.isP = true;
     boss.active = false;
     boss.entity = null;
+
+    _showBossRewardModal(def.coreReward, stageIdx);
+}
+
+function _showBossRewardModal(coreReward, stageIdx) {
+    const modal = el('boss-reward-modal');
+    if (!modal) return;
+
+    el('boss-reward-cores').innerText = '+' + coreReward;
+
+    // Pick 3 random passives
+    const shuffled = [...BOSS_PASSIVES].sort(() => 0.5 - R());
+    // Ensure blaster-related only if player has blaster
+    const filtered = shuffled.filter(p => {
+        if ((p.id === 'bp-blaster' || p.id === 'bp-bnum') && game.st.blasterCount <= 0) return false;
+        return true;
+    });
+    const chosen = filtered.slice(0, 3);
+
+    const container = el('boss-reward-picks');
+    container.innerHTML = '';
+    chosen.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = () => _selectBossPassive(p, stageIdx);
+        card.innerHTML = `<div class="card-icon">${p.i}</div><div><div class="card-title">${p.t}</div><div class="card-desc">${p.d}</div></div>`;
+        container.appendChild(card);
+    });
+
+    modal.classList.add('active');
+
+    // Stagger card reveal
+    const cards = container.querySelectorAll('.card');
+    cards.forEach((card, i) => {
+        setTimeout(() => card.classList.add('card-reveal'), 800 + i * 200);
+    });
+}
+
+function _selectBossPassive(passive, stageIdx) {
+    // Apply passive
+    passive.apply(game.st);
+
+    // Close modal
+    const modal = el('boss-reward-modal');
+    modal.classList.remove('active');
+    modal.querySelectorAll('.card.card-reveal').forEach(c => c.classList.remove('card-reveal'));
+
+    // Resume game
     game.st.sCrvSt = 'N';
     game.st.sCrvCd = CFG.sCrvBase + R() * CFG.sCrvRnd;
+    game.clock.getDelta();
+    game.st.isP = false;
 
-    // Transition to next stage after delay
-    setTimeout(() => {
-        if (stageIdx < STAGES.length - 1) {
-            triggerStageTransition(stageIdx + 1);
-        }
-    }, 3000);
+    // Transition to next stage
+    if (stageIdx < STAGES.length - 1) {
+        setTimeout(() => triggerStageTransition(stageIdx + 1), 500);
+    }
 }

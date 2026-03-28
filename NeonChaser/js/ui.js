@@ -233,11 +233,7 @@ function showBossWarning(name) {
 }
 
 function showBossVictory(cores, name) {
-    const v = el('boss-victory');
-    if (!v) return;
-    v.innerHTML = `<div class="boss-victory-text">BOSS DEFEATED</div><div class="boss-victory-cores">+${cores} CORE</div>`;
-    v.classList.add('active');
-    setTimeout(() => v.classList.remove('active'), 3000);
+    // Legacy — now handled by boss-reward-modal
 }
 
 function goToMenu() {
