@@ -235,8 +235,8 @@ function animate() {
                     if (e.def === ENEMY_TYPES.drone) { e.mesh.rotation.x += 1.5 * dt; e.mesh.rotation.y += 2 * dt; }
                     else if (e.def === ENEMY_TYPES.sentinel) { e.mesh.rotation.z += 0.8 * dt; }
                     else if (e.def === ENEMY_TYPES.jellyfish) {
-                        // Floating bob
-                        e.mesh.position.y = Math.sin(clock.elapsedTime * 1.5) * 0.4 + 0.2;
+                        // Floating bob (clamped above floor)
+                        e.mesh.position.y = Math.sin(clock.elapsedTime * 1.5) * 0.4 + 0.5;
                         e.mesh.rotation.y += 0.3 * dt;
                         // Leg sway
                         const legs = e.mesh.userData.legs;

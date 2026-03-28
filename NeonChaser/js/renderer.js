@@ -192,7 +192,7 @@ function createDroneMesh(bodyMat, neonMat) {
     const grp = new THREE.Group();
     const body = new THREE.Mesh(geoDrone, bodyMat);
     const edge = new THREE.LineSegments(new THREE.EdgesGeometry(geoDrone), neonMat);
-    body.position.y = 1.4; edge.position.y = 1.4;
+    body.position.y = 1; edge.position.y = 1;
     grp.add(body, edge);
     grp.userData = {
         changeMat: (b, n) => { body.material = b; edge.material = n; }
@@ -204,7 +204,7 @@ function createShardMesh(bodyMat, neonMat) {
     const grp = new THREE.Group();
     const body = new THREE.Mesh(geoShard, bodyMat);
     const edge = new THREE.LineSegments(new THREE.EdgesGeometry(geoShard), neonMat);
-    body.position.y = 1.2; edge.position.y = 1.2;
+    body.position.y = 1; edge.position.y = 1;
     grp.add(body, edge);
     grp.userData = {
         changeMat: (b, n) => { body.material = b; edge.material = n; }
