@@ -162,7 +162,12 @@ function animate() {
     game.pts.forEach(p => {
         p.rotation.x += p.userData.rX * dt; p.rotation.y += p.userData.rY * dt; p.rotation.z += p.userData.rZ * dt;
         p.position.z += (st.spd * 0.8 + 20) * dt;
-        if (p.position.z > 20) { const s = R() < 0.5 ? -1 : 1; p.position.set(s * (25 + R() * 45), R() * 40 + 5, -50 - R() * 150); }
+        if (p.position.z > 20) {
+            let px, py;
+            if (R() < 0.35) { px = (R() - 0.5) * 30; py = 20 + R() * 30; }
+            else { px = (R() < 0.5 ? -1 : 1) * (25 + R() * 45); py = R() * 40 + 5; }
+            p.position.set(px, py, -50 - R() * 150);
+        }
     });
 
     // --- Entity Logic ---

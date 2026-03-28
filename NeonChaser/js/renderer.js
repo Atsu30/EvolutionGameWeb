@@ -404,10 +404,18 @@ const pGeos = [new THREE.OctahedronGeometry(2, 0), new THREE.TorusGeometry(1.5, 
 const pMats = [0x38bdf8, 0xf43f5e, 0xa855f7].map(c => new THREE.MeshBasicMaterial({ color: c, wireframe: true, transparent: true, opacity: 0.4 }));
 for (let i = 0; i < 50; i++) {
     const p = new THREE.Mesh(pGeos[floor(R() * pGeos.length)], pMats[floor(R() * pMats.length)]);
-    // Keep away from center (road area): |X| >= 25
-    const side = R() < 0.5 ? -1 : 1;
-    const px = side * (25 + R() * 45);
-    p.position.set(px, R() * 40 + 5, (R() < 0.5 ? -1 : 1) * 150 - 50);
+    // Road area objects: center allowed only if high up (Y >= 20), otherwise sides only
+    let px, py;
+    if (R() < 0.35) {
+        // Center-ish, but high up (above road view)
+        px = (R() - 0.5) * 30;
+        py = 20 + R() * 30;
+    } else {
+        // Sides (away from road)
+        px = (R() < 0.5 ? -1 : 1) * (25 + R() * 45);
+        py = R() * 40 + 5;
+    }
+    p.position.set(px, py, (R() < 0.5 ? -1 : 1) * 150 - 50);
     p.userData = { rX: R_Sign(), rY: R_Sign(), rZ: R_Sign() };
     scene.add(p); game.pts.push(p);
 }
