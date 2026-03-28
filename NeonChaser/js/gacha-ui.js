@@ -124,5 +124,9 @@ function doPull() {
         setTimeout(() => { _gachaPulling = false; }, unlockDelay);
 
         _updateGachaDisplay(_walletBefore);
+        // Check cumulative achievements after pull
+        if (typeof checkCumulAchievements === 'function') {
+            checkCumulAchievements().forEach(a => { if (typeof showAchievementPopup === 'function') showAchievementPopup(a); });
+        }
     }, { once: true });
 }

@@ -182,6 +182,7 @@ function animate() {
                             const _xpMul1 = typeof getStageDef === 'function' ? getStageDef().enemyHpMul : 1;
                             const _xp1 = floor(t.def.exp * _xpMul1);
                             st.exp += _xp1; st.stats.destroyedEnemies++;
+                            recordEnemyTypeKill(t.defName || t.type);
                             showXpPopup(t.mesh.position, _xp1, t.def.hp > 1 ? 4 : 1);
                             spawnDestroyEffect(t.mesh.position, t.def.hp > 1 ? 4 : 1, 0x00ffff);
                             if (st.exp >= st.nExp) { st.isP = true; st.lv++; st.exp -= st.nExp; st.nExp = floor(st.nExp * CFG.expMul); showUpgradeUI(); el('levelup-modal').classList.add('active'); }
@@ -265,6 +266,7 @@ function animate() {
                         const _xpMul2 = typeof getStageDef === 'function' ? getStageDef().enemyHpMul : 1;
                         const _xp2 = floor(e.def.exp * _xpMul2);
                         flashScreen('rgba(255,255,255,.3)'); st.exp += _xp2; st.stats.destroyedEnemies++;
+                        recordEnemyTypeKill(e.defName || e.type);
                         showXpPopup(e.mesh.position, _xp2, e.def.hp > 1 ? 4 : 1);
                         spawnDestroyEffect(e.mesh.position, e.def.hp > 1 ? 4 : 1, e.type === 'zigzag' ? 0xfbbf24 : 0x00ffff);
                         if (st.exp >= st.nExp) { st.isP = true; st.lv++; st.exp -= st.nExp; st.nExp = floor(st.nExp * CFG.expMul); showUpgradeUI(); el('levelup-modal').classList.add('active'); }

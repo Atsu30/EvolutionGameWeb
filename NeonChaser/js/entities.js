@@ -1,5 +1,5 @@
 // --- Entity Management ---
-function addEntity(type, mesh, lx, zs = 0, def = null, isWall = false) {
+function addEntity(type, mesh, lx, zs = 0, def = null, isWall = false, defName = '') {
     scene.add(mesh);
     // Apply stage multiplier to enemy stats
     let curHp = def ? def.hp : 1;
@@ -8,7 +8,7 @@ function addEntity(type, mesh, lx, zs = 0, def = null, isWall = false) {
         if (def.hp < 999) curHp = ceil(def.hp * s.enemyHpMul);
     }
     game.ents.push({
-        type, def, mesh, lX: lx, box: new THREE.Box3(),
+        type, def, defName, mesh, lX: lx, box: new THREE.Box3(),
         state: 'A', v: new THREE.Vector3(), aV: new THREE.Vector3(),
         zS: zs, xS: 0, cTmr: 0, isWall, mS: 'U',
         zigTime: 0, zigBase: lx, curHp
@@ -53,7 +53,7 @@ function spawnEntity() {
         const lx = R_Sign() * (CFG.laneW - def.w / 2);
         mesh.scale.set(def.w, def.w * 1.2, def.w * 1.5);
         mesh.position.set(lx, 0, -200);
-        addEntity('enemy', mesh, lx, st.maxSpd * (def.speed + R() * 0.2), def);
+        addEntity('enemy', mesh, lx, st.maxSpd * (def.speed + R() * 0.2), def, false, typeName);
     }
 }
 
@@ -63,7 +63,7 @@ function spawnZigzagEntity() {
     mesh.scale.set(def.w, def.w, def.w);
     const lx = R_Sign() * (CFG.laneW * 0.5);
     mesh.position.set(lx, 0, -200);
-    addEntity('zigzag', mesh, lx, st.maxSpd * (0.5 + R() * 0.3), def);
+    addEntity('zigzag', mesh, lx, st.maxSpd * (0.5 + R() * 0.3), def, false, 'zigzag');
 }
 
 function spawnJumpEvent() {
@@ -78,7 +78,7 @@ function spawnJumpEvent() {
             const def = ENEMY_TYPES.sentinel, mesh = createSentinelMesh(matEnemyUnbreak, matEnemyNeonU);
             mesh.scale.set(def.w, def.w * 1.2, def.w * 1.5);
             mesh.position.set(lx, 0, -200);
-            addEntity('enemy', mesh, lx, wSpd, def, true);
+            addEntity('enemy', mesh, lx, wSpd, def, true, 'sentinel');
         }
     }
 }
@@ -100,7 +100,7 @@ function spawnRocketsFromWarning(e) {
         const rX = e.lX - 6 + j * 4, rm = createRocket(matEnemyUnbreak, matEnemyNeonU);
         rm.scale.set(ROCKET_DEF.w, ROCKET_DEF.w, ROCKET_DEF.w);
         rm.position.set(rX, 1.5, -250);
-        addEntity('rocket', rm, rX, speed, ROCKET_DEF);
+        addEntity('rocket', rm, rX, speed, ROCKET_DEF, false, 'rocket');
     }
 }
 

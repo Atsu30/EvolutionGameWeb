@@ -34,6 +34,7 @@ function _renderCustomize() {
 function equipItem(category, id) {
     setEquipped(category, id);
     applyCustomization();
+    setCumulFlag('customChanged');
     _renderCustomize();
     const eq = getEquipped();
     if (typeof updatePreviewBike === 'function') updatePreviewBike(eq.colorId, eq.tireId, eq.bodyId);
@@ -105,5 +106,8 @@ function shopBuy(itemId) {
     if (buyWithScrap(itemId)) {
         _renderShopGrid();
         if (typeof resetShopPreview === 'function') resetShopPreview();
+        if (typeof checkCumulAchievements === 'function') {
+            checkCumulAchievements().forEach(a => { if (typeof showAchievementPopup === 'function') showAchievementPopup(a); });
+        }
     }
 }

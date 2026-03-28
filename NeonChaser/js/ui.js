@@ -174,6 +174,7 @@ function startGame() {
     el('menu-page').classList.remove('active');
     if (game.st.isG) restartGame();
     _showGameScreen();
+    addCumulStat('totalRuns');
     // Countdown 3→2→1→GO
     game.st.isP = true;
     const cd = el('countdown');

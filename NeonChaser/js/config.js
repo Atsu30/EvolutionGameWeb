@@ -48,7 +48,7 @@ const SCRAP_PRICE = { C: 50, R: 150, E: 500, L: 1500 };
 
 // --- Achievements ---
 const ACHIEVEMENTS = [
-    // Distance (50~500 miles, proportional to distance)
+    // ===== Distance =====
     { id: 'dist-1', type: 'dist', dist: 1, name: '最初の1キロ', icon: '🏁', desc: '1km走破', reward: 50 },
     { id: 'dist-3', type: 'dist', dist: 3, name: 'ウォームアップ', icon: '🔥', desc: '3km走破', reward: 80 },
     { id: 'dist-5', type: 'dist', dist: 5, name: 'ロードウォリアー', icon: '⚔️', desc: '5km走破', reward: 100 },
@@ -57,21 +57,65 @@ const ACHIEVEMENTS = [
     { id: 'dist-50', type: 'dist', dist: 50, name: 'サイバーファントム', icon: '👻', desc: '50km走破', reward: 400 },
     { id: 'dist-100', type: 'dist', dist: 100, name: 'グリッドの伝説', icon: '👑', desc: '100km走破', reward: 500 },
     { id: 'dist-200', type: 'dist', dist: 200, name: '永遠のランナー', icon: '∞', desc: '200km走破', reward: 800 },
-    // Combat (30~200 miles)
+
+    // ===== Single-run Combat =====
     { id: 'kill-10', type: 'stat', stat: 'destroyedEnemies', val: 10, name: 'ファーストブラッド', icon: '🎯', desc: '1ランで敵10体撃破', reward: 30 },
     { id: 'kill-50', type: 'stat', stat: 'destroyedEnemies', val: 50, name: 'デストロイヤー', icon: '💀', desc: '1ランで敵50体撃破', reward: 100 },
     { id: 'kill-100', type: 'stat', stat: 'destroyedEnemies', val: 100, name: 'アナイアレイター', icon: '☠️', desc: '1ランで敵100体撃破', reward: 200 },
-    // Dash (30~100 miles)
+
+    // ===== Dash / Jump =====
     { id: 'dash-5', type: 'stat', stat: 'dashCount', val: 5, name: 'スピード狂', icon: '💨', desc: '1ランでダッシュ5回', reward: 30 },
     { id: 'dash-20', type: 'stat', stat: 'dashCount', val: 20, name: 'ダッシュマスター', icon: '🌀', desc: '1ランでダッシュ20回', reward: 80 },
-    // Jump (30~100 miles)
     { id: 'jump-3', type: 'stat', stat: 'jumpCount', val: 3, name: 'エアボーン', icon: '🦘', desc: '1ランでジャンプ3回', reward: 30 },
     { id: 'jump-10', type: 'stat', stat: 'jumpCount', val: 10, name: 'スカイライダー', icon: '🚀', desc: '1ランでジャンプ10回', reward: 80 },
-    // Level (50~200 miles)
+
+    // ===== Level =====
     { id: 'lv-5', type: 'stat', stat: 'lv', val: 5, name: '本気モード', icon: '🔰', desc: 'Lv5到達', reward: 50 },
     { id: 'lv-10', type: 'stat', stat: 'lv', val: 10, name: 'オーバークロック', icon: '⚡', desc: 'Lv10到達', reward: 150 },
     { id: 'lv-20', type: 'stat', stat: 'lv', val: 20, name: 'アンストッパブル', icon: '🔥', desc: 'Lv20到達', reward: 300 },
-    // Challenge (100~500 miles)
+
+    // ===== Challenge =====
     { id: 'nodmg-3', type: 'nodmg', dist: 3, name: 'アンタッチャブル', icon: '🛡️', desc: 'ノーダメージで3km', reward: 200 },
     { id: 'nodmg-10', type: 'nodmg', dist: 10, name: 'パーフェクトラン', icon: '💎', desc: 'ノーダメージで10km', reward: 500 },
+
+    // ===== Enemy Types (first kill) =====
+    { id: 'ek-drone', type: 'enemyType', enemyName: 'drone', name: 'ドローンハンター', icon: '🤖', desc: '初めてドローンを撃破', reward: 20 },
+    { id: 'ek-shard', type: 'enemyType', enemyName: 'shard', name: 'シャードブレイカー', icon: '🔶', desc: '初めてシャードを撃破', reward: 30 },
+    { id: 'ek-sentinel', type: 'enemyType', enemyName: 'sentinel', name: 'センチネルスレイヤー', icon: '🗿', desc: '初めてセンチネルを撃破', reward: 50 },
+    { id: 'ek-jellyfish', type: 'enemyType', enemyName: 'jellyfish', name: 'ジェリークラッシャー', icon: '🪼', desc: '初めてジェリーフィッシュを撃破', reward: 50 },
+    { id: 'ek-fish', type: 'enemyType', enemyName: 'fish', name: 'フィッシュキャッチャー', icon: '🐟', desc: '初めてフィッシュを撃破', reward: 40 },
+    { id: 'ek-rocket', type: 'enemyType', enemyName: 'rocket', name: 'ロケットバスター', icon: '🚀', desc: '初めてロケットを撃破', reward: 60 },
+    { id: 'ek-zigzag', type: 'enemyType', enemyName: 'zigzag', name: 'ジグザグハンター', icon: '⚡', desc: '初めてジグザグを撃破', reward: 60 },
+
+    // ===== Cumulative Kills =====
+    { id: 'ck-100', type: 'cumul', stat: 'totalKills', val: 100, name: 'ベテランパイロット', icon: '🎖️', desc: '累計100体撃破', reward: 100 },
+    { id: 'ck-500', type: 'cumul', stat: 'totalKills', val: 500, name: 'エースライダー', icon: '🏅', desc: '累計500体撃破', reward: 200 },
+    { id: 'ck-1000', type: 'cumul', stat: 'totalKills', val: 1000, name: 'キルマシン', icon: '💀', desc: '累計1,000体撃破', reward: 400 },
+    { id: 'ck-5000', type: 'cumul', stat: 'totalKills', val: 5000, name: 'エクスターミネーター', icon: '☠️', desc: '累計5,000体撃破', reward: 800 },
+    { id: 'ck-10000', type: 'cumul', stat: 'totalKills', val: 10000, name: 'ジェノサイドマスター', icon: '🌋', desc: '累計10,000体撃破', reward: 1500 },
+
+    // ===== Play Count =====
+    { id: 'run-1', type: 'cumul', stat: 'totalRuns', val: 1, name: 'ファーストライド', icon: '🏎️', desc: '初めてプレイ', reward: 30 },
+    { id: 'run-10', type: 'cumul', stat: 'totalRuns', val: 10, name: 'リピーター', icon: '🔄', desc: '10回プレイ', reward: 80 },
+    { id: 'run-50', type: 'cumul', stat: 'totalRuns', val: 50, name: 'ハードコアライダー', icon: '💪', desc: '50回プレイ', reward: 200 },
+    { id: 'run-100', type: 'cumul', stat: 'totalRuns', val: 100, name: '永久ループ', icon: '♾️', desc: '100回プレイ', reward: 500 },
+
+    // ===== Gacha =====
+    { id: 'gacha-1', type: 'cumul', stat: 'gachaPulls', val: 1, name: '初ガチャ', icon: '🎰', desc: '初めてガチャを引く', reward: 30 },
+    { id: 'gacha-10', type: 'cumul', stat: 'gachaPulls', val: 10, name: 'ガチャ中毒', icon: '🎲', desc: 'ガチャ10回', reward: 80 },
+    { id: 'gacha-50', type: 'cumul', stat: 'gachaPulls', val: 50, name: 'ガチャマスター', icon: '🃏', desc: 'ガチャ50回', reward: 200 },
+    { id: 'gacha-legend', type: 'flag', stat: 'gotLegendary', name: 'レジェンダリー', icon: '⭐', desc: 'レジェンドアイテムを引く', reward: 300 },
+
+    // ===== Shop =====
+    { id: 'shop-1', type: 'cumul', stat: 'shopPurchases', val: 1, name: 'お買い物デビュー', icon: '🛒', desc: '初めてショップで購入', reward: 30 },
+    { id: 'shop-5', type: 'cumul', stat: 'shopPurchases', val: 5, name: 'リピート顧客', icon: '🛍️', desc: 'ショップで5回購入', reward: 80 },
+
+    // ===== Customize =====
+    { id: 'custom-first', type: 'flag', stat: 'customChanged', name: 'スタイルチェンジ', icon: '🎨', desc: '初めてカスタマイズ変更', reward: 30 },
+
+    // ===== Collection =====
+    { id: 'collect-5', type: 'collection', val: 5, name: 'コレクター', icon: '📦', desc: 'アイテム5種集める', reward: 80 },
+    { id: 'collect-10', type: 'collection', val: 10, name: 'トレジャーハンター', icon: '💰', desc: 'アイテム10種集める', reward: 150 },
+    { id: 'collect-20', type: 'collection', val: 20, name: 'ミュージアムキュレーター', icon: '🏛️', desc: 'アイテム20種集める', reward: 300 },
+    { id: 'collect-all', type: 'collectAll', name: 'コンプリート', icon: '🏆', desc: '全アイテム収集', reward: 2000 },
 ];

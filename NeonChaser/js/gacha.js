@@ -25,8 +25,10 @@ function gachaPull() {
     const candidates = GACHA_POOL.filter(i => i.rarity === rarity);
     const item = candidates[Math.floor(Math.random() * candidates.length)];
     const isDupe = ownsItem(item.id);
-    if (isDupe) w.scrap += SCRAP_DUPE[rarity]; else addItem(item.id);
+    if (isDupe) w.scrap += SCRAP_DUPE[rarity]; else { addItem(item.id); updateOwnedCount(); }
     _saveWallet(w);
+    addCumulStat('gachaPulls');
+    if (rarity === 'L') setCumulFlag('gotLegendary');
     return { item, isDupe, scrapGained: isDupe ? SCRAP_DUPE[rarity] : 0, rarity };
 }
 
@@ -36,7 +38,9 @@ function buyWithScrap(itemId) {
     const price = SCRAP_PRICE[poolItem.rarity];
     const w = getWallet();
     if (w.scrap < price || ownsItem(itemId)) return false;
-    w.scrap -= price; _saveWallet(w); addItem(itemId); return true;
+    w.scrap -= price; _saveWallet(w); addItem(itemId);
+    updateOwnedCount(); addCumulStat('shopPurchases');
+    return true;
 }
 
 function getShopItems() {
