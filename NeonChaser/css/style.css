@@ -675,7 +675,8 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 .card:hover { transform: translateY(-8px); }
 .card:hover::before { background: rgba(217,70,239,0.7); filter: drop-shadow(0 0 8px rgba(217,70,239,0.5)) drop-shadow(0 0 20px rgba(217,70,239,0.2)); }
 .card:hover::after { background: rgba(217,70,239,0.06); }
-.card-icon { font-size: 48px; margin-bottom: 20px; }
+.card-icon { width: 48px; height: 48px; margin: 0 auto 16px; color: #d946ef; filter: drop-shadow(0 0 6px rgba(217,70,239,0.5)); }
+.card-icon svg { width: 48px; height: 48px; }
 .card-title { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 12px; }
 .card-desc { font-size: 14px; color: #94a3b8; line-height: 1.5; }
 
@@ -1103,7 +1104,8 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     .warning-text { font-size: 24px; } .warning-icon { font-size: 70px; }
     .upgrade-cards { flex-direction: column; gap: 15px; }
     .card { width: 100%; max-width: 320px; padding: 20px; flex-direction: row; text-align: left; }
-    .card-icon { margin-bottom: 0; margin-right: 20px; font-size: 36px; }
+    .card-icon { margin: 0 20px 0 0; width: 36px; height: 36px; }
+    .card-icon svg { width: 36px; height: 36px; }
     .modal-title { font-size: 28px; margin-bottom: 20px; }
     .item-grid { grid-template-columns: repeat(3, 1fr); }
     #preview-canvas { width: 200px; height: 140px; }

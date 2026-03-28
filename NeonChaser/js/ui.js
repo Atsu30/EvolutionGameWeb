@@ -127,9 +127,11 @@ function showUpgradeUI() {
     chosen.forEach(u => {
         const card = document.createElement('div'); card.className = 'card';
         card.onclick = () => selectUpgrade(u.id);
-        card.innerHTML = `<div class="card-icon">${u.i}</div><div><div class="card-title">${u.t}</div><div class="card-desc">${u.d}</div></div>`;
+        card.innerHTML = `<div class="card-icon"><i data-lucide="${u.i}"></i></div><div><div class="card-title">${u.t}</div><div class="card-desc">${u.d}</div></div>`;
         container.appendChild(card);
     });
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 
     // Stagger-reveal cards
     const cards = container.querySelectorAll('.card');

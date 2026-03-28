@@ -21,16 +21,16 @@ const ROCKET_DEF = { hp: 4, atk: 30, w: 1.5, exp: 40 };
 const ZIGZAG_DEF = { hp: 4, atk: 20, w: 2.5, exp: 30, zigFreq: 2, zigAmp: 12 };
 
 const UPGRADES = [
-    { id: 'spd', i: '⚡', t: 'エンジン強化', d: '最高速度アップ。<br>※カーブで遠心力に負けやすくなる' },
-    { id: 'grp', i: '🛞', t: 'タイヤグリップ', d: 'ハンドリングアップ。<br>遠心力に抗い急カーブに強くなる' },
-    { id: 'siz', i: '🛡️', t: '車体拡張', d: '車体が巨大化。<br>当たり判定が広がり巻き込みやすくなる' },
-    { id: 'def', i: '🛡️', t: '装甲強化', d: '被ダメージ5%軽減。<br>最大50%まで累積' },
-    { id: 'maxhp', i: '💖', t: '最大HP強化', d: '最大HPが+10増加する。' },
-    { id: 'heal', i: '❤️', t: 'HP回復', d: 'HPを50%回復する。' },
-    { id: 'jmp', i: '🦘', t: 'ジャンプ強化', d: 'ジャンプ力アップ。<br>より高く飛べるようになる' },
-    { id: 'bls', i: '🔫', t: 'ブラスター装着', d: 'ブラスター装着。<br>前方に自動射撃開始', cond: st => st.blasterCount === 0 },
-    { id: 'bpow', i: '⚡', t: '連射強化', d: 'ブラスターの発射速度アップ', cond: st => st.blasterCount > 0 },
-    { id: 'bnum', i: '🔫', t: 'ブラスター増設', d: 'ブラスター+1門追加。<br>射撃範囲が横に広がる', cond: st => st.blasterCount > 0 && st.blasterCount < 3 },
+    { id: 'spd', i: 'gauge', t: 'エンジン強化', d: '最高速度アップ。<br>※カーブで遠心力に負けやすくなる' },
+    { id: 'grp', i: 'disc', t: 'タイヤグリップ', d: 'ハンドリングアップ。<br>遠心力に抗い急カーブに強くなる' },
+    { id: 'siz', i: 'maximize', t: '車体拡張', d: '車体が巨大化。<br>当たり判定が広がり巻き込みやすくなる' },
+    { id: 'def', i: 'shield', t: '装甲強化', d: '被ダメージ5%軽減。<br>最大50%まで累積' },
+    { id: 'maxhp', i: 'heart-pulse', t: '最大HP強化', d: '最大HPが+10増加する。' },
+    { id: 'heal', i: 'heart', t: 'HP回復', d: 'HPを50%回復する。' },
+    { id: 'jmp', i: 'arrow-up-from-line', t: 'ジャンプ強化', d: 'ジャンプ力アップ。<br>より高く飛べるようになる' },
+    { id: 'bls', i: 'crosshair', t: 'ブラスター装着', d: 'ブラスター装着。<br>前方に自動射撃開始', cond: st => st.blasterCount === 0 },
+    { id: 'bpow', i: 'zap', t: '連射強化', d: 'ブラスターの発射速度アップ', cond: st => st.blasterCount > 0 },
+    { id: 'bnum', i: 'plus-circle', t: 'ブラスター増設', d: 'ブラスター+1門追加。<br>射撃範囲が横に広がる', cond: st => st.blasterCount > 0 && st.blasterCount < 3 },
 ];
 
 // --- Distance & Economy ---
