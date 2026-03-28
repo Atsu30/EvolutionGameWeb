@@ -67,21 +67,64 @@ function _spawnBossEntity(stageIdx) {
 
 // --- Boss Mesh Factories ---
 function _createBoss1Mesh(bodyMat, neonMat) {
-    // Neon Hydra: central dodecahedron + 3 rotating torus rings
+    // Neon Hydra: central core + 5 writhing tentacles
     const grp = new THREE.Group();
-    const core = new THREE.Mesh(new THREE.DodecahedronGeometry(2, 0), bodyMat);
-    const coreEdge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.DodecahedronGeometry(2, 0)), neonMat);
+
+    // Core body
+    const coreGeo = new THREE.IcosahedronGeometry(1.8, 1);
+    const core = new THREE.Mesh(coreGeo, bodyMat);
+    const coreEdge = new THREE.LineSegments(new THREE.EdgesGeometry(coreGeo), neonMat);
     grp.add(core, coreEdge);
-    for (let i = 0; i < 3; i++) {
-        const ring = new THREE.Mesh(new THREE.TorusGeometry(3 + i * 0.5, 0.15, 8, 24), bodyMat);
-        const ringEdge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.TorusGeometry(3 + i * 0.5, 0.15, 8, 24)), neonMat);
-        ring.rotation.set(i * 1.05, i * 0.7, 0);
-        ringEdge.rotation.copy(ring.rotation);
-        grp.add(ring, ringEdge);
+
+    // Eye ring on core
+    const eyeGeo = new THREE.TorusGeometry(1.2, 0.08, 8, 16);
+    const eye = new THREE.Mesh(eyeGeo, neonMat);
+    const eyeEdge = new THREE.LineSegments(new THREE.EdgesGeometry(eyeGeo), neonMat);
+    eye.rotation.x = PI / 2;
+    eyeEdge.rotation.x = PI / 2;
+    grp.add(eye, eyeEdge);
+
+    // Tentacles — each is a chain of segments
+    const tentacles = [];
+    const TENT_COUNT = 5;
+    const SEG_COUNT = 6;
+    for (let t = 0; t < TENT_COUNT; t++) {
+        const tentGrp = new THREE.Group();
+        const baseAngle = (t / TENT_COUNT) * PI * 2;
+        tentGrp.position.set(Math.cos(baseAngle) * 1.5, -0.5, Math.sin(baseAngle) * 1.5);
+        const segs = [];
+        for (let s = 0; s < SEG_COUNT; s++) {
+            const radius = 0.25 - s * 0.03;
+            const segGeo = new THREE.CylinderGeometry(Math.max(0.05, radius), Math.max(0.05, radius - 0.03), 1.0, 6);
+            const seg = new THREE.Mesh(segGeo, bodyMat);
+            const segEdge = new THREE.LineSegments(new THREE.EdgesGeometry(segGeo), neonMat);
+            seg.position.y = -s * 0.85;
+            segEdge.position.y = -s * 0.85;
+            tentGrp.add(seg, segEdge);
+            segs.push({ mesh: seg, edge: segEdge, idx: s, tentIdx: t });
+        }
+        tentacles.push(segs);
+        grp.add(tentGrp);
     }
+
     grp.userData = {
-        changeMat: (b, n) => { grp.children.forEach(c => { if (c.isMesh) c.material = b; if (c.isLineSegments) c.material = n; }); },
-        animate: (dt) => { grp.children.forEach((c, i) => { if (i > 1) c.rotation.z += (0.5 + i * 0.2) * dt; }); }
+        changeMat: (b, n) => { grp.traverse(c => { if (c.isMesh) c.material = b; if (c.isLineSegments) c.material = n; }); },
+        tentacles,
+        animate: (dt) => {
+            const t = performance.now() * 0.001;
+            // Core slow rotation
+            core.rotation.y += 0.3 * dt;
+            coreEdge.rotation.y = core.rotation.y;
+            // Tentacle writhing
+            for (const segs of tentacles) {
+                for (const s of segs) {
+                    const phase = t * 2.5 + s.tentIdx * 1.3 + s.idx * 0.8;
+                    s.mesh.rotation.x = Math.sin(phase) * 0.4;
+                    s.mesh.rotation.z = Math.cos(phase * 0.7) * 0.3;
+                    s.edge.rotation.copy(s.mesh.rotation);
+                }
+            }
+        }
     };
     return grp;
 }
@@ -218,7 +261,7 @@ function updateBoss(dt) {
 function _fireBossPattern(pattern, def, ent) {
     const bx = ent.mesh.position.x;
     const bz = ent.mesh.position.z;
-    const by = ent.mesh.position.y;
+    const by = 1.5; // fire at player height, not boss height
     const px = game.st.pLx;
     const spd = def.bulletSpd;
 
